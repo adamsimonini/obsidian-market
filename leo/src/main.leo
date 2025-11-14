@@ -1,5 +1,5 @@
 // The 'leo' program.
-program obsidian-market.aleo {
+program obsidian_market.aleo {
     // This is the constructor for the program.
     // The constructor allows you to manage program upgrades.
     // It is called when the program is deployed or upgraded.
