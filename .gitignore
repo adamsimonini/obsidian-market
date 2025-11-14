@@ -5,7 +5,7 @@
 outputs/
 /node_modules
 /dist
-/build
+build/
 /coverage
 /logs
 /tmp

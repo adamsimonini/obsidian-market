@@ -9,7 +9,7 @@ program obsidian_market.aleo {
     //  - @checksum(mapping="credits.aleo/fixme", key="0field")
     //  - @custom
     // For more information, please refer to the documentation: `https://docs.leo-lang.org/guides/upgradability`
-    @noupgrade
+    @admin(address="aleo1qg23nrrrlf6h7fqq7amk9wqzs06sluh7tm5y6lgg9svpqpck0qqqv9h0sw")
     async constructor() {}
 
     transition main(public a: u32, b: u32) -> u32 {
