@@ -1,0 +1,16 @@
+.env
+*.avm
+*.prover
+*.verifier
+outputs/
+/node_modules
+/dist
+/build
+/coverage
+/logs
+/tmp
+/cache
+/backup
+/temp
+/test
+/tests
