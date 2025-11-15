@@ -3,9 +3,9 @@
   --color-text: #fff;
   --color-bg: #1a1a1a;
   --color-border: #333;
-  --color-primary: #4CAF50;
+  --color-primary: #4caf50;
   --color-error: #f44336;
-  --color-warning: #FF9800;
+  --color-warning: #ff9800;
 }
 
 text {
@@ -134,7 +134,7 @@ text {
 }
 
 .market-status-resolved {
-  background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 .market-status-cancelled {

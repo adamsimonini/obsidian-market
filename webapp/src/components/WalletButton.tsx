@@ -1,21 +1,21 @@
-import { useCallback } from '@lynx-js/react'
-import { useWallet } from '../hooks/useWallet'
+import { useCallback } from '@lynx-js/react';
+import { useWallet } from '../hooks/useWallet';
 
 export function WalletButton() {
-  const { address, connected, connect, disconnect } = useWallet()
+  const { address, connected, connect, disconnect } = useWallet();
 
   const handleClick = useCallback(async () => {
     if (connected) {
-      disconnect()
+      disconnect();
     } else {
       try {
-        await connect()
+        await connect();
       } catch (error) {
-        console.error('Failed to connect wallet:', error)
+        console.error('Failed to connect wallet:', error);
         // In a real app, show error toast/notification
       }
     }
-  }, [connected, connect, disconnect])
+  }, [connected, connect, disconnect]);
 
   return (
     <view>
@@ -31,10 +31,11 @@ export function WalletButton() {
         }}
       >
         <text style={{ color: 'white', fontWeight: 'bold' }}>
-          {connected ? `Disconnect (${address?.slice(0, 8)}...)` : 'Connect Wallet'}
+          {connected
+            ? `Disconnect (${address?.slice(0, 8)}...)`
+            : 'Connect Wallet'}
         </text>
       </view>
     </view>
-  )
+  );
 }
-

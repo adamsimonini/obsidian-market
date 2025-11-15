@@ -1,47 +1,47 @@
-import { useState, useCallback } from '@lynx-js/react'
-import { useWallet } from '../hooks/useWallet'
-import type { Market } from '../types/supabase'
+import { useState, useCallback } from '@lynx-js/react';
+import { useWallet } from '../hooks/useWallet';
+import type { Market } from '../types/supabase';
 
 interface BetFormProps {
-  market: Market
-  onClose: () => void
+  market: Market;
+  onClose: () => void;
 }
 
 export function BetForm({ market, onClose }: BetFormProps) {
-  const { address, connected } = useWallet()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedSide, setSelectedSide] = useState<boolean | null>(null)
-  const [betAmount, setBetAmount] = useState('1')
+  const { address, connected } = useWallet();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedSide, setSelectedSide] = useState<boolean | null>(null);
+  const [betAmount, setBetAmount] = useState('1');
 
   const handlePlaceBet = useCallback(async () => {
     if (!connected || !address) {
-      setError('Please connect your wallet first')
-      return
+      setError('Please connect your wallet first');
+      return;
     }
 
     if (selectedSide === null) {
-      setError('Please select Yes or No')
-      return
+      setError('Please select Yes or No');
+      return;
     }
 
     if (market.status !== 'open') {
-      setError('This market is not accepting bets')
-      return
+      setError('This market is not accepting bets');
+      return;
     }
 
-    const amount = parseFloat(betAmount)
+    const amount = parseFloat(betAmount);
     if (isNaN(amount) || amount < 1) {
-      setError('Minimum bet is 1 ALEO')
-      return
+      setError('Minimum bet is 1 ALEO');
+      return;
     }
 
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       // Convert ALEO to microcredits (1 ALEO = 1,000,000 microcredits)
-      const amountMicrocredits = BigInt(Math.floor(amount * 1_000_000))
+      const amountMicrocredits = BigInt(Math.floor(amount * 1_000_000));
 
       // TODO: Call Aleo place_bet transition
       // const bet = await placeBetOnChain(market.market_id_onchain, selectedSide, amountMicrocredits)
@@ -49,27 +49,41 @@ export function BetForm({ market, onClose }: BetFormProps) {
       // For now, just show success message
       // In production, wait for transaction confirmation, then update UI
 
-      alert(`Bet placed: ${selectedSide ? 'Yes' : 'No'} with ${amount} ALEO`)
-      onClose()
+      alert(`Bet placed: ${selectedSide ? 'Yes' : 'No'} with ${amount} ALEO`);
+      onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to place bet')
+      setError(err instanceof Error ? err.message : 'Failed to place bet');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [connected, address, selectedSide, betAmount, market, onClose])
+  }, [connected, address, selectedSide, betAmount, market, onClose]);
 
   const calculatePayout = (amount: number, side: boolean) => {
-    const odds = side ? market.yes_odds : market.no_odds
-    return amount * odds
-  }
+    const odds = side ? market.yes_odds : market.no_odds;
+    return amount * odds;
+  };
 
   return (
     <view style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <text style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+      <text
+        style={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          marginBottom: '8px',
+          display: 'block',
+        }}
+      >
         {market.title}
       </text>
       {market.description && (
-        <text style={{ fontSize: '14px', color: '#ccc', marginBottom: '24px', display: 'block' }}>
+        <text
+          style={{
+            fontSize: '14px',
+            color: '#ccc',
+            marginBottom: '24px',
+            display: 'block',
+          }}
+        >
           {market.description}
         </text>
       )}
@@ -96,12 +110,21 @@ export function BetForm({ market, onClose }: BetFormProps) {
             marginBottom: '16px',
           }}
         >
-          <text style={{ color: 'white' }}>This market is {market.status} and not accepting bets</text>
+          <text style={{ color: 'white' }}>
+            This market is {market.status} and not accepting bets
+          </text>
         </view>
       )}
 
       <view style={{ marginBottom: '24px' }}>
-        <text style={{ display: 'block', marginBottom: '12px', fontWeight: 'bold', fontSize: '18px' }}>
+        <text
+          style={{
+            display: 'block',
+            marginBottom: '12px',
+            fontWeight: 'bold',
+            fontSize: '18px',
+          }}
+        >
           Select Your Prediction
         </text>
         <view style={{ display: 'flex', gap: '12px' }}>
@@ -112,13 +135,25 @@ export function BetForm({ market, onClose }: BetFormProps) {
               padding: '16px',
               borderRadius: '8px',
               backgroundColor: selectedSide === true ? '#4CAF50' : '#1a1a1a',
-              border: selectedSide === true ? '2px solid #4CAF50' : '1px solid #333',
+              border:
+                selectedSide === true ? '2px solid #4CAF50' : '1px solid #333',
               cursor: 'pointer',
               textAlign: 'center',
             }}
           >
-            <text style={{ fontSize: '20px', fontWeight: 'bold', color: 'white' }}>Yes</text>
-            <text style={{ fontSize: '14px', color: '#ccc', display: 'block', marginTop: '4px' }}>
+            <text
+              style={{ fontSize: '20px', fontWeight: 'bold', color: 'white' }}
+            >
+              Yes
+            </text>
+            <text
+              style={{
+                fontSize: '14px',
+                color: '#ccc',
+                display: 'block',
+                marginTop: '4px',
+              }}
+            >
               {market.yes_odds}x odds
             </text>
           </view>
@@ -129,13 +164,25 @@ export function BetForm({ market, onClose }: BetFormProps) {
               padding: '16px',
               borderRadius: '8px',
               backgroundColor: selectedSide === false ? '#f44336' : '#1a1a1a',
-              border: selectedSide === false ? '2px solid #f44336' : '1px solid #333',
+              border:
+                selectedSide === false ? '2px solid #f44336' : '1px solid #333',
               cursor: 'pointer',
               textAlign: 'center',
             }}
           >
-            <text style={{ fontSize: '20px', fontWeight: 'bold', color: 'white' }}>No</text>
-            <text style={{ fontSize: '14px', color: '#ccc', display: 'block', marginTop: '4px' }}>
+            <text
+              style={{ fontSize: '20px', fontWeight: 'bold', color: 'white' }}
+            >
+              No
+            </text>
+            <text
+              style={{
+                fontSize: '14px',
+                color: '#ccc',
+                display: 'block',
+                marginTop: '4px',
+              }}
+            >
               {market.no_odds}x odds
             </text>
           </view>
@@ -144,15 +191,23 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
       {selectedSide !== null && (
         <view style={{ marginBottom: '24px' }}>
-          <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Bet Amount (ALEO)</text>
+          <text
+            style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontWeight: 'bold',
+            }}
+          >
+            Bet Amount (ALEO)
+          </text>
           <input
             key={`bet-amount-${betAmount}`}
             type="text"
             bindinput={(e: any) => {
-              const val = e.detail?.value || e.target?.value || ''
+              const val = e.detail?.value || e.target?.value || '';
               // Validate numeric input manually
               if (val === '' || (!isNaN(Number(val)) && Number(val) >= 0)) {
-                setBetAmount(val)
+                setBetAmount(val);
               }
             }}
             placeholder="1.0"
@@ -165,7 +220,14 @@ export function BetForm({ market, onClose }: BetFormProps) {
               color: 'white',
             }}
           />
-          <text style={{ fontSize: '12px', color: '#999', display: 'block', marginTop: '4px' }}>
+          <text
+            style={{
+              fontSize: '12px',
+              color: '#999',
+              display: 'block',
+              marginTop: '4px',
+            }}
+          >
             Minimum: 1 ALEO
           </text>
 
@@ -177,16 +239,32 @@ export function BetForm({ market, onClose }: BetFormProps) {
               borderRadius: '8px',
             }}
           >
-            <view style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <view
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '8px',
+              }}
+            >
               <text style={{ color: '#999' }}>Potential Payout:</text>
-              <text style={{ color: 'white', fontWeight: 'bold', fontSize: '18px' }}>
-                {calculatePayout(parseFloat(betAmount) || 0, selectedSide).toFixed(2)} ALEO
+              <text
+                style={{ color: 'white', fontWeight: 'bold', fontSize: '18px' }}
+              >
+                {calculatePayout(
+                  parseFloat(betAmount) || 0,
+                  selectedSide,
+                ).toFixed(2)}{' '}
+                ALEO
               </text>
             </view>
             <view style={{ display: 'flex', justifyContent: 'space-between' }}>
               <text style={{ color: '#999' }}>Profit:</text>
               <text style={{ color: '#4CAF50', fontWeight: 'bold' }}>
-                +{(calculatePayout(parseFloat(betAmount) || 0, selectedSide) - (parseFloat(betAmount) || 0)).toFixed(2)}{' '}
+                +
+                {(
+                  calculatePayout(parseFloat(betAmount) || 0, selectedSide) -
+                  (parseFloat(betAmount) || 0)
+                ).toFixed(2)}{' '}
                 ALEO
               </text>
             </view>
@@ -199,15 +277,25 @@ export function BetForm({ market, onClose }: BetFormProps) {
           bindtap={handlePlaceBet}
           style={{
             padding: '12px 24px',
-            backgroundColor: loading || !connected || market.status !== 'open' ? '#666' : '#4CAF50',
+            backgroundColor:
+              loading || !connected || market.status !== 'open'
+                ? '#666'
+                : '#4CAF50',
             borderRadius: '8px',
-            cursor: loading || !connected || market.status !== 'open' ? 'not-allowed' : 'pointer',
+            cursor:
+              loading || !connected || market.status !== 'open'
+                ? 'not-allowed'
+                : 'pointer',
             flex: 1,
             textAlign: 'center',
           }}
         >
           <text style={{ color: 'white', fontWeight: 'bold' }}>
-            {!connected ? 'Connect Wallet' : loading ? 'Placing Bet...' : 'Place Bet'}
+            {!connected
+              ? 'Connect Wallet'
+              : loading
+                ? 'Placing Bet...'
+                : 'Place Bet'}
           </text>
         </view>
         <view
@@ -225,6 +313,5 @@ export function BetForm({ market, onClose }: BetFormProps) {
         </view>
       </view>
     </view>
-  )
+  );
 }
-

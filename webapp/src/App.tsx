@@ -1,23 +1,27 @@
-import { useState } from '@lynx-js/react'
-import { WalletProvider } from './contexts/WalletContext'
-import { WalletButton } from './components/WalletButton'
-import { MarketList } from './components/MarketList'
-import { CreateMarketForm } from './components/CreateMarketForm'
-import { BetForm } from './components/BetForm'
-import type { Market } from './types/supabase'
-import './App.css'
+import { useState } from '@lynx-js/react';
+import { WalletProvider } from './contexts/WalletContext';
+import { WalletButton } from './components/WalletButton';
+import { MarketList } from './components/MarketList';
+import { CreateMarketForm } from './components/CreateMarketForm';
+import { BetForm } from './components/BetForm';
+import type { Market } from './types/supabase';
+import './App.css';
 
-export function App(props: {
-  onRender?: () => void
-}) {
-  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
+export function App(props: { onRender?: () => void }) {
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
-  props.onRender?.()
+  props.onRender?.();
 
   return (
     <WalletProvider>
-      <view style={{ minHeight: '100vh', backgroundColor: '#0a0a0a', color: 'white' }}>
+      <view
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#0a0a0a',
+          color: 'white',
+        }}
+      >
         <view
           style={{
             padding: '20px',
@@ -27,7 +31,9 @@ export function App(props: {
             alignItems: 'center',
           }}
         >
-          <text style={{ fontSize: '24px', fontWeight: 'bold' }}>Obsidian Market</text>
+          <text style={{ fontSize: '24px', fontWeight: 'bold' }}>
+            Obsidian Market
+          </text>
           <WalletButton />
         </view>
 
@@ -49,7 +55,10 @@ export function App(props: {
                 >
                   <text style={{ color: 'white' }}>← Back to Markets</text>
                 </view>
-                <BetForm market={selectedMarket} onClose={() => setSelectedMarket(null)} />
+                <BetForm
+                  market={selectedMarket}
+                  onClose={() => setSelectedMarket(null)}
+                />
               </view>
             </view>
           ) : showCreateForm ? (
@@ -74,8 +83,17 @@ export function App(props: {
             </view>
           ) : (
             <view>
-              <view style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <text style={{ fontSize: '20px', fontWeight: 'bold' }}>Markets</text>
+              <view
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '20px',
+                }}
+              >
+                <text style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                  Markets
+                </text>
                 <view
                   bindtap={() => setShowCreateForm(true)}
                   style={{
@@ -85,7 +103,9 @@ export function App(props: {
                     cursor: 'pointer',
                   }}
                 >
-                  <text style={{ color: 'white', fontWeight: 'bold' }}>Create Market</text>
+                  <text style={{ color: 'white', fontWeight: 'bold' }}>
+                    Create Market
+                  </text>
                 </view>
               </view>
               <MarketList onMarketSelect={setSelectedMarket} />
@@ -94,5 +114,5 @@ export function App(props: {
         </view>
       </view>
     </WalletProvider>
-  )
+  );
 }

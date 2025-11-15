@@ -1,17 +1,17 @@
-import { useState, useCallback } from '@lynx-js/react'
-import { useWallet } from '../hooks/useWallet'
-import { useAdmin } from '../hooks/useAdmin'
-import { supabase } from '../lib/supabase'
+import { useState, useCallback } from '@lynx-js/react';
+import { useWallet } from '../hooks/useWallet';
+import { useAdmin } from '../hooks/useAdmin';
+import { supabase } from '../lib/supabase';
 
 interface CreateMarketFormProps {
-  onClose: () => void
+  onClose: () => void;
 }
 
 export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
-  const { address, connected } = useWallet()
-  const { isAdmin, loading: adminLoading } = useAdmin(address)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { address, connected } = useWallet();
+  const { isAdmin, loading: adminLoading } = useAdmin(address);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -21,75 +21,81 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
     resolution_deadline: '',
     yes_odds: '2.0',
     no_odds: '2.0',
-  })
+  });
 
   const handleChange = useCallback((field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }, [])
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     if (!connected || !address) {
-      setError('Please connect your wallet first')
-      return
+      setError('Please connect your wallet first');
+      return;
     }
 
     if (!isAdmin) {
-      setError('Only admins can create markets')
-      return
+      setError('Only admins can create markets');
+      return;
     }
 
-    if (!formData.title || !formData.resolution_rules || !formData.resolution_deadline) {
-      setError('Please fill in all required fields')
-      return
+    if (
+      !formData.title ||
+      !formData.resolution_rules ||
+      !formData.resolution_deadline
+    ) {
+      setError('Please fill in all required fields');
+      return;
     }
 
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       // Generate market ID (simple increment for MVP - in production use proper ID generation)
-      const marketId = Date.now()
+      const marketId = Date.now();
 
       // TODO: Call Aleo create_market transition
       // For now, we'll create the Supabase record first
       // In production, create on-chain first, then sync to Supabase
 
       // Create market in Supabase
-      const { data, error: supabaseError } = await supabase.from('markets').insert({
-        title: formData.title,
-        description: formData.description || null,
-        resolution_rules: formData.resolution_rules,
-        resolution_source: formData.resolution_source,
-        resolution_deadline: formData.resolution_deadline,
-        status: 'open',
-        yes_odds: parseFloat(formData.yes_odds),
-        no_odds: parseFloat(formData.no_odds),
-        creator_address: address,
-        market_id_onchain: marketId.toString(), // Will be updated after on-chain creation
-      })
+      const { data, error: supabaseError } = await supabase
+        .from('markets')
+        .insert({
+          title: formData.title,
+          description: formData.description || null,
+          resolution_rules: formData.resolution_rules,
+          resolution_source: formData.resolution_source,
+          resolution_deadline: formData.resolution_deadline,
+          status: 'open',
+          yes_odds: parseFloat(formData.yes_odds),
+          no_odds: parseFloat(formData.no_odds),
+          creator_address: address,
+          market_id_onchain: marketId.toString(), // Will be updated after on-chain creation
+        });
 
       if (supabaseError) {
-        throw supabaseError
+        throw supabaseError;
       }
 
       // TODO: After Supabase creation, call Aleo create_market
       // const aleoMarket = await createMarketOnChain(marketId, yesOdds, noOdds)
       // Then update market_id_onchain with actual on-chain ID
 
-      onClose()
+      onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create market')
+      setError(err instanceof Error ? err.message : 'Failed to create market');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [connected, address, isAdmin, formData, onClose])
+  }, [connected, address, isAdmin, formData, onClose]);
 
   if (adminLoading) {
     return (
       <view style={{ padding: '20px', textAlign: 'center' }}>
         <text style={{ color: '#999' }}>Checking admin status...</text>
       </view>
-    )
+    );
   }
 
   if (!isAdmin) {
@@ -97,12 +103,19 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
       <view style={{ padding: '20px', textAlign: 'center' }}>
         <text style={{ color: '#f44336' }}>Only admins can create markets</text>
       </view>
-    )
+    );
   }
 
   return (
     <view style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <text style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', display: 'block' }}>
+      <text
+        style={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          marginBottom: '24px',
+          display: 'block',
+        }}
+      >
         Create New Market
       </text>
 
@@ -120,11 +133,18 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
       )}
 
       <view style={{ marginBottom: '16px' }}>
-        <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Title *</text>
+        <text
+          style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
+        >
+          Title *
+        </text>
         <input
+          key={`title-${formData.title}`}
           type="text"
-          value={formData.title}
-          onChange={(e) => handleChange('title', e.target.value)}
+          bindinput={(e: any) => {
+            const val = e.detail?.value || e.target?.value || '';
+            handleChange('title', val);
+          }}
           placeholder="Will Bitcoin reach $100k by end of 2024?"
           style={{
             width: '100%',
@@ -138,12 +158,18 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
       </view>
 
       <view style={{ marginBottom: '16px' }}>
-        <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Description</text>
+        <text
+          style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
+        >
+          Description
+        </text>
         <textarea
-          value={formData.description}
-          onChange={(e) => handleChange('description', e.target.value)}
+          key={`description-${formData.description}`}
+          bindinput={(e: any) => {
+            const val = e.detail?.value || e.target?.value || '';
+            handleChange('description', val);
+          }}
           placeholder="Additional details about the market..."
-          rows={4}
           style={{
             width: '100%',
             padding: '12px',
@@ -151,17 +177,24 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
             backgroundColor: '#1a1a1a',
             border: '1px solid #333',
             color: 'white',
+            minHeight: '80px',
           }}
         />
       </view>
 
       <view style={{ marginBottom: '16px' }}>
-        <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Resolution Rules *</text>
+        <text
+          style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
+        >
+          Resolution Rules *
+        </text>
         <textarea
-          value={formData.resolution_rules}
-          onChange={(e) => handleChange('resolution_rules', e.target.value)}
+          key={`resolution_rules-${formData.resolution_rules}`}
+          bindinput={(e: any) => {
+            const val = e.detail?.value || e.target?.value || '';
+            handleChange('resolution_rules', val);
+          }}
           placeholder="How will this market be resolved? (e.g., Based on official announcement from X by Y date)"
-          rows={3}
           style={{
             width: '100%',
             padding: '12px',
@@ -169,16 +202,25 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
             backgroundColor: '#1a1a1a',
             border: '1px solid #333',
             color: 'white',
+            minHeight: '60px',
           }}
         />
       </view>
 
       <view style={{ marginBottom: '16px' }}>
-        <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Resolution Deadline *</text>
+        <text
+          style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
+        >
+          Resolution Deadline *
+        </text>
         <input
-          type="datetime-local"
-          value={formData.resolution_deadline}
-          onChange={(e) => handleChange('resolution_deadline', e.target.value)}
+          key={`resolution_deadline-${formData.resolution_deadline}`}
+          type="text"
+          bindinput={(e: any) => {
+            const val = e.detail?.value || e.target?.value || '';
+            handleChange('resolution_deadline', val);
+          }}
+          placeholder="YYYY-MM-DDTHH:mm"
           style={{
             width: '100%',
             padding: '12px',
@@ -192,15 +234,23 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
 
       <view style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
         <view style={{ flex: 1 }}>
-          <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Yes Odds</text>
+          <text
+            style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontWeight: 'bold',
+            }}
+          >
+            Yes Odds
+          </text>
           <input
+            key={`yes_odds-${formData.yes_odds}`}
             type="text"
-            value={formData.yes_odds}
-            onChange={(e) => {
-              const val = e.target.value
+            bindinput={(e: any) => {
+              const val = e.detail?.value || e.target?.value || '';
               // Validate numeric input manually
               if (val === '' || (!isNaN(Number(val)) && Number(val) > 0)) {
-                handleChange('yes_odds', val)
+                handleChange('yes_odds', val);
               }
             }}
             placeholder="2.0"
@@ -215,15 +265,23 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
           />
         </view>
         <view style={{ flex: 1 }}>
-          <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>No Odds</text>
+          <text
+            style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontWeight: 'bold',
+            }}
+          >
+            No Odds
+          </text>
           <input
+            key={`no_odds-${formData.no_odds}`}
             type="text"
-            value={formData.no_odds}
-            onChange={(e) => {
-              const val = e.target.value
+            bindinput={(e: any) => {
+              const val = e.detail?.value || e.target?.value || '';
               // Validate numeric input manually
               if (val === '' || (!isNaN(Number(val)) && Number(val) > 0)) {
-                handleChange('no_odds', val)
+                handleChange('no_odds', val);
               }
             }}
             placeholder="2.0"
@@ -251,7 +309,9 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
             textAlign: 'center',
           }}
         >
-          <text style={{ color: 'white', fontWeight: 'bold' }}>{loading ? 'Creating...' : 'Create Market'}</text>
+          <text style={{ color: 'white', fontWeight: 'bold' }}>
+            {loading ? 'Creating...' : 'Create Market'}
+          </text>
         </view>
         <view
           bindtap={onClose}
@@ -268,6 +328,5 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         </view>
       </view>
     </view>
-  )
+  );
 }
-
