@@ -71,10 +71,9 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
             style={{
               fontSize: '12px',
               color: 'white',
-              textTransform: 'uppercase',
             }}
           >
-            {market.status}
+            {market.status.toUpperCase()}
           </text>
         </view>
       </view>
