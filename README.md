@@ -1,49 +1,88 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
+# Obsidian Market
 
+A lightweight MVP prediction market application built on Aleo blockchain with cross-platform support (web and mobile via Lynx).
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+## Overview
 
-### Research
-[Example](https://github.com/bendyarm/priceproof)
+Obsidian Market enables users to create and participate in binary (Yes/No) prediction markets. The platform uses Aleo for privacy-preserving transactions and Supabase for market metadata storage.
 
-[Polymarket](https://docs.polymarket.com/polymarket-learn/get-started/what-is-polymarket)
+### Key Features
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
+- **Binary Prediction Markets**: Simple Yes/No markets
+- **Fixed Odds Betting**: Admin-set odds for predictable payouts
+- **Wallet-Based Authentication**: Leo Wallet integration
+- **Cross-Platform**: Works on web browsers and mobile (LynxExplorer)
+- **Real-Time Updates**: Supabase real-time subscriptions
+- **Admin Controls**: Admin-only market creation and resolution
 
-  <h3 align="center">Best-README-Template</h3>
+## Architecture
 
-  <p align="center">
-    An awesome README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/adamsimonini/obsidian-market"><strong>View on GitHub »</strong></a>
-  </p>
-</div>
+- **Frontend**: Lynx framework (React-based, cross-platform)
+- **Blockchain**: Aleo smart contracts (Leo language)
+- **Database**: Supabase (PostgreSQL with REST API)
+- **Authentication**: Leo Wallet
+
+## Getting Started
+
+See the [Development Guide](./docs/development.md) for detailed setup instructions.
+
+### Quick Start
+
+1. **Install Dependencies**
+   ```bash
+   cd webapp
+   pnpm install
+   ```
+
+2. **Set Up Supabase**
+   - Follow [Supabase Setup Guide](./docs/supabase-setup.md)
+   - Create `.env` file with Supabase credentials
+
+3. **Set Up Aleo**
+   - Follow [Aleo Local Development Guide](./docs/aleo-local-dev.md)
+   - Build and test contracts
+
+4. **Run Development Server**
+   ```bash
+   cd webapp
+   pnpm run dev
+   ```
+
+## Project Structure
+
+```
+obsidian-market/
+├── leo/              # Aleo smart contracts
+│   ├── src/          # Leo source code
+│   └── tests/        # Contract tests
+├── webapp/           # Frontend application
+│   ├── src/
+│   │   ├── components/  # UI components
+│   │   ├── contexts/    # React contexts
+│   │   ├── hooks/       # Custom hooks
+│   │   └── lib/         # Utilities
+└── docs/             # Documentation
+```
+
+## Documentation
+
+- [Development Guide](./docs/development.md) - Local development setup
+- [Deployment Guide](./docs/deployment.md) - Production deployment
+- [Supabase Setup](./docs/supabase-setup.md) - Database configuration
+- [Aleo Local Development](./docs/aleo-local-dev.md) - Smart contract development
+- [Planning Document](./ai-context/planning.md) - Architecture and design decisions
+
+## Technologies
+
+- **Lynx**: Cross-platform framework
+- **React**: UI library
+- **Aleo/Leo**: Privacy-preserving blockchain
+- **Supabase**: Backend-as-a-Service
+- **TypeScript**: Type-safe JavaScript
+
+## License
+
+See [LICENSE.txt](./LICENSE.txt) for details.
 
 
 
