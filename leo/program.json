@@ -2,7 +2,7 @@
   "program": "obsidian_market.aleo",
   "version": "0.1.0",
   "description": "",
-  "license": "MIT",
+  "license": "Proprietary License",
   "leo": "3.3.1",
   "dependencies": null,
   "dev_dependencies": null
