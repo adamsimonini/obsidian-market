@@ -27,7 +27,7 @@
 ### Research
 [Example](https://github.com/bendyarm/priceproof)
 
-[Polymarket](https://github.com/adamsimonini/obsidian-market)
+[Polymarket](https://docs.polymarket.com/polymarket-learn/get-started/what-is-polymarket)
 
 <!-- PROJECT LOGO -->
 <br />
