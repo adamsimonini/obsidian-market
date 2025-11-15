@@ -13,8 +13,8 @@ program obsidian_market.aleo {
     async constructor() {}
 
     // Market status: 0 = open, 1 = closed, 2 = resolved, 3 = cancelled
-    // Market record structure
-    record Market {
+    // Market struct structure (structs can be stored in mappings)
+    struct Market {
         id: u64,
         creator: address,
         yes_odds: u64,
@@ -24,8 +24,8 @@ program obsidian_market.aleo {
         total_no_bets: u64,
     }
 
-    // Bet record structure
-    record Bet {
+    // Bet struct structure (structs can be stored in mappings)
+    struct Bet {
         market_id: u64,
         user: address,
         amount: u64,
@@ -55,7 +55,7 @@ program obsidian_market.aleo {
         // For MVP, we'll use the program admin address
         let caller: address = self.caller;
         
-        // Create new market record
+        // Create new market struct
         let market: Market = Market {
             id: market_id,
             creator: caller,
@@ -67,7 +67,7 @@ program obsidian_market.aleo {
         };
 
         // Store market in mapping
-        set markets[market_id] = market;
+        markets[market_id] = market;
 
         return market;
     }
@@ -89,7 +89,7 @@ program obsidian_market.aleo {
 
         let caller: address = self.caller;
 
-        // Create bet record
+        // Create bet struct
         let bet_id: u64 = market_id;
         let bet: Bet = Bet {
             market_id: market_id,
@@ -107,11 +107,11 @@ program obsidian_market.aleo {
                 yes_odds: market.yes_odds,
                 no_odds: market.no_odds,
                 status: market.status,
-                total_yes_bets: new_total_yes,
-                total_no_bets: market.total_no_bets,
-            };
-            set markets[market_id] = updated_market;
-        } else {
+            total_yes_bets: new_total_yes,
+            total_no_bets: market.total_no_bets,
+        };
+        markets[market_id] = updated_market;
+    } else {
             let new_total_no: u64 = market.total_no_bets + amount;
             let updated_market: Market = Market {
                 id: market.id,
@@ -119,14 +119,14 @@ program obsidian_market.aleo {
                 yes_odds: market.yes_odds,
                 no_odds: market.no_odds,
                 status: market.status,
-                total_yes_bets: market.total_yes_bets,
-                total_no_bets: new_total_no,
-            };
-            set markets[market_id] = updated_market;
-        }
+            total_yes_bets: market.total_yes_bets,
+            total_no_bets: new_total_no,
+        };
+        markets[market_id] = updated_market;
+    }
 
         // Store bet (using market_id as key for simplicity - in production use unique bet_id)
-        set bets[bet_id] = bet;
+        bets[bet_id] = bet;
 
         return bet;
     }

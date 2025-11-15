@@ -99,7 +99,6 @@ text {
   color: white;
   font-size: 14px;
   min-height: 80px;
-  resize: vertical;
 }
 
 .form-hint {

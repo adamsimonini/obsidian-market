@@ -26,7 +26,8 @@ export function WalletButton() {
           backgroundColor: connected ? '#ff4444' : '#4CAF50',
           borderRadius: '8px',
           cursor: 'pointer',
-          display: 'inline-block',
+          display: 'flex',
+          alignSelf: 'flex-start',
         }}
       >
         <text style={{ color: 'white', fontWeight: 'bold' }}>

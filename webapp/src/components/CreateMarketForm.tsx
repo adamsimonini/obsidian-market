@@ -194,11 +194,16 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         <view style={{ flex: 1 }}>
           <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Yes Odds</text>
           <input
-            type="number"
-            step="0.1"
-            min="1"
+            type="text"
             value={formData.yes_odds}
-            onChange={(e) => handleChange('yes_odds', e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value
+              // Validate numeric input manually
+              if (val === '' || (!isNaN(Number(val)) && Number(val) > 0)) {
+                handleChange('yes_odds', val)
+              }
+            }}
+            placeholder="2.0"
             style={{
               width: '100%',
               padding: '12px',
@@ -212,11 +217,16 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         <view style={{ flex: 1 }}>
           <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>No Odds</text>
           <input
-            type="number"
-            step="0.1"
-            min="1"
+            type="text"
             value={formData.no_odds}
-            onChange={(e) => handleChange('no_odds', e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value
+              // Validate numeric input manually
+              if (val === '' || (!isNaN(Number(val)) && Number(val) > 0)) {
+                handleChange('no_odds', val)
+              }
+            }}
+            placeholder="2.0"
             style={{
               width: '100%',
               padding: '12px',

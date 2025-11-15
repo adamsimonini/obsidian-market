@@ -146,11 +146,16 @@ export function BetForm({ market, onClose }: BetFormProps) {
         <view style={{ marginBottom: '24px' }}>
           <text style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Bet Amount (ALEO)</text>
           <input
-            type="number"
-            step="0.1"
-            min="1"
-            value={betAmount}
-            onChange={(e) => setBetAmount(e.target.value)}
+            key={`bet-amount-${betAmount}`}
+            type="text"
+            bindinput={(e: any) => {
+              const val = e.detail?.value || e.target?.value || ''
+              // Validate numeric input manually
+              if (val === '' || (!isNaN(Number(val)) && Number(val) >= 0)) {
+                setBetAmount(val)
+              }
+            }}
+            placeholder="1.0"
             style={{
               width: '100%',
               padding: '12px',

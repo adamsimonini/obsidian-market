@@ -41,9 +41,10 @@ export function App(props: {
                     padding: '8px 16px',
                     backgroundColor: '#333',
                     borderRadius: '4px',
-                    display: 'inline-block',
+                    display: 'flex',
                     cursor: 'pointer',
                     marginBottom: '16px',
+                    alignSelf: 'flex-start',
                   }}
                 >
                   <text style={{ color: 'white' }}>← Back to Markets</text>
@@ -60,9 +61,10 @@ export function App(props: {
                     padding: '8px 16px',
                     backgroundColor: '#333',
                     borderRadius: '4px',
-                    display: 'inline-block',
+                    display: 'flex',
                     cursor: 'pointer',
                     marginBottom: '16px',
+                    alignSelf: 'flex-start',
                   }}
                 >
                   <text style={{ color: 'white' }}>← Back to Markets</text>
