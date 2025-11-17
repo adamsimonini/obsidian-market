@@ -1,24 +1,31 @@
-import { useCallback } from '@lynx-js/react';
+import { useCallback, useState } from '@lynx-js/react';
 import { useWallet } from '../hooks/useWallet';
+import { ErrorToast } from './ErrorToast';
 
 export function WalletButton() {
   const { address, connected, connect, disconnect } = useWallet();
+  const [error, setError] = useState<string | null>(null);
 
   const handleClick = useCallback(async () => {
     if (connected) {
       disconnect();
     } else {
       try {
+        setError(null);
         await connect();
       } catch (error) {
         console.error('Failed to connect wallet:', error);
-        // In a real app, show error toast/notification
+        // Show user-friendly error message
+        const errorMessage =
+          error instanceof Error ? error.message : 'Failed to connect wallet';
+        setError(errorMessage);
       }
     }
   }, [connected, connect, disconnect]);
 
   return (
     <view>
+      {error && <ErrorToast message={error} onClose={() => setError(null)} />}
       <view
         bindtap={handleClick}
         style={{

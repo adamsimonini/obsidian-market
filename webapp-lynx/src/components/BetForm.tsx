@@ -49,7 +49,8 @@ export function BetForm({ market, onClose }: BetFormProps) {
       // For now, just show success message
       // In production, wait for transaction confirmation, then update UI
 
-      alert(`Bet placed: ${selectedSide ? 'Yes' : 'No'} with ${amount} ALEO`);
+      // Success - the form will close via onClose()
+      // In production, show a success toast here
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to place bet');
