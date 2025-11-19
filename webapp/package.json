@@ -1,36 +1,53 @@
 {
   "name": "webapp",
+  "main": "expo-router/entry",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "build": "rspeedy build",
-    "check": "biome check --write",
-    "dev": "rspeedy dev",
-    "format": "biome format --write",
-    "preview": "rspeedy preview",
-    "test": "vitest run"
+    "start": "expo start",
+    "reset-project": "node ./scripts/reset-project.js",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "expo lint"
   },
   "dependencies": {
-    "@lynx-js/react": "^0.114.4",
-    "@lynx-js/web-core": "^0.18.3",
-    "@lynx-js/web-elements": "^0.18.3"
+    "@demox-labs/aleo-wallet-adapter-base": "^0.0.23",
+    "@demox-labs/aleo-wallet-adapter-leo": "^0.0.25",
+    "@demox-labs/aleo-wallet-adapter-react": "^0.0.22",
+    "@expo/vector-icons": "^15.0.3",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-navigation/bottom-tabs": "^7.4.0",
+    "@react-navigation/elements": "^2.6.3",
+    "@react-navigation/native": "^7.1.8",
+    "@supabase/supabase-js": "^2.81.1",
+    "expo": "~54.0.25",
+    "expo-constants": "~18.0.10",
+    "expo-font": "~14.0.9",
+    "expo-haptics": "~15.0.7",
+    "expo-image": "~3.0.10",
+    "expo-linking": "~8.0.9",
+    "expo-router": "~6.0.15",
+    "expo-splash-screen": "~31.0.11",
+    "expo-status-bar": "~3.0.8",
+    "expo-symbols": "~1.0.7",
+    "expo-system-ui": "~6.0.8",
+    "expo-web-browser": "~15.0.9",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-web": "~0.21.0",
+    "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.3",
-    "@lynx-js/preact-devtools": "^5.0.1-cf9aef5",
-    "@lynx-js/qrcode-rsbuild-plugin": "^0.4.3",
-    "@lynx-js/react-rsbuild-plugin": "^0.11.4",
-    "@lynx-js/rspeedy": "^0.11.9",
-    "@lynx-js/types": "3.4.11",
-    "@rsbuild/plugin-type-check": "1.2.4",
-    "@testing-library/jest-dom": "^6.9.0",
-    "@types/react": "^18.3.25",
-    "jsdom": "^26.1.0",
-    "typescript": "~5.9.3",
-    "vitest": "^3.2.4"
-  },
-  "engines": {
-    "node": ">=18"
+    "@types/react": "~19.1.0",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.25.0",
+    "eslint-config-expo": "~10.0.0",
+    "typescript": "~5.9.2"
   },
   "private": true
 }
