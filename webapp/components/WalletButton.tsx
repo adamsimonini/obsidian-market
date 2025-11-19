@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Button, Text, YStack } from 'tamagui';
 import { useWallet } from '../hooks/useWallet';
 import { ErrorToast } from './ErrorToast';
 
@@ -24,34 +24,25 @@ export function WalletButton() {
   }, [connected, connect, disconnect]);
 
   return (
-    <View>
+    <YStack>
       {error && <ErrorToast message={error} onClose={() => setError(null)} />}
-      <TouchableOpacity
+      <Button
         onPress={handlePress}
-        style={[
-          styles.button,
-          { backgroundColor: connected ? '#ff4444' : '#4CAF50' },
-        ]}
+        backgroundColor={connected ? '$red10' : '$green10'}
+        color="white"
+        fontWeight="bold"
+        paddingVertical="$3"
+        paddingHorizontal="$6"
+        borderRadius="$2"
+        pressStyle={{ opacity: 0.8 }}
       >
-        <Text style={styles.buttonText}>
+        <Text color="white" fontWeight="bold">
           {connected
             ? `Disconnect (${address?.slice(0, 8)}...)`
             : 'Connect Wallet'}
         </Text>
-      </TouchableOpacity>
-    </View>
+      </Button>
+    </YStack>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 

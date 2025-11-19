@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, XStack, YStack } from 'tamagui';
 
 interface ErrorToastProps {
   message: string;
@@ -21,38 +21,31 @@ export function ErrorToast({
   }, [onClose, duration]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.toast}>
-        <Text style={styles.text}>{message}</Text>
-      </View>
-    </View>
+    <XStack
+      position="absolute"
+      top={60}
+      right="$5"
+      left="$5"
+      zIndex={1001}
+      alignItems="flex-end"
+    >
+      <YStack
+        backgroundColor="$red10"
+        padding="$3"
+        paddingHorizontal="$6"
+        borderRadius="$2"
+        maxWidth={400}
+        shadowColor="$color"
+        shadowOffset={{ width: 0, height: 2 }}
+        shadowOpacity={0.3}
+        shadowRadius={4}
+        elevation={5}
+      >
+        <Text color="white" fontWeight="bold">
+          {message}
+        </Text>
+      </YStack>
+    </XStack>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 60,
-    right: 20,
-    left: 20,
-    zIndex: 1001,
-    alignItems: 'flex-end',
-  },
-  toast: {
-    backgroundColor: '#f44336',
-    padding: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-    maxWidth: 400,
-  },
-  text: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 

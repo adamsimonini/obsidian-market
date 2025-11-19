@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { FlatList } from 'react-native';
+import { Spinner, Text, YStack } from 'tamagui';
 import { useMarkets } from '../hooks/useMarkets';
 import { MarketCard } from './MarketCard';
 import type { Market } from '../types/supabase';
@@ -13,28 +14,30 @@ export function MarketList({ onMarketSelect, statusFilter }: MarketListProps) {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <Text style={styles.loadingText}>Loading markets...</Text>
-      </View>
+      <YStack padding="$5" alignItems="center" justifyContent="center">
+        <Spinner size="large" color="$green10" />
+        <Text marginTop="$3" color="$placeholderColor">
+          Loading markets...
+        </Text>
+      </YStack>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>
+      <YStack padding="$5" alignItems="center" justifyContent="center">
+        <Text color="$red10">
           Error loading markets: {error.message}
         </Text>
-      </View>
+      </YStack>
     );
   }
 
   if (markets.length === 0) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.emptyText}>No markets found</Text>
-      </View>
+      <YStack padding="$5" alignItems="center" justifyContent="center">
+        <Text color="$placeholderColor">No markets found</Text>
+      </YStack>
     );
   }
 
@@ -45,29 +48,8 @@ export function MarketList({ onMarketSelect, statusFilter }: MarketListProps) {
       renderItem={({ item }) => (
         <MarketCard market={item} onSelect={onMarketSelect} />
       )}
-      contentContainerStyle={styles.list}
+      contentContainerStyle={{ paddingBottom: 20 }}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  center: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    color: '#999',
-  },
-  errorText: {
-    color: '#f44336',
-  },
-  emptyText: {
-    color: '#999',
-  },
-  list: {
-    paddingBottom: 20,
-  },
-});
 

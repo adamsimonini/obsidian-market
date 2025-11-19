@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Button, Text, XStack, YStack } from 'tamagui';
 import type { Market } from '../types/supabase';
 
 interface MarketCardProps {
@@ -14,15 +14,15 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
   const getStatusColor = (status: Market['status']) => {
     switch (status) {
       case 'open':
-        return '#4CAF50';
+        return '$green10';
       case 'closed':
-        return '#FF9800';
+        return '$orange10';
       case 'resolved':
-        return '#2196F3';
+        return '$blue10';
       case 'cancelled':
-        return '#f44336';
+        return '$red10';
       default:
-        return '#9E9E9E';
+        return '$gray10';
     }
   };
 
@@ -32,114 +32,77 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={handlePress}>
-      <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={2}>
-          {market.title}
-        </Text>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: getStatusColor(market.status) },
-          ]}
-        >
-          <Text style={styles.statusText}>{market.status.toUpperCase()}</Text>
-        </View>
-      </View>
+    <Button
+      unstyled
+      onPress={handlePress}
+      backgroundColor="$backgroundHover"
+      borderWidth={1}
+      borderColor="$borderColor"
+      borderRadius="$2"
+      padding="$4"
+      marginBottom="$4"
+      pressStyle={{ opacity: 0.8 }}
+    >
+      <YStack gap="$3">
+        <XStack justifyContent="space-between" alignItems="flex-start" gap="$3">
+          <Text
+            fontSize="$6"
+            fontWeight="bold"
+            color="$color"
+            flex={1}
+            numberOfLines={2}
+          >
+            {market.title}
+          </Text>
+          <YStack
+            backgroundColor={getStatusColor(market.status)}
+            paddingVertical="$1"
+            paddingHorizontal="$3"
+            borderRadius="$3"
+          >
+            <Text fontSize="$2" color="white" fontWeight="600">
+              {market.status.toUpperCase()}
+            </Text>
+          </YStack>
+        </XStack>
 
-      {market.description && (
-        <Text style={styles.description} numberOfLines={3}>
-          {market.description}
-        </Text>
-      )}
-
-      <View style={styles.oddsRow}>
-        <View>
-          <Text style={styles.oddsLabel}>Yes Odds: </Text>
-          <Text style={styles.oddsValue}>{market.yes_odds}x</Text>
-        </View>
-        <View>
-          <Text style={styles.oddsLabel}>No Odds: </Text>
-          <Text style={styles.oddsValue}>{market.no_odds}x</Text>
-        </View>
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          Deadline: {formatDeadline(market.resolution_deadline)}
-        </Text>
-        {market.market_id_onchain && (
-          <Text style={styles.marketId}>
-            ID: {market.market_id_onchain}
+        {market.description && (
+          <Text fontSize="$4" color="$colorPress" numberOfLines={3}>
+            {market.description}
           </Text>
         )}
-      </View>
-    </TouchableOpacity>
+
+        <XStack gap="$4">
+          <YStack>
+            <Text fontSize="$2" color="$placeholderColor">
+              Yes Odds:{' '}
+            </Text>
+            <Text fontSize="$4" color="$color" fontWeight="bold">
+              {market.yes_odds}x
+            </Text>
+          </YStack>
+          <YStack>
+            <Text fontSize="$2" color="$placeholderColor">
+              No Odds:{' '}
+            </Text>
+            <Text fontSize="$4" color="$color" fontWeight="bold">
+              {market.no_odds}x
+            </Text>
+          </YStack>
+        </XStack>
+
+        <XStack justifyContent="space-between" alignItems="center">
+          <Text fontSize="$2" color="$placeholderColor">
+            Deadline: {formatDeadline(market.resolution_deadline)}
+          </Text>
+          {market.market_id_onchain && (
+            <Text fontSize="$1" color="$placeholderColor">
+              ID: {market.market_id_onchain}
+            </Text>
+          )}
+        </XStack>
+      </YStack>
+    </Button>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    padding: 16,
-    marginBottom: 16,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    flex: 1,
-    marginRight: 12,
-  },
-  statusBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    color: 'white',
-  },
-  description: {
-    fontSize: 14,
-    color: '#ccc',
-    marginBottom: 12,
-  },
-  oddsRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 12,
-  },
-  oddsLabel: {
-    fontSize: 12,
-    color: '#999',
-  },
-  oddsValue: {
-    fontSize: 14,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-  },
-  marketId: {
-    fontSize: 10,
-    color: '#666',
-  },
-});
 

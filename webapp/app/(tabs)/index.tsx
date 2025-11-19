@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
+import { Button, Text, XStack, YStack } from 'tamagui';
 import { WalletProvider } from '../../contexts/WalletContext';
 import { WalletButton } from '../../components/WalletButton';
 import { MarketList } from '../../components/MarketList';
@@ -13,114 +14,97 @@ export default function HomeScreen() {
 
   return (
     <WalletProvider>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Obsidian Market</Text>
+      <YStack flex={1} backgroundColor="$background">
+        <XStack
+          padding="$5"
+          borderBottomWidth={1}
+          borderBottomColor="$borderColor"
+          justifyContent="space-between"
+          alignItems="center"
+          backgroundColor="$background"
+        >
+          <Text fontSize="$8" fontWeight="bold" color="$color">
+            Obsidian Market
+          </Text>
           <WalletButton />
-        </View>
+        </XStack>
 
-        <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-          {selectedMarket ? (
-            <View>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => setSelectedMarket(null)}
-              >
-                <Text style={styles.backButtonText}>← Back to Markets</Text>
-              </TouchableOpacity>
-              <BetForm
-                market={selectedMarket}
-                onClose={() => setSelectedMarket(null)}
-              />
-            </View>
-          ) : showCreateForm ? (
-            <View>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => setShowCreateForm(false)}
-              >
-                <Text style={styles.backButtonText}>← Back to Markets</Text>
-              </TouchableOpacity>
-              <CreateMarketForm onClose={() => setShowCreateForm(false)} />
-            </View>
-          ) : (
-            <View>
-              <View style={styles.marketsHeader}>
-                <Text style={styles.marketsTitle}>Markets</Text>
-                <TouchableOpacity
-                  style={styles.createButton}
-                  onPress={() => setShowCreateForm(true)}
+        <ScrollView>
+          <YStack
+            padding="$5"
+            maxWidth={1200}
+            alignSelf="center"
+            width="100%"
+          >
+            {selectedMarket ? (
+              <YStack>
+                <Button
+                  unstyled
+                  onPress={() => setSelectedMarket(null)}
+                  paddingVertical="$2"
+                  paddingHorizontal="$4"
+                  backgroundColor="$placeholderColor"
+                  borderRadius="$1"
+                  marginBottom="$4"
+                  alignSelf="flex-start"
+                  pressStyle={{ opacity: 0.8 }}
                 >
-                  <Text style={styles.createButtonText}>Create Market</Text>
-                </TouchableOpacity>
-              </View>
-              <MarketList onMarketSelect={setSelectedMarket} />
-            </View>
-          )}
+                  <Text color="white">← Back to Markets</Text>
+                </Button>
+                <BetForm
+                  market={selectedMarket}
+                  onClose={() => setSelectedMarket(null)}
+                />
+              </YStack>
+            ) : showCreateForm ? (
+              <YStack>
+                <Button
+                  unstyled
+                  onPress={() => setShowCreateForm(false)}
+                  paddingVertical="$2"
+                  paddingHorizontal="$4"
+                  backgroundColor="$placeholderColor"
+                  borderRadius="$1"
+                  marginBottom="$4"
+                  alignSelf="flex-start"
+                  pressStyle={{ opacity: 0.8 }}
+                >
+                  <Text color="white">← Back to Markets</Text>
+                </Button>
+                <CreateMarketForm onClose={() => setShowCreateForm(false)} />
+              </YStack>
+            ) : (
+              <YStack>
+                <XStack
+                  justifyContent="space-between"
+                  alignItems="center"
+                  marginBottom="$5"
+                >
+                  <Text fontSize="$6" fontWeight="bold" color="$color">
+                    Markets
+                  </Text>
+                  <Button
+                    onPress={() => setShowCreateForm(true)}
+                    backgroundColor="$green10"
+                    color="white"
+                    fontWeight="bold"
+                    paddingVertical="$3"
+                    paddingHorizontal="$6"
+                    borderRadius="$2"
+                    pressStyle={{ opacity: 0.8 }}
+                  >
+                    <Text color="white" fontWeight="bold">
+                      Create Market
+                    </Text>
+                  </Button>
+                </XStack>
+                <MarketList onMarketSelect={setSelectedMarket} />
+              </YStack>
+            )}
+          </YStack>
         </ScrollView>
-      </View>
+      </YStack>
     </WalletProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0a0a0a',
-  },
-  header: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#0a0a0a',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-    maxWidth: 1200,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#333',
-    borderRadius: 4,
-    marginBottom: 16,
-    alignSelf: 'flex-start',
-  },
-  backButtonText: {
-    color: 'white',
-  },
-  marketsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  marketsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  createButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
-  },
-  createButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});

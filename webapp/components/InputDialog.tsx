@@ -1,12 +1,6 @@
 import { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-} from 'react-native';
+import { Modal } from 'react-native';
+import { Button, Input, Text, XStack, YStack } from 'tamagui';
 
 interface InputDialogProps {
   title: string;
@@ -36,92 +30,66 @@ export function InputDialog({
       animationType="fade"
       onRequestClose={onCancel}
     >
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          <Text style={styles.title}>{title}</Text>
-          <TextInput
-            style={styles.input}
+      <YStack
+        flex={1}
+        backgroundColor="rgba(0, 0, 0, 0.7)"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <YStack
+          backgroundColor="$backgroundHover"
+          padding="$6"
+          borderRadius="$2"
+          minWidth={300}
+          maxWidth="90%"
+          borderWidth={1}
+          borderColor="$borderColor"
+          gap="$4"
+        >
+          <Text fontSize="$6" fontWeight="bold" color="$color">
+            {title}
+          </Text>
+          <Input
             value={value}
             onChangeText={setValue}
             placeholder={placeholder}
-            placeholderTextColor="#666"
+            backgroundColor="$background"
+            borderColor="$borderColor"
+            color="$color"
+            placeholderTextColor="$placeholderColor"
             autoFocus
           />
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+          <XStack gap="$3" justifyContent="flex-end">
+            <Button
               onPress={onCancel}
+              backgroundColor="$placeholderColor"
+              color="white"
+              paddingVertical="$2"
+              paddingHorizontal="$4"
+              borderRadius="$1"
+              pressStyle={{ opacity: 0.8 }}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.confirmButton]}
+              <Text color="white">Cancel</Text>
+            </Button>
+            <Button
               onPress={handleConfirm}
+              backgroundColor="$green10"
+              color="white"
+              fontWeight="bold"
+              paddingVertical="$2"
+              paddingHorizontal="$4"
+              borderRadius="$1"
+              pressStyle={{ opacity: 0.8 }}
             >
-              <Text style={[styles.buttonText, styles.confirmButtonText]}>
+              <Text color="white" fontWeight="bold">
                 Confirm
               </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+            </Button>
+          </XStack>
+        </YStack>
+      </YStack>
     </Modal>
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dialog: {
-    backgroundColor: '#1a1a1a',
-    padding: 24,
-    borderRadius: 8,
-    minWidth: 300,
-    maxWidth: '90%',
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: 'white',
-  },
-  input: {
-    width: '100%',
-    padding: 12,
-    borderRadius: 4,
-    backgroundColor: '#0a0a0a',
-    borderWidth: 1,
-    borderColor: '#333',
-    color: 'white',
-    marginBottom: 16,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
-    justifyContent: 'flex-end',
-  },
-  button: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-  },
-  cancelButton: {
-    backgroundColor: '#666',
-  },
-  confirmButton: {
-    backgroundColor: '#4CAF50',
-  },
-  buttonText: {
-    color: 'white',
-  },
-  confirmButtonText: {
-    fontWeight: 'bold',
-  },
-});
 

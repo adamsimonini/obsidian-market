@@ -1,37 +1,30 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView } from 'react-native';
+import { Text, YStack } from 'tamagui';
 
 export default function AccountScreen() {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>My Account</Text>
-        <Text style={styles.subtitle}>Wallet & profile details will appear here.</Text>
-      </View>
+    <ScrollView>
+      <YStack
+        flexGrow={1}
+        padding="$6"
+        backgroundColor="$background"
+      >
+        <YStack
+          backgroundColor="$backgroundHover"
+          borderRadius="$3"
+          padding="$6"
+          borderWidth={1}
+          borderColor="$borderColor"
+        >
+          <Text fontSize="$7" fontWeight="600" color="$color" marginBottom="$2">
+            My Account
+          </Text>
+          <Text color="$colorPress">
+            Wallet & profile details will appear here.
+          </Text>
+        </YStack>
+      </YStack>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 24,
-    backgroundColor: '#0a0a0a',
-  },
-  card: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 12,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: '#bbb',
-  },
-});
 

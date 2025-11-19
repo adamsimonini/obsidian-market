@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
+import { ScrollView } from 'react-native';
 import {
-  View,
+  Button,
+  Input,
+  Spinner,
   Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
+  XStack,
+  YStack,
+} from 'tamagui';
 import { useWallet } from '../hooks/useWallet';
 import { useAdmin } from '../hooks/useAdmin';
 import { supabase } from '../lib/supabase';
@@ -91,223 +91,194 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
 
   if (adminLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <Text style={styles.loadingText}>Checking admin status...</Text>
-      </View>
+      <YStack padding="$5" alignItems="center" justifyContent="center">
+        <Spinner size="large" color="$green10" />
+        <Text marginTop="$3" color="$placeholderColor">
+          Checking admin status...
+        </Text>
+      </YStack>
     );
   }
 
   if (!isAdmin) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>Only admins can create markets</Text>
-      </View>
+      <YStack padding="$5" alignItems="center" justifyContent="center">
+        <Text color="$red10">Only admins can create markets</Text>
+      </YStack>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Create New Market</Text>
+    <ScrollView>
+      <YStack
+        padding="$5"
+        maxWidth={600}
+        alignSelf="center"
+        width="100%"
+        gap="$4"
+      >
+        <Text fontSize="$8" fontWeight="bold" color="$color" marginBottom="$6">
+          Create New Market
+        </Text>
 
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
+        {error && (
+          <YStack
+            padding="$3"
+            backgroundColor="$red10"
+            borderRadius="$1"
+          >
+            <Text color="white">{error}</Text>
+          </YStack>
+        )}
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Title *</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.title}
-          onChangeText={(val) => handleChange('title', val)}
-          placeholder="Will Bitcoin reach $100k by end of 2024?"
-          placeholderTextColor="#666"
-        />
-      </View>
-
-      <View style={styles.field}>
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          value={formData.description}
-          onChangeText={(val) => handleChange('description', val)}
-          placeholder="Additional details about the market..."
-          placeholderTextColor="#666"
-          multiline
-          numberOfLines={4}
-        />
-      </View>
-
-      <View style={styles.field}>
-        <Text style={styles.label}>Resolution Rules *</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          value={formData.resolution_rules}
-          onChangeText={(val) => handleChange('resolution_rules', val)}
-          placeholder="How will this market be resolved?"
-          placeholderTextColor="#666"
-          multiline
-          numberOfLines={3}
-        />
-      </View>
-
-      <View style={styles.field}>
-        <Text style={styles.label}>Resolution Deadline *</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.resolution_deadline}
-          onChangeText={(val) => handleChange('resolution_deadline', val)}
-          placeholder="YYYY-MM-DDTHH:mm"
-          placeholderTextColor="#666"
-        />
-      </View>
-
-      <View style={styles.oddsRow}>
-        <View style={styles.oddsField}>
-          <Text style={styles.label}>Yes Odds</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.yes_odds}
-            onChangeText={(val) => {
-              if (val === '' || (!isNaN(Number(val)) && Number(val) > 0)) {
-                handleChange('yes_odds', val);
-              }
-            }}
-            placeholder="2.0"
-            placeholderTextColor="#666"
-            keyboardType="numeric"
+        <YStack gap="$2">
+          <Text fontSize="$4" fontWeight="bold" color="$color">
+            Title *
+          </Text>
+          <Input
+            value={formData.title}
+            onChangeText={(val) => handleChange('title', val)}
+            placeholder="Will Bitcoin reach $100k by end of 2024?"
+            backgroundColor="$backgroundHover"
+            borderColor="$borderColor"
+            color="$color"
+            placeholderTextColor="$placeholderColor"
           />
-        </View>
-        <View style={styles.oddsField}>
-          <Text style={styles.label}>No Odds</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.no_odds}
-            onChangeText={(val) => {
-              if (val === '' || (!isNaN(Number(val)) && Number(val) > 0)) {
-                handleChange('no_odds', val);
-              }
-            }}
-            placeholder="2.0"
-            placeholderTextColor="#666"
-            keyboardType="numeric"
-          />
-        </View>
-      </View>
+        </YStack>
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={[styles.button, styles.submitButton, loading && styles.disabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.buttonText}>Create Market</Text>
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.cancelButton]}
-          onPress={onClose}
-        >
-          <Text style={styles.buttonText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
+        <YStack gap="$2">
+          <Text fontSize="$4" fontWeight="bold" color="$color">
+            Description
+          </Text>
+          <Input
+            value={formData.description}
+            onChangeText={(val) => handleChange('description', val)}
+            placeholder="Additional details about the market..."
+            backgroundColor="$backgroundHover"
+            borderColor="$borderColor"
+            color="$color"
+            placeholderTextColor="$placeholderColor"
+            multiline
+            minHeight={80}
+            textAlignVertical="top"
+          />
+        </YStack>
+
+        <YStack gap="$2">
+          <Text fontSize="$4" fontWeight="bold" color="$color">
+            Resolution Rules *
+          </Text>
+          <Input
+            value={formData.resolution_rules}
+            onChangeText={(val) => handleChange('resolution_rules', val)}
+            placeholder="How will this market be resolved?"
+            backgroundColor="$backgroundHover"
+            borderColor="$borderColor"
+            color="$color"
+            placeholderTextColor="$placeholderColor"
+            multiline
+            minHeight={80}
+            textAlignVertical="top"
+          />
+        </YStack>
+
+        <YStack gap="$2">
+          <Text fontSize="$4" fontWeight="bold" color="$color">
+            Resolution Deadline *
+          </Text>
+          <Input
+            value={formData.resolution_deadline}
+            onChangeText={(val) => handleChange('resolution_deadline', val)}
+            placeholder="YYYY-MM-DDTHH:mm"
+            backgroundColor="$backgroundHover"
+            borderColor="$borderColor"
+            color="$color"
+            placeholderTextColor="$placeholderColor"
+          />
+        </YStack>
+
+        <XStack gap="$4">
+          <YStack flex={1} gap="$2">
+            <Text fontSize="$4" fontWeight="bold" color="$color">
+              Yes Odds
+            </Text>
+            <Input
+              value={formData.yes_odds}
+              onChangeText={(val) => {
+                if (val === '' || (!isNaN(Number(val)) && Number(val) > 0)) {
+                  handleChange('yes_odds', val);
+                }
+              }}
+              placeholder="2.0"
+              keyboardType="numeric"
+              backgroundColor="$backgroundHover"
+              borderColor="$borderColor"
+              color="$color"
+              placeholderTextColor="$placeholderColor"
+            />
+          </YStack>
+          <YStack flex={1} gap="$2">
+            <Text fontSize="$4" fontWeight="bold" color="$color">
+              No Odds
+            </Text>
+            <Input
+              value={formData.no_odds}
+              onChangeText={(val) => {
+                if (val === '' || (!isNaN(Number(val)) && Number(val) > 0)) {
+                  handleChange('no_odds', val);
+                }
+              }}
+              placeholder="2.0"
+              keyboardType="numeric"
+              backgroundColor="$backgroundHover"
+              borderColor="$borderColor"
+              color="$color"
+              placeholderTextColor="$placeholderColor"
+            />
+          </YStack>
+        </XStack>
+
+        <XStack gap="$3" marginTop="$2">
+          <Button
+            flex={1}
+            onPress={handleSubmit}
+            disabled={loading}
+            backgroundColor={loading ? '$placeholderColor' : '$green10'}
+            opacity={loading ? 0.5 : 1}
+            color="white"
+            fontWeight="bold"
+            paddingVertical="$3"
+            paddingHorizontal="$6"
+            borderRadius="$2"
+            pressStyle={{ opacity: 0.8 }}
+          >
+            {loading ? (
+              <Spinner color="white" />
+            ) : (
+              <Text color="white" fontWeight="bold">
+                Create Market
+              </Text>
+            )}
+          </Button>
+          <Button
+            flex={1}
+            onPress={onClose}
+            backgroundColor="$placeholderColor"
+            color="white"
+            fontWeight="bold"
+            paddingVertical="$3"
+            paddingHorizontal="$6"
+            borderRadius="$2"
+            pressStyle={{ opacity: 0.8 }}
+          >
+            <Text color="white" fontWeight="bold">
+              Cancel
+            </Text>
+          </Button>
+        </XStack>
+      </YStack>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-    maxWidth: 600,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  center: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    color: '#999',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    color: 'white',
-  },
-  errorContainer: {
-    padding: 12,
-    backgroundColor: '#f44336',
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: '#f44336',
-  },
-  field: {
-    marginBottom: 16,
-  },
-  label: {
-    marginBottom: 8,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  input: {
-    width: '100%',
-    padding: 12,
-    borderRadius: 4,
-    backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#333',
-    color: 'white',
-  },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  oddsRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 16,
-  },
-  oddsField: {
-    flex: 1,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  submitButton: {
-    backgroundColor: '#4CAF50',
-  },
-  cancelButton: {
-    backgroundColor: '#666',
-  },
-  disabled: {
-    backgroundColor: '#666',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 

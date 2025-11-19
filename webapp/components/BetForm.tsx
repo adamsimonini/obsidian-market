@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
+import { ScrollView } from 'react-native';
 import {
-  View,
+  Button,
+  Input,
+  Spinner,
   Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
+  XStack,
+  YStack,
+} from 'tamagui';
 import { useWallet } from '../hooks/useWallet';
 import type { Market } from '../types/supabase';
 
@@ -68,257 +68,201 @@ export function BetForm({ market, onClose }: BetFormProps) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{market.title}</Text>
-      {market.description && (
-        <Text style={styles.description}>{market.description}</Text>
-      )}
-
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
-
-      {market.status !== 'open' && (
-        <View style={styles.warningContainer}>
-          <Text style={styles.warningText}>
-            This market is {market.status} and not accepting bets
+    <ScrollView>
+      <YStack
+        padding="$5"
+        maxWidth={600}
+        alignSelf="center"
+        width="100%"
+        gap="$6"
+      >
+        <Text fontSize="$8" fontWeight="bold" color="$color">
+          {market.title}
+        </Text>
+        {market.description && (
+          <Text fontSize="$4" color="$colorPress">
+            {market.description}
           </Text>
-        </View>
-      )}
+        )}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Select Your Prediction</Text>
-        <View style={styles.sideRow}>
-          <TouchableOpacity
-            style={[
-              styles.sideButton,
-              selectedSide === true && styles.sideButtonSelected,
-            ]}
-            onPress={() => setSelectedSide(true)}
+        {error && (
+          <YStack
+            padding="$3"
+            backgroundColor="$red10"
+            borderRadius="$1"
           >
-            <Text style={styles.sideButtonText}>Yes</Text>
-            <Text style={styles.oddsText}>
-              {market.yes_odds}x odds
-            </Text>
-            {selectedSide === true && (
-              <Text style={styles.payoutText}>
-                Payout: {calculatePayout(parseFloat(betAmount) || 0, true).toFixed(2)} ALEO
-              </Text>
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.sideButton,
-              selectedSide === false && styles.sideButtonSelected,
-            ]}
-            onPress={() => setSelectedSide(false)}
-          >
-            <Text style={styles.sideButtonText}>No</Text>
-            <Text style={styles.oddsText}>
-              {market.no_odds}x odds
-            </Text>
-            {selectedSide === false && (
-              <Text style={styles.payoutText}>
-                Payout: {calculatePayout(parseFloat(betAmount) || 0, false).toFixed(2)} ALEO
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
+            <Text color="white">{error}</Text>
+          </YStack>
+        )}
 
-      <View style={styles.section}>
-        <Text style={styles.label}>Bet Amount (ALEO)</Text>
-        <TextInput
-          style={styles.input}
-          value={betAmount}
-          onChangeText={(val) => {
-            if (val === '' || (!isNaN(Number(val)) && Number(val) >= 0)) {
+        {market.status !== 'open' && (
+          <YStack
+            padding="$3"
+            backgroundColor="$orange10"
+            borderRadius="$1"
+          >
+            <Text color="white">
+              This market is {market.status} and not accepting bets
+            </Text>
+          </YStack>
+        )}
+
+        <YStack gap="$4">
+          <Text fontSize="$6" fontWeight="bold" color="$color">
+            Select Your Prediction
+          </Text>
+          <XStack gap="$3">
+            <Button
+              flex={1}
+              onPress={() => setSelectedSide(true)}
+              backgroundColor={
+                selectedSide === true ? '$green10' : '$backgroundHover'
+              }
+              borderWidth={selectedSide === true ? 2 : 1}
+              borderColor={selectedSide === true ? '$green10' : '$borderColor'}
+              borderRadius="$2"
+              padding="$4"
+              alignItems="center"
+              pressStyle={{ opacity: 0.8 }}
+            >
+              <YStack alignItems="center" gap="$2">
+                <Text
+                  fontSize="$6"
+                  fontWeight="bold"
+                  color="white"
+                >
+                  Yes
+                </Text>
+                <Text fontSize="$4" color="$colorPress">
+                  {market.yes_odds}x odds
+                </Text>
+                {selectedSide === true && (
+                  <Text fontSize="$2" color="white" fontWeight="bold" marginTop="$2">
+                    Payout: {calculatePayout(parseFloat(betAmount) || 0, true).toFixed(2)} ALEO
+                  </Text>
+                )}
+              </YStack>
+            </Button>
+            <Button
+              flex={1}
+              onPress={() => setSelectedSide(false)}
+              backgroundColor={
+                selectedSide === false ? '$green10' : '$backgroundHover'
+              }
+              borderWidth={selectedSide === false ? 2 : 1}
+              borderColor={selectedSide === false ? '$green10' : '$borderColor'}
+              borderRadius="$2"
+              padding="$4"
+              alignItems="center"
+              pressStyle={{ opacity: 0.8 }}
+            >
+              <YStack alignItems="center" gap="$2">
+                <Text
+                  fontSize="$6"
+                  fontWeight="bold"
+                  color="white"
+                >
+                  No
+                </Text>
+                <Text fontSize="$4" color="$colorPress">
+                  {market.no_odds}x odds
+                </Text>
+                {selectedSide === false && (
+                  <Text fontSize="$2" color="white" fontWeight="bold" marginTop="$2">
+                    Payout: {calculatePayout(parseFloat(betAmount) || 0, false).toFixed(2)} ALEO
+                  </Text>
+                )}
+              </YStack>
+            </Button>
+          </XStack>
+        </YStack>
+
+        <YStack gap="$2">
+          <Text fontSize="$4" fontWeight="bold" color="$color">
+            Bet Amount (ALEO)
+          </Text>
+          <Input
+            value={betAmount}
+            onChangeText={(val) => {
+              if (val === '' || (!isNaN(Number(val)) && Number(val) >= 0)) {
               setBetAmount(val);
+              }
+            }}
+            placeholder="1"
+            keyboardType="numeric"
+            backgroundColor="$backgroundHover"
+            borderColor="$borderColor"
+            color="$color"
+            placeholderTextColor="$placeholderColor"
+          />
+          <Text fontSize="$2" color="$placeholderColor">
+            Minimum: 1 ALEO
+          </Text>
+        </YStack>
+
+        {selectedSide !== null && (
+          <YStack
+            padding="$4"
+            backgroundColor="$backgroundHover"
+            borderRadius="$2"
+            gap="$1"
+          >
+            <Text color="$color">
+              Betting {betAmount || '0'} ALEO on {selectedSide ? 'Yes' : 'No'}
+            </Text>
+            <Text color="$color">
+              Potential Payout: {calculatePayout(parseFloat(betAmount) || 0, selectedSide).toFixed(2)} ALEO
+            </Text>
+          </YStack>
+        )}
+
+        <XStack gap="$3">
+          <Button
+            flex={1}
+            onPress={handlePlaceBet}
+            disabled={loading || !selectedSide || market.status !== 'open'}
+            backgroundColor={
+              loading || !selectedSide || market.status !== 'open'
+                ? '$placeholderColor'
+                : '$green10'
             }
-          }}
-          placeholder="1"
-          placeholderTextColor="#666"
-          keyboardType="numeric"
-        />
-        <Text style={styles.hint}>Minimum: 1 ALEO</Text>
-      </View>
-
-      {selectedSide !== null && (
-        <View style={styles.summary}>
-          <Text style={styles.summaryText}>
-            Betting {betAmount || '0'} ALEO on {selectedSide ? 'Yes' : 'No'}
-          </Text>
-          <Text style={styles.summaryText}>
-            Potential Payout: {calculatePayout(parseFloat(betAmount) || 0, selectedSide).toFixed(2)} ALEO
-          </Text>
-        </View>
-      )}
-
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.submitButton,
-            (loading || !selectedSide || market.status !== 'open') && styles.disabled,
-          ]}
-          onPress={handlePlaceBet}
-          disabled={loading || !selectedSide || market.status !== 'open'}
-        >
-          {loading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.buttonText}>Place Bet</Text>
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.cancelButton]}
-          onPress={onClose}
-        >
-          <Text style={styles.buttonText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
+            opacity={
+              loading || !selectedSide || market.status !== 'open' ? 0.5 : 1
+            }
+            color="white"
+            fontWeight="bold"
+            paddingVertical="$3"
+            paddingHorizontal="$6"
+            borderRadius="$2"
+            pressStyle={{ opacity: 0.8 }}
+          >
+            {loading ? (
+              <Spinner color="white" />
+            ) : (
+              <Text color="white" fontWeight="bold">
+                Place Bet
+              </Text>
+            )}
+          </Button>
+          <Button
+            flex={1}
+            onPress={onClose}
+            backgroundColor="$placeholderColor"
+            color="white"
+            fontWeight="bold"
+            paddingVertical="$3"
+            paddingHorizontal="$6"
+            borderRadius="$2"
+            pressStyle={{ opacity: 0.8 }}
+          >
+            <Text color="white" fontWeight="bold">
+              Cancel
+            </Text>
+          </Button>
+        </XStack>
+      </YStack>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-    maxWidth: 600,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: 'white',
-  },
-  description: {
-    fontSize: 14,
-    color: '#ccc',
-    marginBottom: 24,
-  },
-  errorContainer: {
-    padding: 12,
-    backgroundColor: '#f44336',
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: 'white',
-  },
-  warningContainer: {
-    padding: 12,
-    backgroundColor: '#FF9800',
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  warningText: {
-    color: 'white',
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    marginBottom: 12,
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: 'white',
-  },
-  sideRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  sideButton: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#333',
-    alignItems: 'center',
-  },
-  sideButtonSelected: {
-    backgroundColor: '#4CAF50',
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-  },
-  sideButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 8,
-  },
-  oddsText: {
-    fontSize: 14,
-    color: '#ccc',
-  },
-  payoutText: {
-    fontSize: 12,
-    color: 'white',
-    marginTop: 8,
-    fontWeight: 'bold',
-  },
-  label: {
-    marginBottom: 8,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  input: {
-    width: '100%',
-    padding: 12,
-    borderRadius: 4,
-    backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#333',
-    color: 'white',
-    marginBottom: 8,
-  },
-  hint: {
-    fontSize: 12,
-    color: '#999',
-  },
-  summary: {
-    padding: 16,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  summaryText: {
-    color: 'white',
-    marginBottom: 4,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  submitButton: {
-    backgroundColor: '#4CAF50',
-  },
-  cancelButton: {
-    backgroundColor: '#666',
-  },
-  disabled: {
-    backgroundColor: '#666',
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 
