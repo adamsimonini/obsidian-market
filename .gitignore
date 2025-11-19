@@ -15,3 +15,7 @@ build/
 /test
 /tests
 ai-context/
+
+# Supabase CLI temporary files (created when running supabase start from root)
+/supabase/.temp
+/supabase/.branches
