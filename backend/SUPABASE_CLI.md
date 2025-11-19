@@ -14,7 +14,13 @@ brew install supabase/tap/supabase
 npm install -g supabase
 ```
 
+```bash
 supabase db reset
+```
+
+```bash
+supabase db push --include-seed
+```
 
 ### Verify Installation
 ```bash
