@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { useWallet } from '../hooks/useWallet';
 import { ErrorToast } from './ErrorToast';
+import { Button } from './ui/button';
 
 export function WalletButton() {
   const { address, connected, connect, disconnect } = useWallet();
@@ -26,32 +27,15 @@ export function WalletButton() {
   return (
     <View>
       {error && <ErrorToast message={error} onClose={() => setError(null)} />}
-      <TouchableOpacity
+      <Button
+        variant={connected ? 'destructive' : 'default'}
         onPress={handlePress}
-        style={[
-          styles.button,
-          { backgroundColor: connected ? '#ff4444' : '#4CAF50' },
-        ]}
       >
-        <Text style={styles.buttonText}>
-          {connected
-            ? `Disconnect (${address?.slice(0, 8)}...)`
-            : 'Connect Wallet'}
-        </Text>
-      </TouchableOpacity>
+        {connected
+          ? `Disconnect (${address?.slice(0, 8)}...)`
+          : 'Connect Wallet'}
+      </Button>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 

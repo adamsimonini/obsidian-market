@@ -1,4 +1,5 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { cn } from '@/lib/utils';
 import type { Market } from '../types/supabase';
 
 interface MarketCardProps {
@@ -11,18 +12,18 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
     onSelect?.(market);
   };
 
-  const getStatusColor = (status: Market['status']) => {
+  const getStatusColorClass = (status: Market['status']) => {
     switch (status) {
       case 'open':
-        return '#4CAF50';
+        return 'bg-obsidian-green';
       case 'closed':
-        return '#FF9800';
+        return 'bg-obsidian-orange';
       case 'resolved':
-        return '#2196F3';
+        return 'bg-obsidian-blue';
       case 'cancelled':
-        return '#f44336';
+        return 'bg-obsidian-red';
       default:
-        return '#9E9E9E';
+        return 'bg-gray-500';
     }
   };
 
@@ -32,44 +33,44 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={handlePress}>
-      <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={2}>
+    <TouchableOpacity
+      className="mb-4 rounded-lg border border-obsidian-border bg-obsidian-card p-4 active:opacity-80"
+      onPress={handlePress}
+    >
+      <View className="mb-3 flex-row items-start justify-between">
+        <Text className="flex-1 text-lg font-bold text-obsidian-text mr-3" numberOfLines={2}>
           {market.title}
         </Text>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: getStatusColor(market.status) },
-          ]}
-        >
-          <Text style={styles.statusText}>{market.status.toUpperCase()}</Text>
+        <View className={cn('rounded-full px-3 py-1', getStatusColorClass(market.status))}>
+          <Text className="text-xs font-semibold text-white">
+            {market.status.toUpperCase()}
+          </Text>
         </View>
       </View>
 
       {market.description && (
-        <Text style={styles.description} numberOfLines={3}>
+        <Text className="mb-3 text-sm text-obsidian-text-muted" numberOfLines={3}>
           {market.description}
         </Text>
       )}
 
-      <View style={styles.oddsRow}>
+      <View className="mb-3 flex-row gap-4">
         <View>
-          <Text style={styles.oddsLabel}>Yes Odds: </Text>
-          <Text style={styles.oddsValue}>{market.yes_odds}x</Text>
+          <Text className="text-xs text-obsidian-text-muted">Yes Odds: </Text>
+          <Text className="text-sm font-bold text-obsidian-text">{market.yes_odds}x</Text>
         </View>
         <View>
-          <Text style={styles.oddsLabel}>No Odds: </Text>
-          <Text style={styles.oddsValue}>{market.no_odds}x</Text>
+          <Text className="text-xs text-obsidian-text-muted">No Odds: </Text>
+          <Text className="text-sm font-bold text-obsidian-text">{market.no_odds}x</Text>
         </View>
       </View>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
+      <View className="flex-row items-center justify-between">
+        <Text className="text-xs text-obsidian-text-muted">
           Deadline: {formatDeadline(market.resolution_deadline)}
         </Text>
         {market.market_id_onchain && (
-          <Text style={styles.marketId}>
+          <Text className="text-[10px] text-obsidian-text-muted">
             ID: {market.market_id_onchain}
           </Text>
         )}
@@ -77,69 +78,4 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    padding: 16,
-    marginBottom: 16,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    flex: 1,
-    marginRight: 12,
-  },
-  statusBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    color: 'white',
-  },
-  description: {
-    fontSize: 14,
-    color: '#ccc',
-    marginBottom: 12,
-  },
-  oddsRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 12,
-  },
-  oddsLabel: {
-    fontSize: 12,
-    color: '#999',
-  },
-  oddsValue: {
-    fontSize: 14,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-  },
-  marketId: {
-    fontSize: 10,
-    color: '#666',
-  },
-});
 
