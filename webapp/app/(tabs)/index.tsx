@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { WalletProvider } from '../../contexts/WalletContext';
-import { WalletButton } from '../../components/WalletButton';
+import { View, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { Text } from '@/components/nativewindui/Text';
 import { MarketList } from '../../components/MarketList';
 import { CreateMarketForm } from '../../components/CreateMarketForm';
 import { BetForm } from '../../components/BetForm';
@@ -12,14 +11,8 @@ export default function HomeScreen() {
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   return (
-    <WalletProvider>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Obsidian Market</Text>
-          <WalletButton />
-        </View>
-
-        <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+    <View style={styles.container}>
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
           {selectedMarket ? (
             <View>
               <TouchableOpacity
@@ -59,7 +52,6 @@ export default function HomeScreen() {
           )}
         </ScrollView>
       </View>
-    </WalletProvider>
   );
 }
 
@@ -67,20 +59,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0a0a0a',
-  },
-  header: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#0a0a0a',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
   },
   content: {
     flex: 1,

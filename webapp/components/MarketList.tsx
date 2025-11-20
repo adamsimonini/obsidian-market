@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { Text } from '@/components/nativewindui/Text';
 import { useMarkets } from '../hooks/useMarkets';
 import { MarketCard } from './MarketCard';
 import type { Market } from '../types/supabase';

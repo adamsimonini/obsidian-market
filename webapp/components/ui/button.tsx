@@ -1,7 +1,7 @@
 import { TouchableOpacity, TouchableOpacityProps, ActivityIndicator } from 'react-native';
-import { Text } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import { Text } from '@/components/nativewindui/Text';
+import { cn } from '@/lib/cn';
 
 const buttonVariants = cva(
   'flex-row items-center justify-center rounded-lg font-semibold disabled:opacity-50',

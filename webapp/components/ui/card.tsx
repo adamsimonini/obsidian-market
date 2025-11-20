@@ -1,6 +1,6 @@
 import { View, ViewProps } from 'react-native';
-import { Text } from 'react-native';
-import { cn } from '@/lib/utils';
+import { Text } from '@/components/nativewindui/Text';
+import { cn } from '@/lib/cn';
 
 export function Card({ className, ...props }: ViewProps) {
   return (

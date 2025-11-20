@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { Text } from '@/components/nativewindui/Text';
 import { useWallet } from '../hooks/useWallet';
 import { useAdmin } from '../hooks/useAdmin';
 import { supabase } from '../lib/supabase';

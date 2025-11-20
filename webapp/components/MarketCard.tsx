@@ -1,5 +1,14 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { cn } from '@/lib/utils';
+import { View } from 'react-native';
+import { cn } from '@/lib/cn';
+import {
+  PressableCard,
+  CardContent,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+  CardBadge,
+} from '@/components/nativewindui/Card';
+import { Text } from '@/components/nativewindui/Text';
 import type { Market } from '../types/supabase';
 
 interface MarketCardProps {
@@ -15,15 +24,15 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
   const getStatusColorClass = (status: Market['status']) => {
     switch (status) {
       case 'open':
-        return 'bg-obsidian-green';
+        return 'bg-primary';
       case 'closed':
-        return 'bg-obsidian-orange';
+        return 'bg-accent';
       case 'resolved':
-        return 'bg-obsidian-blue';
+        return 'bg-blue-500';
       case 'cancelled':
-        return 'bg-obsidian-red';
+        return 'bg-destructive';
       default:
-        return 'bg-gray-500';
+        return 'bg-muted';
     }
   };
 
@@ -33,49 +42,55 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
   };
 
   return (
-    <TouchableOpacity
-      className="mb-4 rounded-lg border border-obsidian-border bg-obsidian-card p-4 active:opacity-80"
+    <PressableCard
+      className="mb-4"
       onPress={handlePress}
     >
-      <View className="mb-3 flex-row items-start justify-between">
-        <Text className="flex-1 text-lg font-bold text-obsidian-text mr-3" numberOfLines={2}>
-          {market.title}
-        </Text>
-        <View className={cn('rounded-full px-3 py-1', getStatusColorClass(market.status))}>
-          <Text className="text-xs font-semibold text-white">
-            {market.status.toUpperCase()}
-          </Text>
+      <CardContent>
+        <View className="mb-3 flex-row items-start justify-between">
+          <CardTitle className="flex-1 mr-3" numberOfLines={2}>
+            {market.title}
+          </CardTitle>
+          <CardBadge className={cn('border-0', getStatusColorClass(market.status))}>
+            <Text variant="caption1" className="text-white font-semibold">
+              {market.status.toUpperCase()}
+            </Text>
+          </CardBadge>
         </View>
-      </View>
 
-      {market.description && (
-        <Text className="mb-3 text-sm text-obsidian-text-muted" numberOfLines={3}>
-          {market.description}
-        </Text>
-      )}
+        {market.description && (
+          <CardDescription className="mb-3" numberOfLines={3}>
+            {market.description}
+          </CardDescription>
+        )}
 
-      <View className="mb-3 flex-row gap-4">
-        <View>
-          <Text className="text-xs text-obsidian-text-muted">Yes Odds: </Text>
-          <Text className="text-sm font-bold text-obsidian-text">{market.yes_odds}x</Text>
+        <View className="mb-3 flex-row gap-4">
+          <View>
+            <Text variant="caption1" color="tertiary">Yes Odds: </Text>
+            <Text variant="subhead" className="font-bold">
+              {market.yes_odds}x
+            </Text>
+          </View>
+          <View>
+            <Text variant="caption1" color="tertiary">No Odds: </Text>
+            <Text variant="subhead" className="font-bold">
+              {market.no_odds}x
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text className="text-xs text-obsidian-text-muted">No Odds: </Text>
-          <Text className="text-sm font-bold text-obsidian-text">{market.no_odds}x</Text>
-        </View>
-      </View>
+      </CardContent>
 
-      <View className="flex-row items-center justify-between">
-        <Text className="text-xs text-obsidian-text-muted">
+      <CardFooter className="justify-between">
+        <Text variant="caption1" color="tertiary">
           Deadline: {formatDeadline(market.resolution_deadline)}
         </Text>
         {market.market_id_onchain && (
-          <Text className="text-[10px] text-obsidian-text-muted">
+          <Text variant="caption2" color="quarternary">
             ID: {market.market_id_onchain}
           </Text>
         )}
-      </View>
-    </TouchableOpacity>
+      </CardFooter>
+    </PressableCard>
   );
 }
 

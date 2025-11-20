@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { Text } from '@/components/nativewindui/Text';
 import { useWallet } from '../hooks/useWallet';
 import type { Market } from '../types/supabase';
 
