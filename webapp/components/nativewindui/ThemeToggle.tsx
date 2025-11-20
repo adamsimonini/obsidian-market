@@ -1,14 +1,14 @@
 import { Pressable, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import Animated, { LayoutAnimationConfig, ZoomInRotate } from 'react-native-reanimated';
 
-import { Icon } from '@/components/nativewindui/Icon';
 import { cn } from '@/lib/cn';
 import { useColorScheme } from '@/lib/useColorScheme';
-import { COLORS } from '@/theme/colors';
 
 export function ThemeToggle() {
-  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const { colorScheme, toggleColorScheme, colors } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
     <LayoutAnimationConfig skipEntering>
@@ -16,18 +16,28 @@ export function ThemeToggle() {
         className="items-center justify-center"
         key={`toggle-${colorScheme}`}
         entering={ZoomInRotate}>
-        <Pressable onPress={toggleColorScheme} className="opacity-80">
-          {colorScheme === 'dark'
-            ? ({ pressed }) => (
-                <View className={cn('px-0.5', pressed && 'opacity-50')}>
-                  <Icon name="moon.stars" size={24} color={COLORS.white} />
-                </View>
-              )
-            : ({ pressed }) => (
-                <View className={cn('px-0.5', pressed && 'opacity-50')}>
-                  <Icon name="sun.min" size={24} color={COLORS.black} />
-                </View>
-              )}
+        <Pressable 
+          onPress={toggleColorScheme} 
+          className={cn(
+            'rounded-full p-2 items-center justify-center',
+            isDark ? 'bg-primary/20' : 'bg-primary/10'
+          )}
+          style={({ pressed }) => ({
+            opacity: pressed ? 0.7 : 1,
+          })}>
+          {isDark ? (
+            <MaterialIcons 
+              name="dark-mode" 
+              size={20} 
+              color={colors.foreground}
+            />
+          ) : (
+            <MaterialIcons 
+              name="light-mode" 
+              size={20} 
+              color={colors.foreground}
+            />
+          )}
         </Pressable>
       </Animated.View>
     </LayoutAnimationConfig>
