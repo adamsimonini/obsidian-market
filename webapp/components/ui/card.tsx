@@ -6,7 +6,7 @@ export function Card({ className, ...props }: ViewProps) {
   return (
     <View
       className={cn(
-        'rounded-lg border border-obsidian-border bg-obsidian-card p-4',
+        'rounded-lg border border-border bg-card p-4',
         className
       )}
       {...props}
@@ -23,7 +23,7 @@ export function CardHeader({ className, ...props }: ViewProps) {
 export function CardTitle({ className, ...props }: ViewProps & { children: React.ReactNode }) {
   return (
     <Text
-      className={cn('text-lg font-semibold leading-none tracking-tight text-obsidian-text', className)}
+      className={cn('text-lg font-semibold leading-none tracking-tight text-card-foreground', className)}
       {...props}
     />
   );
@@ -32,7 +32,7 @@ export function CardTitle({ className, ...props }: ViewProps & { children: React
 export function CardDescription({ className, ...props }: ViewProps & { children: React.ReactNode }) {
   return (
     <Text
-      className={cn('text-sm text-obsidian-text-muted', className)}
+      className={cn('text-sm text-muted-foreground', className)}
       {...props}
     />
   );

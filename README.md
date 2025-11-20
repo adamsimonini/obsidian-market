@@ -18,7 +18,7 @@ Obsidian Market enables users to create and participate in binary (Yes/No) predi
 ## Architecture
 
 - **Frontend**: React Native with Expo (cross-platform: iOS, Android, Web)
-- **Blockchain**: Aleo smart contracts (Leo language)
+- **Blockchain**: Aleo smart contracts (Leo language)git ch
 - **Database**: Supabase (PostgreSQL with REST API)
 - **Authentication**: Leo Wallet (web) / Manual address entry (mobile MVP)
 

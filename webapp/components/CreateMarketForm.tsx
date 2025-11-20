@@ -88,7 +88,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
     return (
       <View className="items-center justify-center p-5">
         <ActivityIndicator size="large" color="#4CAF50" />
-        <Text className="mt-3 text-obsidian-text-muted">Checking admin status...</Text>
+        <Text className="mt-3 text-muted-foreground">Checking admin status...</Text>
       </View>
     );
   }
@@ -96,7 +96,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
   if (!isAdmin) {
     return (
       <View className="items-center justify-center p-5">
-        <Text className="text-obsidian-red">Only admins can create markets</Text>
+        <Text className="text-destructive">Only admins can create markets</Text>
       </View>
     );
   }
@@ -104,16 +104,16 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
   return (
     <ScrollView className="flex-1">
       <View className="w-full max-w-[600px] self-center p-5">
-        <Text className="mb-6 text-2xl font-bold text-obsidian-text">Create New Market</Text>
+        <Text variant="title1" className="mb-6 font-bold text-foreground">Create New Market</Text>
 
         {error && (
-          <View className="mb-4 rounded bg-obsidian-red p-3">
-            <Text className="text-white">{error}</Text>
+          <View className="mb-4 rounded bg-destructive p-3">
+            <Text className="text-destructive-foreground">{error}</Text>
           </View>
         )}
 
         <View className="mb-4">
-          <Text className="mb-2 font-bold text-obsidian-text">Title *</Text>
+          <Text className="mb-2 font-bold text-foreground">Title *</Text>
           <Input
             value={formData.title}
             onChangeText={(val) => handleChange('title', val)}
@@ -122,7 +122,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         </View>
 
         <View className="mb-4">
-          <Text className="mb-2 font-bold text-obsidian-text">Description</Text>
+          <Text className="mb-2 font-bold text-foreground">Description</Text>
           <Input
             value={formData.description}
             onChangeText={(val) => handleChange('description', val)}
@@ -134,7 +134,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         </View>
 
         <View className="mb-4">
-          <Text className="mb-2 font-bold text-obsidian-text">Resolution Rules *</Text>
+          <Text className="mb-2 font-bold text-foreground">Resolution Rules *</Text>
           <Input
             value={formData.resolution_rules}
             onChangeText={(val) => handleChange('resolution_rules', val)}
@@ -146,7 +146,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         </View>
 
         <View className="mb-4">
-          <Text className="mb-2 font-bold text-obsidian-text">Resolution Deadline *</Text>
+          <Text className="mb-2 font-bold text-foreground">Resolution Deadline *</Text>
           <Input
             value={formData.resolution_deadline}
             onChangeText={(val) => handleChange('resolution_deadline', val)}
@@ -156,7 +156,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
 
         <View className="mb-4 flex-row gap-4">
           <View className="flex-1">
-            <Text className="mb-2 font-bold text-obsidian-text">Yes Odds</Text>
+            <Text className="mb-2 font-bold text-foreground">Yes Odds</Text>
             <Input
               value={formData.yes_odds}
               onChangeText={(val) => {
@@ -169,7 +169,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
             />
           </View>
           <View className="flex-1">
-            <Text className="mb-2 font-bold text-obsidian-text">No Odds</Text>
+            <Text className="mb-2 font-bold text-foreground">No Odds</Text>
             <Input
               value={formData.no_odds}
               onChangeText={(val) => {

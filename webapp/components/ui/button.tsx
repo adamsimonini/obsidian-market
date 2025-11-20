@@ -2,16 +2,17 @@ import { TouchableOpacity, TouchableOpacityProps, ActivityIndicator } from 'reac
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Text } from '@/components/nativewindui/Text';
 import { cn } from '@/lib/cn';
+import { useColorScheme } from '@/lib/useColorScheme';
 
 const buttonVariants = cva(
   'flex-row items-center justify-center rounded-lg font-semibold disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-obsidian-green',
-        destructive: 'bg-obsidian-red',
-        outline: 'border border-obsidian-border bg-transparent',
-        secondary: 'bg-obsidian-card',
+        default: 'bg-primary',
+        destructive: 'bg-destructive',
+        outline: 'border border-border bg-transparent',
+        secondary: 'bg-secondary',
         ghost: 'bg-transparent',
         link: 'bg-transparent',
       },
@@ -45,6 +46,10 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
+  const { colors } = useColorScheme();
+  const isOutlineVariant = variant === 'outline' || variant === 'ghost' || variant === 'link';
+  const indicatorColor = isOutlineVariant ? colors.foreground : colors.primaryForeground;
+  
   return (
     <TouchableOpacity
       className={cn(buttonVariants({ variant, size }), className)}
@@ -53,14 +58,17 @@ export function Button({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color="white" size="small" />
+        <ActivityIndicator 
+          color={indicatorColor}
+          size="small" 
+        />
       ) : (
         <Text
           className={cn(
             'font-semibold',
-            variant === 'outline' || variant === 'ghost' || variant === 'link'
-              ? 'text-obsidian-text'
-              : 'text-white'
+            isOutlineVariant
+              ? 'text-foreground'
+              : 'text-primary-foreground'
           )}
         >
           {children}

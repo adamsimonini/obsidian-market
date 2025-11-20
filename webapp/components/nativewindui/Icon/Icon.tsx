@@ -1,6 +1,8 @@
 import { SymbolView, SymbolViewProps, SymbolWeight } from 'expo-symbols';
 import { StyleProp, ViewStyle } from 'react-native';
 
+import { useColorScheme } from '@/lib/useColorScheme';
+
 export interface IconProps extends Omit<SymbolViewProps, 'style'> {
   name: SymbolViewProps['name'];
   size?: number;
@@ -19,10 +21,14 @@ export function Icon({
   className,
   ...props
 }: IconProps) {
+  const { colors } = useColorScheme();
+  // Use theme-aware foreground color as default, but allow override via color prop or className
+  const defaultColor = color ?? colors.foreground;
+
   return (
     <SymbolView
       weight={weight}
-      tintColor={color}
+      tintColor={defaultColor}
       resizeMode="scaleAspectFit"
       name={name}
       style={[

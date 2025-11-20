@@ -1,25 +1,26 @@
 import { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, TouchableOpacity, ScrollView } from 'react-native';
 import { Text } from '@/components/nativewindui/Text';
 import { MarketList } from '../../components/MarketList';
 import { CreateMarketForm } from '../../components/CreateMarketForm';
 import { BetForm } from '../../components/BetForm';
 import type { Market } from '../../types/supabase';
+import { cn } from '@/lib/cn';
 
 export default function HomeScreen() {
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+    <View className="flex-1 bg-background">
+      <ScrollView className="flex-1" contentContainerStyle={{ padding: 20, maxWidth: 1200, alignSelf: 'center', width: '100%' }}>
           {selectedMarket ? (
             <View>
               <TouchableOpacity
-                style={styles.backButton}
+                className="py-2 px-4 bg-muted rounded mb-4 self-start"
                 onPress={() => setSelectedMarket(null)}
               >
-                <Text style={styles.backButtonText}>← Back to Markets</Text>
+                <Text className="text-foreground">← Back to Markets</Text>
               </TouchableOpacity>
               <BetForm
                 market={selectedMarket}
@@ -29,22 +30,26 @@ export default function HomeScreen() {
           ) : showCreateForm ? (
             <View>
               <TouchableOpacity
-                style={styles.backButton}
+                className="py-2 px-4 bg-muted rounded mb-4 self-start"
                 onPress={() => setShowCreateForm(false)}
               >
-                <Text style={styles.backButtonText}>← Back to Markets</Text>
+                <Text className="text-foreground">← Back to Markets</Text>
               </TouchableOpacity>
               <CreateMarketForm onClose={() => setShowCreateForm(false)} />
             </View>
           ) : (
             <View>
-              <View style={styles.marketsHeader}>
-                <Text style={styles.marketsTitle}>Markets</Text>
+              <View className="flex-row justify-between items-center mb-5">
+                <Text variant="title1" className="font-bold text-foreground">
+                  Markets
+                </Text>
                 <TouchableOpacity
-                  style={styles.createButton}
+                  className="py-3 px-6 bg-primary rounded-lg"
                   onPress={() => setShowCreateForm(true)}
                 >
-                  <Text style={styles.createButtonText}>Create Market</Text>
+                  <Text className="text-primary-foreground font-bold">
+                    Create Market
+                  </Text>
                 </TouchableOpacity>
               </View>
               <MarketList onMarketSelect={setSelectedMarket} />
@@ -54,51 +59,3 @@ export default function HomeScreen() {
       </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0a0a0a',
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-    maxWidth: 1200,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#333',
-    borderRadius: 4,
-    marginBottom: 16,
-    alignSelf: 'flex-start',
-  },
-  backButtonText: {
-    color: 'white',
-  },
-  marketsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  marketsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  createButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
-  },
-  createButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});

@@ -52,7 +52,7 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
             {market.title}
           </CardTitle>
           <CardBadge className={cn('border-0', getStatusColorClass(market.status))}>
-            <Text variant="caption1" className="text-white font-semibold">
+            <Text variant="caption1" className="text-primary-foreground font-semibold">
               {market.status.toUpperCase()}
             </Text>
           </CardBadge>

@@ -7,7 +7,7 @@ export function Header() {
   return (
     <View className="border-b border-border bg-background px-5 py-5">
       <View className="flex-row items-center justify-between">
-        <Text variant="title1" className="font-bold">
+        <Text variant="title1" className="font-bold text-foreground">
           Obsidian Market
         </Text>
         <View className="flex-row items-center">
