@@ -1,14 +1,18 @@
 import { View, ViewProps } from 'react-native';
 import { Text } from '@/components/nativewindui/Text';
 import { cn } from '@/lib/cn';
+import { useColorScheme } from '@/lib/useColorScheme';
 
-export function Card({ className, ...props }: ViewProps) {
+export function Card({ className, style, ...props }: ViewProps) {
+  const { colors } = useColorScheme();
+  
   return (
     <View
       className={cn(
-        'rounded-lg border border-border bg-card p-4',
+        'rounded-lg border bg-card p-4',
         className
       )}
+      style={[{ borderColor: colors.border }, style]}
       {...props}
     />
   );

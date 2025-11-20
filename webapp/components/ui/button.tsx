@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary',
         destructive: 'bg-destructive',
-        outline: 'border border-border bg-transparent',
+        outline: 'border bg-transparent',
         secondary: 'bg-secondary',
         ghost: 'bg-transparent',
         link: 'bg-transparent',
@@ -44,15 +44,20 @@ export function Button({
   children,
   loading,
   disabled,
+  style,
   ...props
 }: ButtonProps) {
   const { colors } = useColorScheme();
   const isOutlineVariant = variant === 'outline' || variant === 'ghost' || variant === 'link';
   const indicatorColor = isOutlineVariant ? colors.foreground : colors.primaryForeground;
   
+  // Apply border color for outline variant
+  const borderStyle = variant === 'outline' ? { borderColor: colors.border } : {};
+  
   return (
     <TouchableOpacity
       className={cn(buttonVariants({ variant, size }), className)}
+      style={[borderStyle, style]}
       disabled={disabled || loading}
       activeOpacity={0.8}
       {...props}

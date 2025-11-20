@@ -1,6 +1,7 @@
 import { View, ViewProps, Pressable, PressableProps, TextProps } from 'react-native';
 import { Text } from '@/components/nativewindui/Text';
 import { cn } from '@/lib/cn';
+import { useColorScheme } from '@/lib/useColorScheme';
 
 // Utility function to add opacity to RGB color
 export function addOpacityToRgb(rgb: string, opacity: number): string {
@@ -15,26 +16,32 @@ export function addOpacityToRgb(rgb: string, opacity: number): string {
 }
 
 // Main Card component
-export function Card({ className, ...props }: ViewProps) {
+export function Card({ className, style, ...props }: ViewProps) {
+  const { colors } = useColorScheme();
+  
   return (
     <View
       className={cn(
-        'rounded-lg border border-border bg-card',
+        'rounded-lg border bg-card',
         className
       )}
+      style={[{ borderColor: colors.border }, style]}
       {...props}
     />
   );
 }
 
 // Pressable Card variant
-export function PressableCard({ className, ...props }: PressableProps) {
+export function PressableCard({ className, style, ...props }: PressableProps) {
+  const { colors } = useColorScheme();
+  
   return (
     <Pressable
       className={cn(
-        'rounded-lg border border-border bg-card active:opacity-80',
+        'rounded-lg border bg-card active:opacity-80',
         className
       )}
+      style={[{ borderColor: colors.border }, style]}
       {...props}
     />
   );

@@ -18,7 +18,10 @@ Obsidian Market enables users to create and participate in binary (Yes/No) predi
 ## Architecture
 
 - **Frontend**: React Native with Expo (cross-platform: iOS, Android, Web)
-- **Blockchain**: Aleo smart contracts (Leo language)git ch
+  - **Styling**: NativeWind v4 (Tailwind CSS for React Native)
+  - **UI Components**: NativeWind UI (Button, Card, Input, Text, Icon)
+  - **Theme System**: Custom Obsidian theme with light/dark mode support
+- **Blockchain**: Aleo smart contracts (Leo language)
 - **Database**: Supabase (PostgreSQL with REST API)
 - **Authentication**: Leo Wallet (web) / Manual address entry (mobile MVP)
 
@@ -79,10 +82,15 @@ obsidian-market/
 ├── webapp/                 # React Native frontend (Expo)
 │   ├── app/                # Expo Router pages
 │   ├── components/         # React Native components
+│   │   ├── nativewindui/   # NativeWind UI components (Text, Card, Icon, ThemeToggle)
+│   │   └── ui/             # Additional UI components (Button, Input, Card)
 │   ├── contexts/           # React contexts (Wallet)
 │   ├── hooks/              # Custom hooks
-│   ├── lib/                # Utilities (Supabase client)
+│   ├── lib/                # Utilities (Supabase client, useColorScheme)
+│   ├── theme/              # Theme configuration (colors.ts)
 │   ├── types/              # TypeScript types
+│   ├── global.css          # Tailwind CSS directives and CSS variables
+│   ├── tailwind.config.js  # Tailwind configuration
 │   ├── supabase-migration.sql  # Database schema
 │   └── SUPABASE_SETUP.md   # Quick setup guide
 ├── webapp-lynx/            # Legacy Lynx implementation (archived)
@@ -100,14 +108,83 @@ obsidian-market/
 
 ## Technologies
 
+### Frontend Stack
 - **React Native**: Cross-platform mobile framework
+- **React**: UI library (v19)
 - **Expo**: Development platform and tooling
 - **Expo Router**: File-based routing
-- **React**: UI library
+- **NativeWind v4**: Tailwind CSS for React Native - enables utility-first styling with Tailwind classes
+- **NativeWind UI**: Pre-built component library with theme support (Button, Card, Input, Text, Icon components)
+- **TypeScript**: Type-safe JavaScript
+
+### Backend & Blockchain
 - **Aleo/Leo**: Privacy-preserving blockchain
 - **Supabase**: Backend-as-a-Service (PostgreSQL + REST API)
-- **TypeScript**: Type-safe JavaScript
 - **Leo Wallet Adapter**: Official Aleo wallet integration
+
+## Styling & Theming
+
+The app uses **NativeWind v4** (Tailwind CSS for React Native) for styling and **NativeWind UI** for pre-built components. The styling system includes:
+
+- **Tailwind CSS Classes**: Use utility classes like `bg-background`, `text-foreground`, `border-border` throughout the app
+- **NativeWind UI Components**: Pre-built components (`Button`, `Card`, `Input`, `Text`, `Icon`) located in `components/nativewindui/` and `components/ui/`
+- **Custom Obsidian Theme**: Custom color palette matching the Obsidian aesthetic
+- **Light/Dark Mode**: Full theme switching support with manual toggle
+
+### Theme Configuration
+
+The theme is defined in two places:
+
+1. **`webapp/theme/colors.ts`** - Primary theme definition (source of truth)
+   - Platform-specific colors for iOS and Android
+   - Light and dark mode color objects
+   - Exported as `COLORS` object
+
+2. **`webapp/global.css`** - CSS variables for web and NativeWind
+   - Tailwind directives (`@tailwind base/components/utilities`)
+   - CSS custom properties for light mode (`:root`)
+   - CSS custom properties for dark mode (`.dark`)
+
+3. **`webapp/lib/useColorScheme.tsx`** - Theme hook
+   - Wraps NativeWind's `useColorScheme` hook
+   - Exposes `colors` object from `theme/colors.ts`
+   - Provides `toggleColorScheme()` function
+
+### Theme Switching Implementation
+
+The app uses NativeWind v4 with a custom Obsidian theme that supports light and dark modes. Theme switching is implemented using explicit colors from the `useColorScheme()` hook rather than relying solely on CSS variables.
+
+### How Theme Switching Works
+
+**The Problem**: NativeWind's CSS variables (defined in `global.css`) don't always resolve correctly at runtime in React Native, especially when using classes like `text-foreground` or `border-border`. This can cause text and borders to remain dark in dark mode.
+
+**The Solution**: Use explicit colors from the `useColorScheme()` hook via inline styles:
+
+1. **Text Components**: The `Text` component uses `colors.foreground` directly via the `style` prop:
+   ```tsx
+   const { colors } = useColorScheme();
+   <RNText style={{ color: colors.foreground }} />
+   ```
+
+2. **Border Components**: Card, Input, Button, and Header components use `colors.border`:
+   ```tsx
+   const { colors } = useColorScheme();
+   <View style={{ borderColor: colors.border }} />
+   ```
+
+3. **Theme Colors**: Colors are defined in `theme/colors.ts` and automatically switch based on the current color scheme:
+   - Light mode: `foreground: 'rgb(0, 0, 0)'`, `border: 'rgb(230, 230, 235)'`
+   - Dark mode: `foreground: 'rgb(236, 237, 238)'`, `border: 'rgb(51, 51, 51)'`
+
+**Key Components Updated**:
+- `components/nativewindui/Text.tsx` - Uses explicit `colors.foreground`
+- `components/nativewindui/Card.tsx` - Uses explicit `colors.border`
+- `components/ui/card.tsx` - Uses explicit `colors.border`
+- `components/ui/input.tsx` - Uses explicit `colors.border`
+- `components/ui/button.tsx` - Uses explicit `colors.border` for outline variant
+- `components/Header.tsx` - Uses explicit `colors.border` for bottom divider
+
+**Why This Works**: By using JavaScript theme colors directly instead of CSS variables, we bypass NativeWind's CSS variable resolution and ensure colors update immediately when the theme changes. The `useColorScheme()` hook provides reactive access to theme colors that update automatically when `setColorScheme()` is called.
 
 ## Development
 

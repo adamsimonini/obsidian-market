@@ -6,7 +6,7 @@ export interface InputProps extends TextInputProps {
   className?: string;
 }
 
-export function Input({ className, ...props }: InputProps) {
+export function Input({ className, style, ...props }: InputProps) {
   const { colors } = useColorScheme();
   // Use muted-foreground color for placeholder
   const placeholderColor = colors.mutedForeground;
@@ -14,11 +14,12 @@ export function Input({ className, ...props }: InputProps) {
   return (
     <TextInput
       className={cn(
-        'h-10 rounded-md border border-border bg-card px-3 py-2 text-foreground',
+        'h-10 rounded-md border bg-card px-3 py-2 text-foreground',
         'placeholder:text-muted-foreground',
         'focus:border-primary focus:outline-none',
         className
       )}
+      style={[{ borderColor: colors.border }, style]}
       placeholderTextColor={placeholderColor}
       {...props}
     />
