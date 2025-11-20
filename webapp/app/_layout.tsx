@@ -19,10 +19,10 @@ export default function RootLayout() {
   const { setColorScheme, colorScheme: nativewindColorScheme } = useNativewindColorScheme();
   const { colorScheme, isDarkColorScheme } = useColorScheme();
 
-  // Initialize color scheme to dark by default
+  // Initialize color scheme to light by default
   useEffect(() => {
     if (!nativewindColorScheme) {
-      setColorScheme('dark');
+      setColorScheme('light');
     }
   }, [nativewindColorScheme, setColorScheme]);
 
@@ -30,7 +30,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       const htmlElement = document.documentElement;
-      const isDark = (nativewindColorScheme ?? 'dark') === 'dark';
+      const isDark = (nativewindColorScheme ?? 'light') === 'dark';
       
       if (isDark) {
         htmlElement.classList.add('dark');
@@ -42,7 +42,7 @@ export default function RootLayout() {
 
   // Define CSS variables based on color scheme
   const themeVars = useMemo(() => {
-    const isDark = (nativewindColorScheme ?? 'dark') === 'dark';
+    const isDark = (nativewindColorScheme ?? 'light') === 'dark';
     
     if (isDark) {
       return vars({

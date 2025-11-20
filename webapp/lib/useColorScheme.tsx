@@ -9,16 +9,16 @@ function useColorScheme() {
   // Initialize to dark if not set
   useEffect(() => {
     if (!colorScheme) {
-      setColorScheme('dark');
+      setColorScheme('light');
     }
   }, [colorScheme, setColorScheme]);
 
   function toggleColorScheme() {
-    const newScheme = (colorScheme ?? 'dark') === 'light' ? 'dark' : 'light';
+    const newScheme = (colorScheme ?? 'light') === 'light' ? 'dark' : 'light';
     return setColorScheme(newScheme);
   }
 
-  const currentScheme = colorScheme ?? 'dark';
+  const currentScheme = colorScheme ?? 'light';
 
   return {
     colorScheme: currentScheme,

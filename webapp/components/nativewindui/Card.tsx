@@ -1,4 +1,4 @@
-import { View, ViewProps, Pressable, PressableProps } from 'react-native';
+import { View, ViewProps, Pressable, PressableProps, TextProps } from 'react-native';
 import { Text } from '@/components/nativewindui/Text';
 import { cn } from '@/lib/cn';
 
@@ -48,7 +48,7 @@ export function CardContent({ className, ...props }: ViewProps) {
 }
 
 // CardTitle
-export function CardTitle({ className, ...props }: ViewProps & { children: React.ReactNode }) {
+export function CardTitle({ className, ...props }: TextProps) {
   return (
     <Text
       className={cn('text-lg font-semibold leading-none tracking-tight text-card-foreground', className)}
@@ -58,7 +58,7 @@ export function CardTitle({ className, ...props }: ViewProps & { children: React
 }
 
 // CardSubtitle
-export function CardSubtitle({ className, ...props }: ViewProps & { children: React.ReactNode }) {
+export function CardSubtitle({ className, ...props }: TextProps) {
   return (
     <Text
       className={cn('text-sm font-medium text-muted-foreground', className)}
@@ -68,7 +68,7 @@ export function CardSubtitle({ className, ...props }: ViewProps & { children: Re
 }
 
 // CardDescription
-export function CardDescription({ className, ...props }: ViewProps & { children: React.ReactNode }) {
+export function CardDescription({ className, ...props }: TextProps) {
   return (
     <Text
       className={cn('text-sm text-muted-foreground', className)}
