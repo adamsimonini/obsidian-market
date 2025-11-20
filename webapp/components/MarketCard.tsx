@@ -1,4 +1,14 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View } from 'react-native';
+import { cn } from '@/lib/cn';
+import {
+  PressableCard,
+  CardContent,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+  CardBadge,
+} from '@/components/nativewindui/Card';
+import { Text } from '@/components/nativewindui/Text';
 import type { Market } from '../types/supabase';
 
 interface MarketCardProps {
@@ -11,18 +21,18 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
     onSelect?.(market);
   };
 
-  const getStatusColor = (status: Market['status']) => {
+  const getStatusColorClass = (status: Market['status']) => {
     switch (status) {
       case 'open':
-        return '#4CAF50';
+        return 'bg-primary';
       case 'closed':
-        return '#FF9800';
+        return 'bg-accent';
       case 'resolved':
-        return '#2196F3';
+        return 'bg-blue-500';
       case 'cancelled':
-        return '#f44336';
+        return 'bg-destructive';
       default:
-        return '#9E9E9E';
+        return 'bg-muted';
     }
   };
 
@@ -32,114 +42,55 @@ export function MarketCard({ market, onSelect }: MarketCardProps) {
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={handlePress}>
-      <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={2}>
-          {market.title}
-        </Text>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: getStatusColor(market.status) },
-          ]}
-        >
-          <Text style={styles.statusText}>{market.status.toUpperCase()}</Text>
+    <PressableCard
+      className="mb-4"
+      onPress={handlePress}
+    >
+      <CardContent>
+        <View className="mb-3 flex-row items-start justify-between">
+          <CardTitle className="flex-1 mr-3" numberOfLines={2}>
+            {market.title}
+          </CardTitle>
+          <CardBadge className={cn('border-0', getStatusColorClass(market.status))}>
+            <Text variant="caption1" className="text-primary-foreground font-semibold">
+              {market.status.toUpperCase()}
+            </Text>
+          </CardBadge>
         </View>
-      </View>
 
-      {market.description && (
-        <Text style={styles.description} numberOfLines={3}>
-          {market.description}
-        </Text>
-      )}
+        {market.description && (
+          <CardDescription className="mb-3" numberOfLines={3}>
+            {market.description}
+          </CardDescription>
+        )}
 
-      <View style={styles.oddsRow}>
-        <View>
-          <Text style={styles.oddsLabel}>Yes Odds: </Text>
-          <Text style={styles.oddsValue}>{market.yes_odds}x</Text>
+        <View className="mb-3 flex-row gap-4">
+          <View>
+            <Text variant="caption1" color="tertiary">Yes Odds: </Text>
+            <Text variant="subhead" className="font-bold">
+              {market.yes_odds}x
+            </Text>
+          </View>
+          <View>
+            <Text variant="caption1" color="tertiary">No Odds: </Text>
+            <Text variant="subhead" className="font-bold">
+              {market.no_odds}x
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text style={styles.oddsLabel}>No Odds: </Text>
-          <Text style={styles.oddsValue}>{market.no_odds}x</Text>
-        </View>
-      </View>
+      </CardContent>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
+      <CardFooter className="justify-between">
+        <Text variant="caption1" color="tertiary">
           Deadline: {formatDeadline(market.resolution_deadline)}
         </Text>
         {market.market_id_onchain && (
-          <Text style={styles.marketId}>
+          <Text variant="caption2" color="quarternary">
             ID: {market.market_id_onchain}
           </Text>
         )}
-      </View>
-    </TouchableOpacity>
+      </CardFooter>
+    </PressableCard>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    padding: 16,
-    marginBottom: 16,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    flex: 1,
-    marginRight: 12,
-  },
-  statusBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    color: 'white',
-  },
-  description: {
-    fontSize: 14,
-    color: '#ccc',
-    marginBottom: 12,
-  },
-  oddsRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 12,
-  },
-  oddsLabel: {
-    fontSize: 12,
-    color: '#999',
-  },
-  oddsValue: {
-    fontSize: 14,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-  },
-  marketId: {
-    fontSize: 10,
-    color: '#666',
-  },
-});
 
