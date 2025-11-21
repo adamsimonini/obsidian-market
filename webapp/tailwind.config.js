@@ -46,16 +46,6 @@ module.exports = {
           DEFAULT: withOpacity('card'),
           foreground: withOpacity('card-foreground'),
         },
-        // Custom Obsidian theme colors (keeping your existing colors)
-        'obsidian-bg': '#0a0a0a',
-        'obsidian-card': '#1a1a1a',
-        'obsidian-border': '#333',
-        'obsidian-text': '#ECEDEE',
-        'obsidian-text-muted': '#999',
-        'obsidian-green': '#4CAF50',
-        'obsidian-red': '#f44336',
-        'obsidian-orange': '#FF9800',
-        'obsidian-blue': '#2196F3',
       },
       borderWidth: {
         hairline: hairlineWidth(),
@@ -68,15 +58,9 @@ module.exports = {
 function withOpacity(variableName) {
   return ({ opacityValue }) => {
     if (opacityValue !== undefined) {
-      return platformSelect({
-        ios: `rgb(var(--${variableName}) / ${opacityValue})`,
-        android: `rgb(var(--android-${variableName}) / ${opacityValue})`,
-      });
+      return `rgb(var(--${variableName}) / ${opacityValue})`;
     }
-    return platformSelect({
-      ios: `rgb(var(--${variableName}))`,
-      android: `rgb(var(--android-${variableName}))`,
-    });
+    return `rgb(var(--${variableName}))`;
   };
 }
 

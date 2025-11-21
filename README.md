@@ -129,62 +129,156 @@ The app uses **NativeWind v4** (Tailwind CSS for React Native) for styling and *
 - **Tailwind CSS Classes**: Use utility classes like `bg-background`, `text-foreground`, `border-border` throughout the app
 - **NativeWind UI Components**: Pre-built components (`Button`, `Card`, `Input`, `Text`, `Icon`) located in `components/nativewindui/` and `components/ui/`
 - **Custom Obsidian Theme**: Custom color palette matching the Obsidian aesthetic
+- **Unified Theming**: Single color palette used across all platforms (iOS, Android, Web) for consistent branding
 - **Light/Dark Mode**: Full theme switching support with manual toggle
 
-### Theme Configuration
+### Theme Architecture
 
-The theme is defined in two places:
+The theming system uses a **unified approach** - the same colors are used across all platforms (iOS, Android, Web) for consistent branding and simplified maintenance.
 
-1. **`webapp/theme/colors.ts`** - Primary theme definition (source of truth)
-   - Platform-specific colors for iOS and Android
-   - Light and dark mode color objects
-   - Exported as `COLORS` object
+#### 1. **`theme/colors.ts`** - Primary Source of Truth (React Native)
 
-2. **`webapp/global.css`** - CSS variables for web and NativeWind
-   - Tailwind directives (`@tailwind base/components/utilities`)
-   - CSS custom properties for light mode (`:root`)
-   - CSS custom properties for dark mode (`.dark`)
+This is the **single source of truth** for all theme colors used in React Native components.
 
-3. **`webapp/lib/useColorScheme.tsx`** - Theme hook
-   - Wraps NativeWind's `useColorScheme` hook
-   - Exposes `colors` object from `theme/colors.ts`
-   - Provides `toggleColorScheme()` function
+- **Unified colors**: Single color palette used across all platforms (iOS, Android, Web)
+- **Theme variants**: `light` and `dark` theme objects
+- **Color tokens**: Semantic color names (background, foreground, primary, border, etc.)
+- **Format**: RGB color strings (e.g., `'rgb(242, 242, 247)'`)
+
+**Usage in Components**:
+```tsx
+import { useColorScheme } from '@/lib/useColorScheme';
+
+function MyComponent() {
+  const { colors, colorScheme, toggleColorScheme } = useColorScheme();
+  
+  return (
+    <View style={{ backgroundColor: colors.background }}>
+      <Text style={{ color: colors.foreground }}>Hello</Text>
+      <View style={{ borderColor: colors.border }} />
+    </View>
+  );
+}
+```
+
+#### 2. **`global.css`** - CSS Variables (Tailwind & Web)
+
+Defines CSS custom properties used by Tailwind CSS classes and web platform styling.
+
+- **Purpose**: Enables Tailwind utilities like `bg-background`, `text-foreground` via `tailwind.config.js`
+- **Format**: RGB values without `rgb()` wrapper (e.g., `242 242 247`) for opacity support
+- **Unified variables**: Same CSS variables used for all platforms
+- **Dark mode**: Supports both `@media (prefers-color-scheme: dark)` and `.dark` class
+
+**How Tailwind Uses It**:
+The `tailwind.config.js` uses a `withOpacity()` function that references these CSS variables:
+```javascript
+// tailwind.config.js
+border: withOpacity('border'),  // Uses --border for all platforms
+```
+
+#### 3. **`lib/useColorScheme.tsx`** - Theme Hook
+
+Provides a unified interface for accessing theme colors and managing theme state.
+
+- **Wraps**: NativeWind's `useColorScheme` hook
+- **Exposes**: `colors` object from `theme/colors.ts` (unified across platforms)
+- **Provides**: `colorScheme`, `isDarkColorScheme`, `setColorScheme()`, `toggleColorScheme()`
+
+### Why Two Systems?
+
+React Native doesn't support CSS variables natively, so we need:
+
+1. **Direct RGB values** (`theme/colors.ts`) → For React Native's StyleSheet API
+2. **CSS variables** (`global.css`) → For Tailwind utilities and web platform
+
+Both systems should be kept **in sync** when updating theme colors.
 
 ### Theme Switching Implementation
 
-The app uses NativeWind v4 with a custom Obsidian theme that supports light and dark modes. Theme switching is implemented using explicit colors from the `useColorScheme()` hook rather than relying solely on CSS variables.
+The app uses a **hybrid approach** combining Tailwind classes and explicit colors:
 
-### How Theme Switching Works
+#### For Backgrounds & Most Styling
+Use Tailwind classes (they work reliably):
+```tsx
+<View className="bg-background border border-border" />
+```
 
-**The Problem**: NativeWind's CSS variables (defined in `global.css`) don't always resolve correctly at runtime in React Native, especially when using classes like `text-foreground` or `border-border`. This can cause text and borders to remain dark in dark mode.
+#### For Text Colors & Borders
+Use explicit colors from `useColorScheme()` hook (more reliable):
+```tsx
+const { colors } = useColorScheme();
+<Text style={{ color: colors.foreground }} />
+<View style={{ borderColor: colors.border }} />
+```
 
-**The Solution**: Use explicit colors from the `useColorScheme()` hook via inline styles:
+**Why This Approach?**
 
-1. **Text Components**: The `Text` component uses `colors.foreground` directly via the `style` prop:
-   ```tsx
-   const { colors } = useColorScheme();
-   <RNText style={{ color: colors.foreground }} />
+NativeWind's CSS variable resolution can be inconsistent at runtime in React Native, especially for:
+- Text colors (`text-foreground` class)
+- Border colors (`border-border` class)
+
+By using explicit colors from `useColorScheme()` for these critical properties, we ensure:
+- ✅ Immediate theme updates when switching
+- ✅ Consistent behavior across platforms
+- ✅ Reliable dark mode support
+
+**Components Using Explicit Colors**:
+- `components/nativewindui/Text.tsx` - Uses `colors.foreground`
+- `components/nativewindui/Card.tsx` - Uses `colors.border`
+- `components/ui/card.tsx` - Uses `colors.border`
+- `components/ui/input.tsx` - Uses `colors.border` and `colors.mutedForeground`
+- `components/ui/button.tsx` - Uses `colors.border` for outline variant
+- `components/Header.tsx` - Uses `colors.border` for bottom divider
+
+### Benefits of Unified Theming
+
+The unified theming approach provides several advantages:
+
+- **Consistent Branding**: Same colors across iOS, Android, and Web ensure a cohesive brand experience
+- **Simplified Maintenance**: Single color palette means updating colors in one place affects all platforms
+- **Easier Development**: No need to manage platform-specific color variations
+- **Web Consistency**: Web platform now uses the same colors as mobile, eliminating inconsistencies
+
+### Adding New Theme Colors
+
+1. **Add to `theme/colors.ts`**:
+   ```typescript
+   // Add to both light and dark theme objects
+   const COLORS = {
+     light: {
+       // ... existing colors ...
+       myNewColor: 'rgb(255, 0, 0)',
+     },
+     dark: {
+       // ... existing colors ...
+       myNewColor: 'rgb(200, 0, 0)',
+     },
+   };
    ```
 
-2. **Border Components**: Card, Input, Button, and Header components use `colors.border`:
-   ```tsx
-   const { colors } = useColorScheme();
-   <View style={{ borderColor: colors.border }} />
+2. **Add to `global.css`**:
+   ```css
+   :root {
+     --my-new-color: 255 0 0;
+   }
+   .dark {
+     --my-new-color: 200 0 0;
+   }
    ```
 
-3. **Theme Colors**: Colors are defined in `theme/colors.ts` and automatically switch based on the current color scheme:
-   - Light mode: `foreground: 'rgb(0, 0, 0)'`, `border: 'rgb(230, 230, 235)'`
-   - Dark mode: `foreground: 'rgb(236, 237, 238)'`, `border: 'rgb(51, 51, 51)'`
+3. **Add to `tailwind.config.js`** (if needed):
+   ```javascript
+   myNewColor: withOpacity('my-new-color'),
+   ```
 
-**Key Components Updated**:
-- `components/nativewindui/Text.tsx` - Uses explicit `colors.foreground`
-- `components/nativewindui/Card.tsx` - Uses explicit `colors.border`
-- `components/ui/card.tsx` - Uses explicit `colors.border`
-- `components/ui/input.tsx` - Uses explicit `colors.border`
-- `components/ui/button.tsx` - Uses explicit `colors.border` for outline variant
-- `components/Header.tsx` - Uses explicit `colors.border` for bottom divider
+4. **Use in components**:
+   ```tsx
+   const { colors } = useColorScheme();
+   <View style={{ backgroundColor: colors.myNewColor }} />
+   ```
 
-**Why This Works**: By using JavaScript theme colors directly instead of CSS variables, we bypass NativeWind's CSS variable resolution and ensure colors update immediately when the theme changes. The `useColorScheme()` hook provides reactive access to theme colors that update automatically when `setColorScheme()` is called.
+**Note**: Since we use unified theming, you only need to define each color once (not per platform). The same color will be used across iOS, Android, and Web.
 
 ## Development
 
