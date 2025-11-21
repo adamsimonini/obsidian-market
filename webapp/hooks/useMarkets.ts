@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { db } from '../lib/db';
+import { supabase } from '../lib/supabase';
 import type { Market, MarketStatus } from '../types/supabase';
 
 export function useMarkets(status?: MarketStatus) {
@@ -12,8 +12,22 @@ export function useMarkets(status?: MarketStatus) {
     const fetchMarkets = async () => {
       try {
         setLoading(true);
-        const data = await db.markets.findAll(status ? { status } : undefined);
-        setMarkets(data);
+        let query = supabase
+          .from('markets')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (status) {
+          query = query.eq('status', status);
+        }
+
+        const { data, error: fetchError } = await query;
+
+        if (fetchError) {
+          throw fetchError;
+        }
+
+        setMarkets(data || []);
         setError(null);
       } catch (err) {
         setError(
@@ -28,19 +42,36 @@ export function useMarkets(status?: MarketStatus) {
     fetchMarkets();
 
     // Set up real-time subscription
-    const unsubscribe = db.markets.subscribe((event, market) => {
-      if (event === 'INSERT') {
-        setMarkets((prev) => [market, ...prev]);
-      } else if (event === 'UPDATE') {
-        setMarkets((prev) =>
-          prev.map((m) => (m.id === market.id ? market : m)),
-        );
-      } else if (event === 'DELETE') {
-        setMarkets((prev) => prev.filter((m) => m.id !== market.id));
-      }
-    });
+    const channel = supabase
+      .channel('markets-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'markets',
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setMarkets((prev) => [payload.new as Market, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setMarkets((prev) =>
+              prev.map((market) =>
+                market.id === payload.new.id ? (payload.new as Market) : market,
+              ),
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setMarkets((prev) =>
+              prev.filter((market) => market.id !== payload.old.id),
+            );
+          }
+        },
+      )
+      .subscribe();
 
-    return unsubscribe;
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [status]);
 
   return { markets, loading, error, refetch: () => {} };

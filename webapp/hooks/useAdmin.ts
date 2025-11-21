@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { db } from '../lib/db';
+import { supabase } from '../lib/supabase';
 
 export function useAdmin(walletAddress: string | null) {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -16,8 +16,18 @@ export function useAdmin(walletAddress: string | null) {
 
       try {
         setLoading(true);
-        const result = await db.admins.checkAdmin(walletAddress);
-        setIsAdmin(result);
+        const { data, error: fetchError } = await supabase
+          .from('admins')
+          .select('wallet_address')
+          .eq('wallet_address', walletAddress)
+          .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+          // PGRST116 is "not found" which is expected for non-admins
+          throw fetchError;
+        }
+
+        setIsAdmin(!!data);
         setError(null);
       } catch (err) {
         setError(
