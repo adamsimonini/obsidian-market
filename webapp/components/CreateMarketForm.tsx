@@ -3,7 +3,7 @@ import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/nativewindui/Text';
 import { useWallet } from '../hooks/useWallet';
 import { useAdmin } from '../hooks/useAdmin';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/db';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 
@@ -57,24 +57,18 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
 
       const marketId = Date.now();
 
-      const { data, error: supabaseError } = await supabase
-        .from('markets')
-        .insert({
-          title: formData.title,
-          description: formData.description || null,
-          resolution_rules: formData.resolution_rules,
-          resolution_source: formData.resolution_source,
-          resolution_deadline: formData.resolution_deadline,
-          status: 'open',
-          yes_odds: parseFloat(formData.yes_odds),
-          no_odds: parseFloat(formData.no_odds),
-          creator_address: address,
-          market_id_onchain: marketId.toString(),
-        });
-
-      if (supabaseError) {
-        throw supabaseError;
-      }
+      await db.markets.create({
+        title: formData.title,
+        description: formData.description || null,
+        resolution_rules: formData.resolution_rules,
+        resolution_source: formData.resolution_source,
+        resolution_deadline: formData.resolution_deadline,
+        status: 'open',
+        yes_odds: parseFloat(formData.yes_odds),
+        no_odds: parseFloat(formData.no_odds),
+        creator_address: address,
+        market_id_onchain: marketId.toString(),
+      });
 
       onClose();
     } catch (err) {
