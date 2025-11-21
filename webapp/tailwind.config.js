@@ -1,4 +1,4 @@
-const { hairlineWidth, platformSelect } = require('nativewind/theme');
+const { hairlineWidth } = require('nativewind/theme');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // NativeWind UI standard colors with opacity support
+        // Semantic color tokens using CSS variables with opacity support
         border: withOpacity('border'),
         input: withOpacity('input'),
         ring: withOpacity('ring'),

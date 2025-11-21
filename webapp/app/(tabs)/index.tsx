@@ -6,21 +6,18 @@ import { CreateMarketForm } from '../../components/CreateMarketForm';
 import { BetForm } from '../../components/BetForm';
 import type { Market } from '../../types/supabase';
 import { cn } from '@/lib/cn';
-import { useColorScheme } from '@/lib/useColorScheme';
 
 export default function HomeScreen() {
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const { colors } = useColorScheme();
 
   return (
-    <View className="flex-1" style={{ backgroundColor: colors.background }}>
+    <View className="flex-1 bg-background">
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20, maxWidth: 1200, alignSelf: 'center', width: '100%' }}>
           {selectedMarket ? (
             <View>
               <TouchableOpacity
-                className="py-2 px-4 rounded mb-4 self-start"
-                style={{ backgroundColor: colors.muted }}
+                className="py-2 px-4 bg-muted rounded mb-4 self-start"
                 onPress={() => setSelectedMarket(null)}
               >
                 <Text className="text-foreground">← Back to Markets</Text>
@@ -33,8 +30,7 @@ export default function HomeScreen() {
           ) : showCreateForm ? (
             <View>
               <TouchableOpacity
-                className="py-2 px-4 rounded mb-4 self-start"
-                style={{ backgroundColor: colors.muted }}
+                className="py-2 px-4 bg-muted rounded mb-4 self-start"
                 onPress={() => setShowCreateForm(false)}
               >
                 <Text className="text-foreground">← Back to Markets</Text>
@@ -48,8 +44,7 @@ export default function HomeScreen() {
                   Markets
                 </Text>
                 <TouchableOpacity
-                  className="py-3 px-6 rounded-lg"
-                  style={{ backgroundColor: colors.primary }}
+                  className="py-3 px-6 bg-primary rounded-lg"
                   onPress={() => setShowCreateForm(true)}
                 >
                   <Text className="text-primary-foreground font-bold">

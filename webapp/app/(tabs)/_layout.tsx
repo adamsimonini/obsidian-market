@@ -13,12 +13,16 @@ export default function TabLayout() {
 
   return (
     <WalletProvider>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <Header />
         <Tabs
           screenOptions={{
             tabBarActiveTintColor: colors.primary,
             tabBarInactiveTintColor: colors.mutedForeground,
+            tabBarStyle: {
+              backgroundColor: colors.card,
+              borderTopColor: colors.border,
+            },
             headerShown: false,
             tabBarButton: HapticTab,
           }}>

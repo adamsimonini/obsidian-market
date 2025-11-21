@@ -2,15 +2,11 @@ import { View } from 'react-native';
 import { Text } from '@/components/nativewindui/Text';
 import { WalletButton } from './WalletButton';
 import { ThemeToggle } from './nativewindui/ThemeToggle';
-import { useColorScheme } from '@/lib/useColorScheme';
 
 export function Header() {
-  const { colors } = useColorScheme();
-  
   return (
     <View 
-      className="border-b px-5 py-5"
-      style={{ borderBottomColor: colors.border, backgroundColor: colors.background }}
+      className="border-b border-border bg-background px-5 py-5"
     >
       <View className="flex-row items-center justify-between">
         <Text variant="title1" className="font-bold text-foreground">

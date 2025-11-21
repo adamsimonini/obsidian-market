@@ -5,9 +5,8 @@ import * as React from 'react';
 import { Text as RNText } from 'react-native';
 
 import { cn } from '@/lib/cn';
-import { useColorScheme } from '@/lib/useColorScheme';
 
-const textVariants = cva('', {
+const textVariants = cva('text-foreground', {
   variants: {
     variant: {
       largeTitle: 'text-4xl',
@@ -23,10 +22,10 @@ const textVariants = cva('', {
       caption2: 'text-[11px] leading-4',
     },
     color: {
-      primary: '',
-      secondary: '',
-      tertiary: '',
-      quarternary: '',
+      primary: 'text-foreground',
+      secondary: 'text-secondary-foreground',
+      tertiary: 'text-muted-foreground',
+      quarternary: 'text-muted-foreground',
     },
   },
   defaultVariants: {
@@ -45,26 +44,11 @@ function Text({
   ...props
 }: React.ComponentPropsWithoutRef<typeof RNText> & VariantProps<typeof textVariants>) {
   const textClassName = React.useContext(TextClassContext);
-  const { colors } = useColorScheme();
-  
-  // Get the appropriate color based on the color variant
-  const getColor = () => {
-    switch (color) {
-      case 'secondary':
-        return colors.secondaryForeground;
-      case 'tertiary':
-        return colors.mutedForeground;
-      case 'quarternary':
-        return colors.mutedForeground;
-      default:
-        return colors.foreground;
-    }
-  };
 
   return (
     <RNText 
       className={cn(textVariants({ variant, color }), textClassName, className)} 
-      style={[{ color: getColor() }, style]}
+      style={style}
       {...props} 
     />
   );
