@@ -1,6 +1,6 @@
 import { TouchableOpacity, TouchableOpacityProps, ActivityIndicator } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Text } from '@/components/nativewindui/Text';
+import { Text, TextClassContext } from '@/components/nativewindui/Text';
 import { cn } from '@/lib/cn';
 
 const buttonVariants = cva(
@@ -8,12 +8,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground',
-        destructive: 'bg-destructive text-destructive-foreground',
-        outline: 'border border-border bg-transparent text-foreground',
-        secondary: 'bg-secondary text-secondary-foreground',
-        ghost: 'bg-transparent text-foreground',
-        link: 'bg-transparent text-foreground',
+        default: 'bg-primary',
+        destructive: 'bg-destructive',
+        outline: 'border border-border bg-transparent',
+        secondary: 'bg-secondary',
+        ghost: 'bg-transparent',
+        link: 'bg-transparent',
       },
       size: {
         default: 'px-6 py-3',
@@ -29,6 +29,23 @@ const buttonVariants = cva(
   }
 );
 
+// Separate CVA for text styling - follows NativeWind UI pattern
+const buttonTextVariants = cva('font-semibold', {
+  variants: {
+    variant: {
+      default: 'text-primary-foreground',
+      destructive: 'text-destructive-foreground',
+      secondary: 'text-secondary-foreground',
+      outline: 'text-foreground',
+      ghost: 'text-foreground',
+      link: 'text-foreground',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+});
+
 export interface ButtonProps
   extends TouchableOpacityProps,
     VariantProps<typeof buttonVariants> {
@@ -38,7 +55,7 @@ export interface ButtonProps
 
 export function Button({
   className,
-  variant,
+  variant = 'default',
   size,
   children,
   loading,
@@ -46,26 +63,22 @@ export function Button({
   style,
   ...props
 }: ButtonProps) {
-  const isOutlineVariant = variant === 'outline' || variant === 'ghost' || variant === 'link';
-  
   return (
-    <TouchableOpacity
-      className={cn(buttonVariants({ variant, size }), className)}
-      style={style}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
-      {...props}
-    >
-      {loading ? (
-        <ActivityIndicator 
-          size="small" 
-        />
-      ) : (
-        <Text className="font-semibold">
-          {children}
-        </Text>
-      )}
-    </TouchableOpacity>
+    <TextClassContext.Provider value={buttonTextVariants({ variant })}>
+      <TouchableOpacity
+        className={cn(buttonVariants({ variant, size }), className)}
+        style={style}
+        disabled={disabled || loading}
+        activeOpacity={0.8}
+        {...props}
+      >
+        {loading ? (
+          <ActivityIndicator size="small" />
+        ) : (
+          <Text>{children}</Text>
+        )}
+      </TouchableOpacity>
+    </TextClassContext.Provider>
   );
 }
 
