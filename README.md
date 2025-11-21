@@ -1,5 +1,7 @@
 # Obsidian Market
 
+[GitHub Repo](https://github.com/adamsimonini/obsidian-market)
+
 A lightweight MVP prediction market application built on Aleo blockchain with cross-platform support (iOS, Android, and Web via React Native/Expo).
 
 ## Overview
