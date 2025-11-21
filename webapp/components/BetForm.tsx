@@ -1,15 +1,15 @@
 import { useState, useCallback } from 'react';
 import {
   View,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   ScrollView,
-  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { Text } from '@/components/nativewindui/Text';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/nativewindui/Card';
 import { useWallet } from '../hooks/useWallet';
-import { useColorScheme } from '@/lib/useColorScheme';
+import { cn } from '@/lib/cn';
 import type { Market } from '../types/supabase';
 
 interface BetFormProps {
@@ -19,7 +19,6 @@ interface BetFormProps {
 
 export function BetForm({ market, onClose }: BetFormProps) {
   const { address, connected } = useWallet();
-  const { colors } = useColorScheme();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSide, setSelectedSide] = useState<boolean | null>(null);
@@ -69,232 +68,181 @@ export function BetForm({ market, onClose }: BetFormProps) {
     return amount * odds;
   };
 
-  const dynamicStyles = {
-    title: { color: colors.foreground },
-    description: { color: colors.mutedForeground },
-    sectionTitle: { color: colors.foreground },
-    sideButton: {
-      backgroundColor: colors.card,
-      borderColor: colors.border,
-    },
-    sideButtonSelected: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    sideButtonText: { color: colors.foreground },
-    oddsText: { color: colors.mutedForeground },
-    payoutText: { color: colors.primaryForeground },
-    label: { color: colors.foreground },
-    input: {
-      backgroundColor: colors.input,
-      borderColor: colors.border,
-      color: colors.foreground,
-    },
-    hint: { color: colors.mutedForeground },
-    summary: { backgroundColor: colors.card, borderColor: colors.border },
-    summaryText: { color: colors.foreground },
-    submitButton: { backgroundColor: colors.primary },
-    cancelButton: { backgroundColor: colors.muted },
-    buttonText: { color: colors.primaryForeground },
-    disabledButtonText: { color: colors.mutedForeground },
-  };
-
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text variant="title1" style={dynamicStyles.title}>{market.title}</Text>
-      {market.description && (
-        <Text variant="body" style={dynamicStyles.description}>{market.description}</Text>
-      )}
-
-      {error && (
-        <View style={[styles.errorContainer, { backgroundColor: colors.destructive }]}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
-
-      {market.status !== 'open' && (
-        <View style={[styles.warningContainer, { backgroundColor: colors.accent }]}>
-          <Text style={styles.warningText}>
-            This market is {market.status} and not accepting bets
+    <ScrollView className="flex-1 bg-background">
+      <View className="p-5 max-w-[600px] self-center w-full">
+        {/* Title and Description */}
+        <View className="mb-6">
+          <Text variant="title1" className="mb-3 font-bold text-foreground">
+            {market.title}
           </Text>
-        </View>
-      )}
-
-      <View style={styles.section}>
-        <Text variant="heading" style={dynamicStyles.sectionTitle}>Select Your Prediction</Text>
-        <View style={styles.sideRow}>
-          <TouchableOpacity
-            style={[
-              styles.sideButton,
-              dynamicStyles.sideButton,
-              selectedSide === true && dynamicStyles.sideButtonSelected,
-            ]}
-            onPress={() => setSelectedSide(true)}
-          >
-            <Text variant="heading" style={[
-              selectedSide === true 
-                ? { color: colors.primaryForeground }
-                : dynamicStyles.sideButtonText
-            ]}>Yes</Text>
-            <Text variant="caption1" style={dynamicStyles.oddsText}>
-              {market.yes_odds}x odds
+          {market.description && (
+            <Text variant="body" className="text-muted-foreground leading-6">
+              {market.description}
             </Text>
-            {selectedSide === true && (
-              <Text variant="caption2" style={dynamicStyles.payoutText}>
-                Payout: {calculatePayout(parseFloat(betAmount) || 0, true).toFixed(2)} ALEO
-              </Text>
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.sideButton,
-              dynamicStyles.sideButton,
-              selectedSide === false && dynamicStyles.sideButtonSelected,
-            ]}
-            onPress={() => setSelectedSide(false)}
-          >
-            <Text variant="heading" style={[
-              selectedSide === false 
-                ? { color: colors.primaryForeground }
-                : dynamicStyles.sideButtonText
-            ]}>No</Text>
-            <Text variant="caption1" style={dynamicStyles.oddsText}>
-              {market.no_odds}x odds
-            </Text>
-            {selectedSide === false && (
-              <Text variant="caption2" style={dynamicStyles.payoutText}>
-                Payout: {calculatePayout(parseFloat(betAmount) || 0, false).toFixed(2)} ALEO
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text variant="body" style={dynamicStyles.label}>Bet Amount (ALEO)</Text>
-        <TextInput
-          style={[styles.input, dynamicStyles.input]}
-          value={betAmount}
-          onChangeText={(val) => {
-            if (val === '' || (!isNaN(Number(val)) && Number(val) >= 0)) {
-              setBetAmount(val);
-            }
-          }}
-          placeholder="1"
-          placeholderTextColor={colors.mutedForeground}
-          keyboardType="numeric"
-        />
-        <Text variant="caption1" style={dynamicStyles.hint}>Minimum: 1 ALEO</Text>
-      </View>
-
-      {selectedSide !== null && (
-        <View style={[styles.summary, dynamicStyles.summary]}>
-          <Text variant="body" style={dynamicStyles.summaryText}>
-            Betting {betAmount || '0'} ALEO on {selectedSide ? 'Yes' : 'No'}
-          </Text>
-          <Text variant="body" style={dynamicStyles.summaryText}>
-            Potential Payout: {calculatePayout(parseFloat(betAmount) || 0, selectedSide).toFixed(2)} ALEO
-          </Text>
-        </View>
-      )}
-
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            dynamicStyles.submitButton,
-            (loading || !selectedSide || market.status !== 'open') && styles.disabled,
-          ]}
-          onPress={handlePlaceBet}
-          disabled={loading || !selectedSide || market.status !== 'open'}
-        >
-          {loading ? (
-            <ActivityIndicator color={colors.primaryForeground} />
-          ) : (
-            <Text variant="body" style={[
-              dynamicStyles.buttonText,
-              (loading || !selectedSide || market.status !== 'open') && dynamicStyles.disabledButtonText
-            ]}>Place Bet</Text>
           )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, dynamicStyles.cancelButton]}
-          onPress={onClose}
-        >
-          <Text variant="body" style={{ color: colors.foreground }}>Cancel</Text>
-        </TouchableOpacity>
+        </View>
+
+        {/* Error Message */}
+        {error && (
+          <View className="mb-4 p-3 rounded bg-destructive">
+            <Text className="text-destructive-foreground">{error}</Text>
+          </View>
+        )}
+
+        {/* Warning Message */}
+        {market.status !== 'open' && (
+          <View className="mb-4 p-3 rounded bg-accent">
+            <Text className="text-accent-foreground">
+              This market is {market.status} and not accepting bets
+            </Text>
+          </View>
+        )}
+
+        {/* Prediction Selection */}
+        <View className="mb-6">
+          <Text variant="heading" className="mb-4 text-foreground">
+            Select Your Prediction
+          </Text>
+          <View className="flex-row gap-3">
+            <TouchableOpacity
+              onPress={() => setSelectedSide(true)}
+              className={cn(
+                'flex-1 p-4 rounded-lg border items-center',
+                selectedSide === true
+                  ? 'bg-primary border-primary'
+                  : 'bg-card border-border'
+              )}
+            >
+              <Text
+                variant="heading"
+                className={cn(
+                  'mb-2',
+                  selectedSide === true
+                    ? 'text-primary-foreground'
+                    : 'text-card-foreground'
+                )}
+              >
+                Yes
+              </Text>
+              <Text
+                variant="caption1"
+                className={cn(
+                  'mb-2',
+                  selectedSide === true
+                    ? 'text-primary-foreground/80'
+                    : 'text-muted-foreground'
+                )}
+              >
+                {market.yes_odds}x odds
+              </Text>
+              {selectedSide === true && (
+                <Text
+                  variant="caption2"
+                  className="text-primary-foreground/90 font-semibold"
+                >
+                  Payout: {calculatePayout(parseFloat(betAmount) || 0, true).toFixed(2)} ALEO
+                </Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSelectedSide(false)}
+              className={cn(
+                'flex-1 p-4 rounded-lg border items-center',
+                selectedSide === false
+                  ? 'bg-primary border-primary'
+                  : 'bg-card border-border'
+              )}
+            >
+              <Text
+                variant="heading"
+                className={cn(
+                  'mb-2',
+                  selectedSide === false
+                    ? 'text-primary-foreground'
+                    : 'text-card-foreground'
+                )}
+              >
+                No
+              </Text>
+              <Text
+                variant="caption1"
+                className={cn(
+                  'mb-2',
+                  selectedSide === false
+                    ? 'text-primary-foreground/80'
+                    : 'text-muted-foreground'
+                )}
+              >
+                {market.no_odds}x odds
+              </Text>
+              {selectedSide === false && (
+                <Text
+                  variant="caption2"
+                  className="text-primary-foreground/90 font-semibold"
+                >
+                  Payout: {calculatePayout(parseFloat(betAmount) || 0, false).toFixed(2)} ALEO
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Bet Amount Input */}
+        <View className="mb-6">
+          <Text variant="body" className="mb-2 font-semibold text-foreground">
+            Bet Amount (ALEO)
+          </Text>
+          <Input
+            value={betAmount}
+            onChangeText={(val) => {
+              if (val === '' || (!isNaN(Number(val)) && Number(val) >= 0)) {
+                setBetAmount(val);
+              }
+            }}
+            placeholder="1"
+            keyboardType="numeric"
+            className="mb-2"
+          />
+          <Text variant="caption1" className="text-muted-foreground">
+            Minimum: 1 ALEO
+          </Text>
+        </View>
+
+        {/* Summary */}
+        {selectedSide !== null && (
+          <Card className="mb-6 p-4">
+            <Text variant="body" className="mb-2 text-card-foreground">
+              Betting {betAmount || '0'} ALEO on {selectedSide ? 'Yes' : 'No'}
+            </Text>
+            <Text variant="body" className="text-card-foreground">
+              Potential Payout: {calculatePayout(parseFloat(betAmount) || 0, selectedSide).toFixed(2)} ALEO
+            </Text>
+          </Card>
+        )}
+
+        {/* Action Buttons */}
+        <View className="flex-row gap-3">
+          <Button
+            variant="default"
+            className="flex-1"
+            onPress={handlePlaceBet}
+            disabled={loading || !selectedSide || market.status !== 'open'}
+            loading={loading}
+          >
+            Place Bet
+          </Button>
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onPress={onClose}
+          >
+            Cancel
+          </Button>
+        </View>
       </View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-    maxWidth: 600,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  errorContainer: {
-    padding: 12,
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: 'white',
-  },
-  warningContainer: {
-    padding: 12,
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  warningText: {
-    color: 'white',
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sideRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  sideButton: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: 'center',
-  },
-  input: {
-    width: '100%',
-    padding: 12,
-    borderRadius: 4,
-    borderWidth: 1,
-    marginBottom: 8,
-  },
-  summary: {
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: 1,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-});
 
