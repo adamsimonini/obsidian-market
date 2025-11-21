@@ -88,12 +88,8 @@ export function Button({
         />
       ) : (
         <Text
-          className={cn(
-            'font-semibold',
-            isOutlineVariant
-              ? 'text-foreground'
-              : 'text-primary-foreground'
-          )}
+          className="font-semibold"
+          style={{ color: isOutlineVariant ? colors.foreground : colors.primaryForeground }}
         >
           {children}
         </Text>

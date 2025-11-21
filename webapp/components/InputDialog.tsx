@@ -7,6 +7,7 @@ import {
   Modal,
   StyleSheet,
 } from 'react-native';
+import { useColorScheme } from '@/lib/useColorScheme';
 
 interface InputDialogProps {
   title: string;
@@ -22,6 +23,7 @@ export function InputDialog({
   onCancel,
 }: InputDialogProps) {
   const [value, setValue] = useState('');
+  const { colors } = useColorScheme();
 
   const handleConfirm = useCallback(() => {
     if (value.trim()) {
@@ -37,28 +39,28 @@ export function InputDialog({
       onRequestClose={onCancel}
     >
       <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          <Text style={styles.title}>{title}</Text>
+        <View style={[styles.dialog, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.foreground }]}>{title}</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.foreground }]}
             value={value}
             onChangeText={setValue}
             placeholder={placeholder}
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.mutedForeground}
             autoFocus
           />
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+              style={[styles.button, { backgroundColor: colors.muted }]}
               onPress={onCancel}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={[styles.buttonText, { color: colors.foreground }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.button, styles.confirmButton]}
+              style={[styles.button, { backgroundColor: colors.primary }]}
               onPress={handleConfirm}
             >
-              <Text style={[styles.buttonText, styles.confirmButtonText]}>
+              <Text style={[styles.buttonText, styles.confirmButtonText, { color: colors.primaryForeground }]}>
                 Confirm
               </Text>
             </TouchableOpacity>
@@ -77,28 +79,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dialog: {
-    backgroundColor: '#1a1a1a',
     padding: 24,
     borderRadius: 8,
     minWidth: 300,
     maxWidth: '90%',
     borderWidth: 1,
-    borderColor: '#333',
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: 'white',
   },
   input: {
     width: '100%',
     padding: 12,
     borderRadius: 4,
-    backgroundColor: '#0a0a0a',
     borderWidth: 1,
-    borderColor: '#333',
-    color: 'white',
     marginBottom: 16,
   },
   buttonRow: {
@@ -111,14 +107,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 4,
   },
-  cancelButton: {
-    backgroundColor: '#666',
-  },
-  confirmButton: {
-    backgroundColor: '#4CAF50',
-  },
   buttonText: {
-    color: 'white',
+    // Color applied dynamically
   },
   confirmButtonText: {
     fontWeight: 'bold',
