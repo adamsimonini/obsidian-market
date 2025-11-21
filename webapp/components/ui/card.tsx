@@ -9,10 +9,10 @@ export function Card({ className, style, ...props }: ViewProps) {
   return (
     <View
       className={cn(
-        'rounded-lg border bg-card p-4',
+        'rounded-lg border p-4',
         className
       )}
-      style={[{ borderColor: colors.border }, style]}
+      style={[{ borderColor: colors.border, backgroundColor: colors.card }, style]}
       {...props}
     />
   );

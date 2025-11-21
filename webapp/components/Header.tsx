@@ -9,8 +9,8 @@ export function Header() {
   
   return (
     <View 
-      className="border-b bg-background px-5 py-5"
-      style={{ borderBottomColor: colors.border }}
+      className="border-b px-5 py-5"
+      style={{ borderBottomColor: colors.border, backgroundColor: colors.background }}
     >
       <View className="flex-row items-center justify-between">
         <Text variant="title1" className="font-bold text-foreground">

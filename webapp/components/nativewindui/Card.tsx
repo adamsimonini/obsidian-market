@@ -22,10 +22,10 @@ export function Card({ className, style, ...props }: ViewProps) {
   return (
     <View
       className={cn(
-        'rounded-lg border bg-card',
+        'rounded-lg border',
         className
       )}
-      style={[{ borderColor: colors.border }, style]}
+      style={[{ borderColor: colors.border, backgroundColor: colors.card }, style]}
       {...props}
     />
   );
@@ -38,10 +38,10 @@ export function PressableCard({ className, style, ...props }: PressableProps) {
   return (
     <Pressable
       className={cn(
-        'rounded-lg border bg-card active:opacity-80',
+        'rounded-lg border active:opacity-80',
         className
       )}
-      style={[{ borderColor: colors.border }, style]}
+      style={[{ borderColor: colors.border, backgroundColor: colors.card }, style]}
       {...props}
     />
   );

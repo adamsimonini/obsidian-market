@@ -51,13 +51,32 @@ export function Button({
   const isOutlineVariant = variant === 'outline' || variant === 'ghost' || variant === 'link';
   const indicatorColor = isOutlineVariant ? colors.foreground : colors.primaryForeground;
   
+  // Get background color based on variant
+  const getBackgroundColor = () => {
+    switch (variant) {
+      case 'default':
+        return colors.primary;
+      case 'destructive':
+        return colors.destructive;
+      case 'secondary':
+        return colors.secondary;
+      case 'outline':
+      case 'ghost':
+      case 'link':
+        return 'transparent';
+      default:
+        return colors.primary;
+    }
+  };
+  
   // Apply border color for outline variant
   const borderStyle = variant === 'outline' ? { borderColor: colors.border } : {};
+  const backgroundColor = getBackgroundColor();
   
   return (
     <TouchableOpacity
       className={cn(buttonVariants({ variant, size }), className)}
-      style={[borderStyle, style]}
+      style={[{ backgroundColor, ...borderStyle }, style]}
       disabled={disabled || loading}
       activeOpacity={0.8}
       {...props}
