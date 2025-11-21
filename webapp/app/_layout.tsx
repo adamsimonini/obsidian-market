@@ -4,6 +4,7 @@ import { useEffect, useMemo } from 'react';
 import { Platform, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 import { useColorScheme as useNativewindColorScheme, vars } from 'nativewind';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
@@ -87,17 +88,19 @@ export default function RootLayout() {
   }, [nativewindColorScheme]);
 
   return (
-    <ThemeProvider>
-      <StatusBar
-        key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
-        style={isDarkColorScheme ? 'light' : 'dark'}
-      />
-      <NavThemeProvider value={NAV_THEME[colorScheme]}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-        </Stack>
-      </NavThemeProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <StatusBar
+          key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
+          style={isDarkColorScheme ? 'light' : 'dark'}
+        />
+        <NavThemeProvider value={NAV_THEME[colorScheme]}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          </Stack>
+        </NavThemeProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
