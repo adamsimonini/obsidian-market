@@ -4,6 +4,7 @@
     "scripts": {
       "backend": "cd backend && supabase start",
       "frontend": "cd webapp && pnpm expo start",
+      "chain": "amareleo-chain start",
       "dev": "run-p supabase webapp"
     },
     "devDependencies": {

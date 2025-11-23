@@ -9,7 +9,7 @@ program obsidian_market.aleo {
     //  - @checksum(mapping="credits.aleo/fixme", key="0field")
     //  - @custom
     // For more information, please refer to the documentation: `https://docs.leo-lang.org/guides/upgradability`
-    @admin(address="aleo1qg23nrrrlf6h7fqq7amk9wqzs06sluh7tm5y6lgg9svpqpck0qqqv9h0sw")
+    @admin(address="aleo12jwjgr6uvlydcgjlguyhlp6rfgntnyx7hk5g8k5dllqpjtdngcqqcrhmfj")
     async constructor() {}
 
     // Market status: 0 = open, 1 = closed, 2 = resolved, 3 = cancelled
@@ -17,11 +17,10 @@ program obsidian_market.aleo {
     struct Market {
         id: u64,
         creator: address,
-        yes_odds: u64,
-        no_odds: u64,
+        market_type: u8,  // 1 = cpmm
+        yes_reserves: u64,  // PUBLIC - required for pricing
+        no_reserves: u64,   // PUBLIC - required for pricing
         status: u8,
-        total_yes_bets: u64,
-        total_no_bets: u64,
     }
 
     // Bet struct structure (structs can be stored in mappings)
@@ -42,7 +41,9 @@ program obsidian_market.aleo {
     const MARKET_STATUS_CLOSED: u8 = 1u8;
     const MARKET_STATUS_RESOLVED: u8 = 2u8;
     const MARKET_STATUS_CANCELLED: u8 = 3u8;
+    // ? should min bet amount be decided per market or is that against AMM?
     const MIN_BET_AMOUNT: u64 = 1000000u64; // 1 ALEO in microcredits
+    // ? should there be a maximum bet, which only applies if provided?
 
     // Create a new market (admin only)
     transition create_market(
@@ -56,14 +57,14 @@ program obsidian_market.aleo {
         let caller: address = self.caller;
         
         // Create new market struct
+        // For CPMM: yes_odds and no_odds are initial reserves (liquidity)
         let market: Market = Market {
             id: market_id,
             creator: caller,
-            yes_odds: yes_odds,
-            no_odds: no_odds,
+            market_type: 1u8,  // 1 = CPMM market type
+            yes_reserves: yes_odds,  // Initial YES reserve (liquidity)
+            no_reserves: no_odds,    // Initial NO reserve (liquidity)
             status: MARKET_STATUS_OPEN,
-            total_yes_bets: 0u64,
-            total_no_bets: 0u64,
         };
 
         // Store market in mapping
@@ -72,69 +73,52 @@ program obsidian_market.aleo {
         return market;
     }
 
-    // Place a bet on a market
-    transition place_bet(
-        public market_id: u64,
-        public side: bool,
-        amount: u64
-    ) -> Bet {
-        // Validate minimum bet amount (1 ALEO = 1000000 microcredits)
-        assert(amount >= MIN_BET_AMOUNT);
-
-        // Get market from mapping
-        let market: Market = markets.get(market_id);
-        
-        // Validate market exists and is open
-        assert(market.status == MARKET_STATUS_OPEN);
-
-        let caller: address = self.caller;
-
-        // Create bet struct
-        let bet_id: u64 = market_id;
-        let bet: Bet = Bet {
-            market_id: market_id,
-            user: caller,
-            amount: amount,
-            side: side,
-        };
-
-        // Update market totals
-        if side {
-            let new_total_yes: u64 = market.total_yes_bets + amount;
-            let updated_market: Market = Market {
-                id: market.id,
-                creator: market.creator,
-                yes_odds: market.yes_odds,
-                no_odds: market.no_odds,
-                status: market.status,
-            total_yes_bets: new_total_yes,
-            total_no_bets: market.total_no_bets,
-        };
-        markets[market_id] = updated_market;
-    } else {
-            let new_total_no: u64 = market.total_no_bets + amount;
-            let updated_market: Market = Market {
-                id: market.id,
-                creator: market.creator,
-                yes_odds: market.yes_odds,
-                no_odds: market.no_odds,
-                status: market.status,
-            total_yes_bets: market.total_yes_bets,
-            total_no_bets: new_total_no,
-        };
-        markets[market_id] = updated_market;
-    }
-
-        // Store bet (using market_id as key for simplicity - in production use unique bet_id)
-        bets[bet_id] = bet;
-
-        return bet;
-    }
-
-    // Get market information
+    // Public transition - anyone can call
     transition get_market(public market_id: u64) -> Market {
         let market: Market = markets.get(market_id);
-        return market;
+        return market;  // Returns PUBLIC data
+    }
+
+    // Place a bet on a market
+    transition place_bet_cpmm(
+        public market_id: u64,           // Public (needed to identify market)
+        // Records MUST be passed as parameters in Aleo - this is correct
+        credit_record: credits.aleo/credits.record,  // PRIVATE - user's credit record to spend
+        private side: bool,               // PRIVATE - user's bet direction hidden
+    ) -> (BetRecord, Future) {
+        // 1. Extract amount from credit record (private)
+        let amount = credit_record.microcredits;
+        
+        // 2. Get current PUBLIC reserves (can read public state)
+        let market: Market = markets.get(market_id);
+        let current_yes_reserves = market.yes_reserves;
+        let current_no_reserves = market.no_reserves;
+        
+        // 3. Calculate shares using CPMM formula (private computation)
+        // TODO: Design this logic with extensibility for non-binary markets (e.g., 3+ options)
+        let (new_yes_reserves, new_no_reserves, shares_out) = calculate_cpmm_swap(
+            current_yes_reserves,
+            current_no_reserves,
+            amount,
+            side
+        );
+        
+        // 4. Create new PRIVATE record for user (represents their shares)
+        // shares_out is what they RECEIVE (shares in the market), not what they put in
+        // They put in: amount (credits)
+        // They receive: shares_out (shares representing their position)
+        let bet_record = BetRecord {
+            owner: self.caller,  // Private - user's address
+            market_id: market_id,
+            shares: shares_out,  // Private - shares they receive (not what they put in)
+            side: side,          // Private - their bet direction
+        };
+        
+        // 5. Return Future for async public state update
+        // The async function will update public reserves on-chain
+        let future = update_market_reserves(market_id, new_yes_reserves, new_no_reserves);
+        
+        return (bet_record, future);
     }
 
     // Get bet information
