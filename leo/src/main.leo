@@ -37,11 +37,12 @@ program obsidian_market.aleo {
     
 
     // Create a new market (admin only)
-    transition create_market(
+    // Must be async to write to mappings
+    async transition create_market(
         public market_id: u64,
         public yes_odds: u64,
         public no_odds: u64
-    ) -> Market {
+    ) -> Future {
         // Validate admin (caller must be admin)
         // Note: In production, you'd check against an admin list
         // For MVP, we'll use the program admin address
@@ -58,31 +59,37 @@ program obsidian_market.aleo {
             status: MARKET_STATUS_OPEN,
         };
 
-        // Store market in mapping
-        markets[market_id] = market;
-
-        return market;
+        // Store market in mapping (must use .set() in async function)
+        return create_market_onchain(market_id, market);
     }
 
-    // Public transition - anyone can call
-    transition get_market(public market_id: u64) -> Market {
-        let market: Market = markets.get(market_id);
-        return market;  // Returns PUBLIC data
+    // Async function to store market in mapping
+    async function create_market_onchain(
+        public market_id: u64,
+        public market: Market
+    ) {
+        // Use .set() method for mappings, not array syntax
+        markets.set(market_id, market);
     }
+
+    // Note: Reading from mappings requires async functions, but async functions can't return values
+    // For now, market data should be queried off-chain or passed as parameters
+    // If you need to read markets, consider making reserves public parameters in transitions
 
     // Place a bet on a market
     // Returns Future for async public state update
+    // Note: Market reserves are public (needed for AMM), so we pass them as public params
     async transition place_bet_cpmm(
         public market_id: u64,           // Public (needed to identify market)
+        public current_yes_reserves: u64, // Public (market reserves are public for AMM)
+        public current_no_reserves: u64,  // Public (market reserves are public for AMM)
         private amount: u64,             // PRIVATE - bet amount
         private side: bool,              // PRIVATE - user's bet direction hidden
     ) -> (BetRecord, Future) {
-        // 2. Get current PUBLIC reserves (can read public state)
-        let market: Market = markets.get(market_id);
-        let current_yes_reserves = market.yes_reserves;
-        let current_no_reserves = market.no_reserves;
+        // 1. Validate minimum bet amount
+        assert(amount >= MIN_BET_AMOUNT);
         
-        // 3. Calculate shares using CPMM formula (private computation)
+        // 2. Calculate shares using CPMM formula (private computation)
         let (new_yes_reserves, new_no_reserves, shares_out) = calculate_cpmm_swap(
             current_yes_reserves,
             current_no_reserves,
@@ -90,17 +97,23 @@ program obsidian_market.aleo {
             side
         );
         
-        // create a new bet record, which ais a private record that represents the user's shares
-        // all records beleong to a user and are associated with a market
+        // 3. Create a new bet record, which is a private record that represents the user's shares
+        // All records belong to a user and are associated with a market
         let bet_record = BetRecord {
             market_id: market_id,
-            owner: self.caller,  // Private - user's address
+            owner: self.signer,  // Private - user's address (signer in private transitions)
             shares: shares_out,  // Private - shares they receive (not what they put in)
             side: side,          // Private - their bet direction
         };
         
-        // The async function will update public reserves on-chain
-        let future = update_market_reserves(market_id, new_yes_reserves, new_no_reserves);
+        // 4. The async function will validate and update public reserves on-chain
+        let future = update_market_reserves(
+            market_id, 
+            new_yes_reserves, 
+            new_no_reserves,
+            current_yes_reserves,  // For validation (prevents race conditions)
+            current_no_reserves    // For validation (prevents race conditions)
+        );
         
         return (bet_record, future);
     }
@@ -147,25 +160,46 @@ program obsidian_market.aleo {
     }
 
     // Async function to update PUBLIC reserves on-chain
+    // Async functions don't return values - they execute side effects (mutations)
     async function update_market_reserves(
-        market_id: u64,
-        new_yes_reserves: u64,
-        new_no_reserves: u64
-    ) -> Market {
+        public market_id: u64,
+        public new_yes_reserves: u64,
+        public new_no_reserves: u64,
+        public expected_yes_reserves: u64,  // For validation (prevents race conditions)
+        public expected_no_reserves: u64   // For validation (prevents race conditions)
+    ) {
         // This executes on-chain after private transition proof is verified
-        let market: Market = markets.get(market_id);
+        // Use .get_or_use() method for mappings, not .get()
+        // Default market with id=0 indicates not found (can't use self.caller in async functions)
+        // Use admin address as placeholder for default market
+        let default_creator: address = aleo12jwjgr6uvlydcgjlguyhlp6rfgntnyx7hk5g8k5dllqpjtdngcqqcrhmfj;
+        let default_market: Market = Market {
+            id: 0u64,
+            creator: default_creator,  // Placeholder (we check id != 0 to validate)
+            market_type: 0u8,
+            yes_reserves: 0u64,
+            no_reserves: 0u64,
+            status: 0u8,
+        };
+        let market: Market = markets.get_or_use(market_id, default_market);
         
-        // Update PUBLIC pool state with new reserves
-        markets[market_id] = Market {
+        // Validate market exists and is open
+        assert(market.id != 0u64);  // Market must exist
+        assert(market.status == MARKET_STATUS_OPEN);  // Market must be open
+        
+        // Validate reserves match expected (prevents race conditions)
+        assert(market.yes_reserves == expected_yes_reserves);
+        assert(market.no_reserves == expected_no_reserves);
+        
+        // Update PUBLIC pool state with new reserves using .set() method
+        markets.set(market_id, Market {
             id: market.id,  
             creator: market.creator,
             market_type: market.market_type,
             yes_reserves: new_yes_reserves,  // PUBLIC update
             no_reserves: new_no_reserves,    // PUBLIC update
             status: market.status,
-        };
-        
-        return markets[market_id];
+        });
     }
 
 }
