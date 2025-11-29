@@ -1,5 +1,8 @@
 import '../global.css';
-import 'expo-dev-client';
+// expo-dev-client is only needed for development builds with custom native code
+// Comment out for Expo Go compatibility - Expo Go doesn't support custom native modules
+// Uncomment if you're using a development build (not Expo Go)
+// import 'expo-dev-client';
 import { useEffect, useMemo } from 'react';
 import { Platform, View } from 'react-native';
 import { Stack } from 'expo-router';

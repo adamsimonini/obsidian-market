@@ -121,6 +121,7 @@ obsidian-market/
 
 ### Backend & Blockchain
 - **Aleo/Leo**: Privacy-preserving blockchain
+- **Amareleo-Chain**: Lite Aleo development node for local testing (see [Development](#local-aleo-chain) section)
 - **Supabase**: Backend-as-a-Service (PostgreSQL + REST API)
 - **Leo Wallet Adapter**: Official Aleo wallet integration
 
@@ -290,6 +291,30 @@ The unified theming approach provides several advantages:
 cd webapp
 pnpm start
 ```
+
+### Local Aleo Chain
+
+This project uses [Amareleo-Chain](https://github.com/kaxxa123/amareleo-chain) for local Aleo development. Amareleo-Chain is a lite, developer-friendly Aleo node that provides a minimal validator for testing Aleo program deployment and execution.
+
+**Key Features:**
+- Fast startup/shutdown times
+- Single process with minimal resource usage
+- Fresh chain state by default (or persistent with `--keep-state`)
+- Compatible with standard Aleo tools (`snarkOS`, `leo`)
+
+**Available Commands:**
+- `amareleo-chain start` - Start the local chain node (exposes REST API on `localhost:3030`)
+- `amareleo-chain start --keep-state` - Start with persistent chain state across runs
+- `amareleo-chain clean` - Clean the chain storage
+- `amareleo-chain update` - Update amareleo-chain
+
+**Package Script:**
+```bash
+# Start the local Aleo chain
+pnpm chain
+```
+
+This runs `amareleo-chain start` which starts a fresh chain from genesis and exposes a REST server on [localhost:3030](http://localhost:3030/), supporting the same endpoints as `snarkos`.
 
 ### Building
 
