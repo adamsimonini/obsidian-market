@@ -96,6 +96,8 @@ export default function RootLayout() {
         <StatusBar
           key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
           style={isDarkColorScheme ? 'light' : 'dark'}
+          translucent={Platform.OS === 'android'}
+          backgroundColor="transparent"
         />
         <NavThemeProvider value={NAV_THEME[colorScheme]}>
           <Stack>

@@ -52,7 +52,7 @@ VALUES ('aleo1qg23nrrrlf6h7fqq7amk9wqzs06sluh7tm5y6lgg9svpqpck0qqqv9h0sw');
 
 ## Step 5: Configure Environment Variables
 
-Create a `.env` file in the `webapp/` directory:
+Create a `.env` file in the `frontend/` directory:
 
 ```env
 VITE_SUPABASE_URL=https://xxxxx.supabase.co
@@ -66,9 +66,9 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ## Step 6: Test Connection
 
-1. Install Supabase client in webapp:
+1. Install Supabase client in frontend:
    ```bash
-   cd webapp
+   cd frontend
    pnpm add @supabase/supabase-js
    ```
 

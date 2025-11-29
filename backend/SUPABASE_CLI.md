@@ -37,7 +37,7 @@ This will open your browser to authenticate.
 
 ### 2. Link Your Project
 ```bash
-cd webapp
+cd frontend
 supabase link --project-ref your-project-ref
 ```
 

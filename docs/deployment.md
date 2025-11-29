@@ -79,7 +79,7 @@ After deployment, save:
 Update contract address in frontend code (create config file):
 
 ```typescript
-// webapp/src/config/aleo.ts
+// frontend/src/config/aleo.ts
 export const ALEO_CONTRACT_ADDRESS = 'aleo1...'
 export const ALEO_NETWORK = 'testnet'
 ```
@@ -95,7 +95,7 @@ export const ALEO_NETWORK = 'testnet'
 
 2. Deploy:
    ```bash
-   cd webapp
+   cd frontend
    vercel
    ```
 
@@ -113,7 +113,7 @@ export const ALEO_NETWORK = 'testnet'
 
 2. Deploy:
    ```bash
-   cd webapp
+   cd frontend
    netlify deploy --prod
    ```
 
@@ -123,7 +123,7 @@ export const ALEO_NETWORK = 'testnet'
 
 1. Build for production:
    ```bash
-   cd webapp
+   cd frontend
    pnpm run build
    ```
 

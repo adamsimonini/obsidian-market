@@ -41,19 +41,19 @@ Obsidian Market enables users to create and participate in binary (Yes/No) predi
 
 1. **Install Dependencies**
    ```bash
-   cd webapp
+   cd frontend
    pnpm install
    ```
 
 2. **Set Up Environment Variables**
    ```bash
-   # Create .env file in webapp/
+   # Create .env file in frontend/
    EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
    EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
    ```
 
 3. **Set Up Supabase**
-   - Follow [Supabase Quick Setup Guide](./webapp/SUPABASE_SETUP.md)
+   - Follow [Supabase Quick Setup Guide](./frontend/SUPABASE_SETUP.md)
    - Run the migration script (`supabase-migration.sql`) in Supabase SQL Editor
    - Add your admin wallet address to the `admins` table
 
@@ -63,15 +63,17 @@ Obsidian Market enables users to create and participate in binary (Yes/No) predi
 
 5. **Run Development Server**
    ```bash
-   cd webapp
+   cd frontend
    pnpm start
    ```
    
-   Then:
+   This starts the **Metro bundler** (required for mobile) on port 19000. Then use the interactive menu:
    - Press `i` for iOS simulator
-   - Press `a` for Android emulator
-   - Press `w` for web browser
+   - Press `a` for Android emulator/Expo Go
+   - Press `w` for web browser (starts web dev server on port 19006)
    - Scan QR code with Expo Go app (mobile)
+   
+   **Important**: Run `expo start` (or `pnpm start`) without flags to start Metro. Don't use `expo start --web` directly, as it only starts the web server and skips Metro bundler needed for mobile.
 
 ## Project Structure
 
@@ -81,7 +83,7 @@ obsidian-market/
 │   ├── src/                # Leo source code
 │   │   └── main.leo        # Main contract
 │   └── tests/              # Contract tests
-├── webapp/                 # React Native frontend (Expo)
+├── frontend/               # React Native frontend (Expo)
 │   ├── app/                # Expo Router pages
 │   ├── components/         # React Native components
 │   │   ├── nativewindui/   # NativeWind UI components (Text, Card, Icon, ThemeToggle)
@@ -101,7 +103,7 @@ obsidian-market/
 
 ## Documentation
 
-- [Supabase Quick Setup](./webapp/SUPABASE_SETUP.md) - Database setup (start here!)
+- [Supabase Quick Setup](./frontend/SUPABASE_SETUP.md) - Database setup (start here!)
 - [Development Guide](./docs/development.md) - Detailed development setup
 - [Deployment Guide](./docs/deployment.md) - Production deployment
 - [Supabase Schema](./docs/supabase-schema.md) - Database schema details
@@ -287,10 +289,23 @@ The unified theming approach provides several advantages:
 
 ### Running the App
 
+**Start Metro Bundler (Required for Mobile):**
 ```bash
-cd webapp
+cd frontend
 pnpm start
 ```
+
+This starts the Metro bundler on port 19000, which is required for iOS, Android, and Expo Go. Once Metro is running, use the interactive menu:
+- Press `i` for iOS simulator
+- Press `a` for Android emulator/Expo Go
+- Press `w` for web browser (also starts web dev server on port 19006)
+- Scan QR code with Expo Go app (mobile)
+
+**Important Notes:**
+- ✅ **Correct**: `expo start` or `pnpm start` - Starts Metro bundler, then choose platform
+- ❌ **Incorrect**: `expo start --web` - Only starts web server, Metro won't run (Android/iOS won't work)
+- The Metro bundler (port 19000) is required for mobile development
+- The web dev server (port 19006) is optional and can be started from the Metro menu
 
 ### Local Aleo Chain
 
@@ -331,7 +346,7 @@ pnpm web
 
 ### Environment Variables
 
-Create a `.env` file in `webapp/` with:
+Create a `.env` file in `frontend/` with:
 - `EXPO_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key
 

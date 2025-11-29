@@ -31,7 +31,7 @@ These keys are **regenerated** when you:
 
 For local development, you should save the keys to your `.env` file so your app can connect:
 
-### 1. Create/Update `.env` in `webapp/`:
+### 1. Create/Update `.env` in `frontend/`:
 
 ```env
 # Local Supabase (from supabase start output)
@@ -72,7 +72,7 @@ If you want keys to persist across restarts, you can:
 ANON_KEY=$(supabase status | grep "anon key" | awk '{print $3}')
 API_URL="http://127.0.0.1:54321"
 
-cat > ../webapp/.env.local << EOF
+cat > ../frontend/.env.local << EOF
 EXPO_PUBLIC_SUPABASE_URL=$API_URL
 EXPO_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY
 EOF
@@ -88,7 +88,7 @@ echo "Updated .env.local with local Supabase credentials"
    supabase start
    ```
 
-2. **Copy the anon key** to `webapp/.env`:
+2. **Copy the anon key** to `frontend/.env`:
    ```env
    EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
    EXPO_PUBLIC_SUPABASE_ANON_KEY=<paste from output>
@@ -108,7 +108,7 @@ echo "Updated .env.local with local Supabase credentials"
 
 5. **Start your app**:
    ```bash
-   cd ../webapp
+   cd ../frontend
    pnpm start
    ```
 
@@ -116,7 +116,7 @@ echo "Updated .env.local with local Supabase credentials"
 
 If you see connection errors after restarting Supabase:
 1. Run `supabase status` to see current keys
-2. Update `webapp/.env` with the new anon key
+2. Update `frontend/.env` with the new anon key
 3. Restart your Expo app
 
 ## Accessing Local Supabase Studio

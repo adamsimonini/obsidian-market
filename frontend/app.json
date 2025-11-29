@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "webapp",
+    "name": "frontend",
     "slug": "obsidian-market",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "webapp",
+    "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {

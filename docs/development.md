@@ -13,7 +13,7 @@
 
 ```bash
 # Install frontend dependencies
-cd webapp
+cd frontend
 pnpm install
 
 # Install Leo CLI (if not already installed)
@@ -22,7 +22,7 @@ pnpm install
 
 ### 2. Configure Environment Variables
 
-Create `webapp/.env` file:
+Create `frontend/.env` file:
 
 ```env
 VITE_SUPABASE_URL=https://xxxxx.supabase.co
@@ -52,7 +52,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Start the development server:
 
 ```bash
-cd webapp
+cd frontend
 pnpm run dev
 ```
 
@@ -72,7 +72,7 @@ This starts the Lynx dev server on `http://localhost:3000`. You can:
 Run frontend tests:
 
 ```bash
-cd webapp
+cd frontend
 pnpm test
 ```
 
@@ -85,7 +85,7 @@ obsidian-market/
 │   │   └── main.leo       # Main contract
 │   └── tests/
 │       └── test_leo.leo   # Contract tests
-├── webapp/                # Frontend application
+├── frontend/              # Frontend application
 │   ├── src/
 │   │   ├── components/   # React/Lynx components
 │   │   ├── contexts/     # React contexts (Wallet)
