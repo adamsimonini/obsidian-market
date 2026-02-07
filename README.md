@@ -4,6 +4,17 @@
 
 A lightweight MVP prediction market application built on Aleo blockchain with cross-platform support (iOS, Android, and Web via React Native/Expo).
 
+[Leo devnet docs](https://docs.leo-lang.org/cli/cli_devnet)
+To find SnarkOS Binary
+cargo install --list
+
+leo devnet --snarkos /Users/ajsim/.cargo/bin/snarkos
+/Users/ajsim/code/snarkOS
+
+leo devnet --snarkos /Users/ajsim/.cargo/bin/snarkos --num-validators 1 --num-clients 0
+
+faucet: https://faucet.aleo.org/
+
 ## Overview
 
 Obsidian Market enables users to create and participate in binary (Yes/No) prediction markets. The platform uses Aleo for privacy-preserving transactions and Supabase for market metadata storage.
@@ -40,12 +51,14 @@ Obsidian Market enables users to create and participate in binary (Yes/No) predi
 ### Quick Start
 
 1. **Install Dependencies**
+
    ```bash
    cd frontend
    pnpm install
    ```
 
 2. **Set Up Environment Variables**
+
    ```bash
    # Create .env file in frontend/
    EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -59,20 +72,21 @@ Obsidian Market enables users to create and participate in binary (Yes/No) predi
 
 4. **Set Up Aleo** (Optional for MVP)
    - Follow [Aleo Local Development Guide](./docs/aleo-local-dev.md)
-   - Build and test contracts: `cd leo && leo build && leo test`
+   - Build and test contracts: `cd aleo && leo build && leo test`
 
 5. **Run Development Server**
+
    ```bash
    cd frontend
    pnpm start
    ```
-   
+
    This starts the **Metro bundler** (required for mobile) on port 19000. Then use the interactive menu:
    - Press `i` for iOS simulator
    - Press `a` for Android emulator/Expo Go
    - Press `w` for web browser (starts web dev server on port 19006)
    - Scan QR code with Expo Go app (mobile)
-   
+
    **Important**: Run `expo start` (or `pnpm start`) without flags to start Metro. Don't use `expo start --web` directly, as it only starts the web server and skips Metro bundler needed for mobile.
 
 ## Project Structure
@@ -113,6 +127,7 @@ obsidian-market/
 ## Technologies
 
 ### Frontend Stack
+
 - **React Native**: Cross-platform mobile framework
 - **React**: UI library (v19)
 - **Expo**: Development platform and tooling
@@ -122,6 +137,7 @@ obsidian-market/
 - **TypeScript**: Type-safe JavaScript
 
 ### Backend & Blockchain
+
 - **Aleo/Leo**: Privacy-preserving blockchain
 - **Amareleo-Chain**: Lite Aleo development node for local testing (see [Development](#local-aleo-chain) section)
 - **Supabase**: Backend-as-a-Service (PostgreSQL + REST API)
@@ -151,12 +167,13 @@ This is the **single source of truth** for all theme colors used in React Native
 - **Format**: RGB color strings (e.g., `'rgb(242, 242, 247)'`)
 
 **Usage in Components**:
+
 ```tsx
 import { useColorScheme } from '@/lib/useColorScheme';
 
 function MyComponent() {
   const { colors, colorScheme, toggleColorScheme } = useColorScheme();
-  
+
   return (
     <View style={{ backgroundColor: colors.background }}>
       <Text style={{ color: colors.foreground }}>Hello</Text>
@@ -177,6 +194,7 @@ Defines CSS custom properties used by Tailwind CSS classes and web platform styl
 
 **How Tailwind Uses It**:
 The `tailwind.config.js` uses a `withOpacity()` function that references these CSS variables:
+
 ```javascript
 // tailwind.config.js
 border: withOpacity('border'),  // Uses --border for all platforms
@@ -204,13 +222,17 @@ Both systems should be kept **in sync** when updating theme colors.
 The app uses a **hybrid approach** combining Tailwind classes and explicit colors:
 
 #### For Backgrounds & Most Styling
+
 Use Tailwind classes (they work reliably):
+
 ```tsx
 <View className="bg-background border border-border" />
 ```
 
 #### For Text Colors & Borders
+
 Use explicit colors from `useColorScheme()` hook (more reliable):
+
 ```tsx
 const { colors } = useColorScheme();
 <Text style={{ color: colors.foreground }} />
@@ -220,15 +242,18 @@ const { colors } = useColorScheme();
 **Why This Approach?**
 
 NativeWind's CSS variable resolution can be inconsistent at runtime in React Native, especially for:
+
 - Text colors (`text-foreground` class)
 - Border colors (`border-border` class)
 
 By using explicit colors from `useColorScheme()` for these critical properties, we ensure:
+
 - ✅ Immediate theme updates when switching
 - ✅ Consistent behavior across platforms
 - ✅ Reliable dark mode support
 
 **Components Using Explicit Colors**:
+
 - `components/nativewindui/Text.tsx` - Uses `colors.foreground`
 - `components/nativewindui/Card.tsx` - Uses `colors.border`
 - `components/ui/card.tsx` - Uses `colors.border`
@@ -248,6 +273,7 @@ The unified theming approach provides several advantages:
 ### Adding New Theme Colors
 
 1. **Add to `theme/colors.ts`**:
+
    ```typescript
    // Add to both light and dark theme objects
    const COLORS = {
@@ -263,6 +289,7 @@ The unified theming approach provides several advantages:
    ```
 
 2. **Add to `global.css`**:
+
    ```css
    :root {
      --my-new-color: 255 0 0;
@@ -273,6 +300,7 @@ The unified theming approach provides several advantages:
    ```
 
 3. **Add to `tailwind.config.js`** (if needed):
+
    ```javascript
    myNewColor: withOpacity('my-new-color'),
    ```
@@ -280,7 +308,7 @@ The unified theming approach provides several advantages:
 4. **Use in components**:
    ```tsx
    const { colors } = useColorScheme();
-   <View style={{ backgroundColor: colors.myNewColor }} />
+   <View style={{ backgroundColor: colors.myNewColor }} />;
    ```
 
 **Note**: Since we use unified theming, you only need to define each color once (not per platform). The same color will be used across iOS, Android, and Web.
@@ -290,18 +318,21 @@ The unified theming approach provides several advantages:
 ### Running the App
 
 **Start Metro Bundler (Required for Mobile):**
+
 ```bash
 cd frontend
 pnpm start
 ```
 
 This starts the Metro bundler on port 19000, which is required for iOS, Android, and Expo Go. Once Metro is running, use the interactive menu:
+
 - Press `i` for iOS simulator
 - Press `a` for Android emulator/Expo Go
 - Press `w` for web browser (also starts web dev server on port 19006)
 - Scan QR code with Expo Go app (mobile)
 
 **Important Notes:**
+
 - ✅ **Correct**: `expo start` or `pnpm start` - Starts Metro bundler, then choose platform
 - ❌ **Incorrect**: `expo start --web` - Only starts web server, Metro won't run (Android/iOS won't work)
 - The Metro bundler (port 19000) is required for mobile development
@@ -312,18 +343,21 @@ This starts the Metro bundler on port 19000, which is required for iOS, Android,
 This project uses [Amareleo-Chain](https://github.com/kaxxa123/amareleo-chain) for local Aleo development. Amareleo-Chain is a lite, developer-friendly Aleo node that provides a minimal validator for testing Aleo program deployment and execution.
 
 **Key Features:**
+
 - Fast startup/shutdown times
 - Single process with minimal resource usage
 - Fresh chain state by default (or persistent with `--keep-state`)
 - Compatible with standard Aleo tools (`snarkOS`, `leo`)
 
 **Available Commands:**
+
 - `amareleo-chain start` - Start the local chain node (exposes REST API on `localhost:3030`)
 - `amareleo-chain start --keep-state` - Start with persistent chain state across runs
 - `amareleo-chain clean` - Clean the chain storage
 - `amareleo-chain update` - Update amareleo-chain
 
 **Package Script:**
+
 ```bash
 # Start the local Aleo chain
 pnpm chain
@@ -347,6 +381,7 @@ pnpm web
 ### Environment Variables
 
 Create a `.env` file in `frontend/` with:
+
 - `EXPO_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key
 
