@@ -1,14 +1,13 @@
 {
-    "name": "obsidian-market",
-    "private": true,
-    "scripts": {
-      "backend": "cd backend && supabase start",
-      "web": "cd frontend && pnpm expo start",
-      "mobile": "cd frontend && pnpm expo start --go",
-      "chain": "amareleo-chain start",
-      "dev": "run-p supabase frontend"
-    },
-    "devDependencies": {
-      "npm-run-all": "^4.1.5"
-    }
+  "name": "obsidian-market",
+  "private": true,
+  "scripts": {
+    "backend": "cd backend && supabase start",
+    "app": "cd frontend && npm run dev",
+    "chain": "amareleo-chain start",
+    "dev": "run-p backend web"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
 }
