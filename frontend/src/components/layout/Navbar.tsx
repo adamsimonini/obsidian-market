@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
@@ -22,7 +23,8 @@ export function Navbar() {
     <header className="border-b border-border bg-background px-6 py-4">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-bold text-foreground">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
+            <Image src="/obsidian-logo.png" alt="Obsidian Market" width={32} height={32} />
             Obsidian Market
           </Link>
           <nav className="hidden items-center gap-1 sm:flex">

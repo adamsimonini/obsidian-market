@@ -17,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Obsidian Market',
   description: 'Privacy-focused prediction market built on Aleo',
+  icons: {
+    icon: '/obsidian-logo.png',
+    apple: '/obsidian-logo.png',
+  },
 };
 
 export default function RootLayout({
