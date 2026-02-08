@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 export function useAdmin(walletAddress: string | null) {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -18,7 +18,7 @@ export function useAdmin(walletAddress: string | null) {
 
       try {
         setLoading(true);
-        const { data, error: fetchError } = await supabase
+        const { data, error: fetchError } = await getSupabase()
           .from('admins')
           .select('wallet_address')
           .eq('wallet_address', walletAddress)

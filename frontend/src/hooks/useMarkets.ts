@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import type { Market, MarketStatus } from '@/types/supabase';
 
 export function useMarkets(status?: MarketStatus) {
@@ -13,7 +13,7 @@ export function useMarkets(status?: MarketStatus) {
     const fetchMarkets = async () => {
       try {
         setLoading(true);
-        let query = supabase
+        let query = getSupabase()
           .from('markets')
           .select('*')
           .order('created_at', { ascending: false });
@@ -42,7 +42,7 @@ export function useMarkets(status?: MarketStatus) {
 
     fetchMarkets();
 
-    const channel = supabase
+    const channel = getSupabase()
       .channel('markets-changes')
       .on(
         'postgres_changes',
@@ -70,7 +70,7 @@ export function useMarkets(status?: MarketStatus) {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      getSupabase().removeChannel(channel);
     };
   }, [status]);
 

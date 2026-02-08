@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useAdmin } from '@/hooks/useAdmin';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,7 +61,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
 
         const marketId = Date.now();
 
-        const { error: supabaseError } = await supabase.from('markets').insert({
+        const { error: supabaseError } = await getSupabase().from('markets').insert({
           title: formData.title,
           description: formData.description || null,
           resolution_rules: formData.resolution_rules,
