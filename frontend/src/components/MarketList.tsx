@@ -57,7 +57,7 @@ export function MarketList({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
       {filtered.map((market) => (
         <MarketCardCompact
           key={market.id}

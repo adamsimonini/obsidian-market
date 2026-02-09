@@ -1,9 +1,22 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { MarketDetailPanel } from '@/components/MarketDetailPanel';
 import { cn } from '@/lib/utils';
 import type { Market } from '@/types/supabase';
+
+// --- Change this to 'modal' to use a modal instead of inline expand ---
+type InteractionMode = 'expand' | 'modal';
+const INTERACTION_MODE: InteractionMode = 'expand';
 
 interface MarketCardCompactProps {
   market: Market;
@@ -18,59 +31,109 @@ function formatVolume(volume: number): string {
 }
 
 export function MarketCardCompact({ market, categoryName, onSelect }: MarketCardCompactProps) {
+  const [expanded, setExpanded] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = 100 - yesPercent;
 
-  return (
-    <Card
-      className={cn(
-        'cursor-pointer transition-colors hover:border-primary/50',
-      )}
-      onClick={() => onSelect?.(market)}
-    >
-      <CardContent className="space-y-3 p-4">
-        {/* Title */}
-        <p className="line-clamp-2 text-sm font-semibold leading-snug">{market.title}</p>
+  const handleClick = () => {
+    if (INTERACTION_MODE === 'modal') {
+      setModalOpen(true);
+    } else {
+      setExpanded((v) => !v);
+    }
+  };
 
-        {/* Probability Bar */}
-        <div className="space-y-1.5">
-          <div className="flex items-baseline justify-between text-xs">
-            <span>
-              <span className={cn('font-bold', yesPercent >= 50 ? 'text-primary' : 'text-muted-foreground')}>
+  return (
+    <>
+      <Card
+        className={cn(
+          'cursor-pointer transition-all duration-300 hover:border-primary/50',
+        )}
+        onClick={handleClick}
+      >
+        <CardContent className="space-y-3 p-4">
+          {/* Title — fixed 2-line height so cards stay aligned side-by-side */}
+          <p className="line-clamp-2 min-h-10 text-sm font-semibold leading-snug">{market.title}</p>
+
+          {/* Labels */}
+          <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline gap-1">
+              <span className={cn('font-mono text-lg font-bold', yesPercent >= 50 ? 'text-primary' : 'text-muted-foreground')}>
                 {yesPercent}%
-              </span>{' '}
-              <span className="text-muted-foreground">Yes</span>
-            </span>
-            <span>
-              <span className="text-muted-foreground">No</span>{' '}
-              <span className={cn('font-bold', noPercent > 50 ? 'text-destructive' : 'text-muted-foreground')}>
+              </span>
+              <span className="text-xs text-muted-foreground">Yes</span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xs text-muted-foreground">No</span>
+              <span className={cn('font-mono text-lg font-bold', noPercent > 50 ? 'text-destructive' : 'text-muted-foreground')}>
                 {noPercent}%
               </span>
-            </span>
+            </div>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+
+          {/* Linear gauge: solid yes + striped no */}
+          <div className="relative h-3 w-full overflow-hidden rounded-full">
             <div
-              className="h-full rounded-full bg-primary transition-all duration-500"
+              className="absolute inset-y-0 left-0 rounded-l-full bg-primary transition-all duration-700"
               style={{ width: `${yesPercent}%` }}
             />
+            <div
+              className="absolute inset-y-0 right-0 overflow-hidden rounded-r-full"
+              style={{ width: `${noPercent}%` }}
+            >
+              <div
+                className="h-full w-full bg-destructive/80"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 6px)',
+                }}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{formatVolume(market.total_volume)} vol</span>
-          <span className="text-border">|</span>
-          <span>{market.trade_count} trade{market.trade_count !== 1 ? 's' : ''}</span>
-          {categoryName && (
-            <>
-              <span className="flex-1" />
-              <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
-                {categoryName}
-              </Badge>
-            </>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          {/* Stats */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{formatVolume(market.total_volume)} vol</span>
+            <span className="text-border">|</span>
+            <span>{market.trade_count} trade{market.trade_count !== 1 ? 's' : ''}</span>
+            {categoryName && (
+              <>
+                <span className="flex-1" />
+                <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                  {categoryName}
+                </Badge>
+              </>
+            )}
+          </div>
+
+          {/* Inline expanded details */}
+          <div
+            className={cn(
+              'grid overflow-hidden transition-all duration-300',
+              expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+            )}
+          >
+            <div className="overflow-hidden">
+              <div className="border-t pt-4">
+                <MarketDetailPanel market={market} onTrade={onSelect} />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Modal (used when INTERACTION_MODE === 'modal') */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{market.title}</DialogTitle>
+            <DialogDescription>Market Details</DialogDescription>
+          </DialogHeader>
+          <MarketDetailPanel market={market} onTrade={onSelect} />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -32,10 +32,11 @@ export default function HomePage() {
     [categories],
   );
 
-  const featuredMarket = useMemo(
-    () => markets.find((m) => m.featured) ?? null,
-    [markets],
-  );
+  // Hero = highest volume market in the current view; fallback to first
+  const featuredMarket = useMemo(() => {
+    if (markets.length === 0) return null;
+    return [...markets].sort((a, b) => b.total_volume - a.total_volume)[0];
+  }, [markets]);
 
   const excludeIds = useMemo(
     () => (featuredMarket ? [featuredMarket.id] : []),
