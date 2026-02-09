@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { getSupabase } from '@/lib/supabase';
+import type { AdminRole } from '@/types/supabase';
 
 export function useAdmin(walletAddress: string | null) {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [role, setRole] = useState<AdminRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -12,6 +14,7 @@ export function useAdmin(walletAddress: string | null) {
     const checkAdmin = async () => {
       if (!walletAddress) {
         setIsAdmin(false);
+        setRole(null);
         setLoading(false);
         return;
       }
@@ -20,7 +23,7 @@ export function useAdmin(walletAddress: string | null) {
         setLoading(true);
         const { data, error: fetchError } = await getSupabase()
           .from('admins')
-          .select('wallet_address')
+          .select('wallet_address, role')
           .eq('wallet_address', walletAddress)
           .single();
 
@@ -29,6 +32,7 @@ export function useAdmin(walletAddress: string | null) {
         }
 
         setIsAdmin(!!data);
+        setRole(data?.role ?? null);
         setError(null);
       } catch (err) {
         setError(
@@ -37,6 +41,7 @@ export function useAdmin(walletAddress: string | null) {
             : new Error('Failed to check admin status'),
         );
         setIsAdmin(false);
+        setRole(null);
       } finally {
         setLoading(false);
       }
@@ -45,5 +50,5 @@ export function useAdmin(walletAddress: string | null) {
     checkAdmin();
   }, [walletAddress]);
 
-  return { isAdmin, loading, error };
+  return { isAdmin, role, loading, error };
 }
