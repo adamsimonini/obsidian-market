@@ -118,9 +118,9 @@ export default function HomePage() {
         )}
 
         {/* Main Content + Sidebar */}
-        <div className="flex gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_1fr]">
           {/* Left: Featured + Grid */}
-          <div className="min-w-0 flex-1 space-y-6">
+          <div className="min-w-0 space-y-6">
             {/* Featured Market */}
             {!loading && featuredMarket && (
               <FeaturedMarket
@@ -137,6 +137,7 @@ export default function HomePage() {
             {/* Compact Grid */}
             <MarketList
               onMarketSelect={setSelectedMarket}
+              onCategorySelect={setCategoryId}
               categoryId={categoryId}
               excludeIds={excludeIds}
               categoryMap={categoryMap}
@@ -144,7 +145,7 @@ export default function HomePage() {
           </div>
 
           {/* Right: Sidebar (hidden on smaller screens) */}
-          <div className="hidden w-80 shrink-0 lg:block">
+          <div className="hidden lg:block">
             <TrendingSidebar
               markets={markets}
               excludeId={featuredMarket?.id}

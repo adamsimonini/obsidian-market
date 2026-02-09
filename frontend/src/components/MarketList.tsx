@@ -1,12 +1,14 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { useMemo } from 'react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import { useMarkets } from '@/hooks/useMarkets';
 import { MarketCardCompact } from './MarketCardCompact';
 import type { Market, MarketStatus } from '@/types/supabase';
 
 interface MarketListProps {
   onMarketSelect?: (market: Market) => void;
+  onCategorySelect?: (categoryId: string) => void;
   statusFilter?: MarketStatus;
   categoryId?: string;
   excludeIds?: string[];
@@ -15,6 +17,7 @@ interface MarketListProps {
 
 export function MarketList({
   onMarketSelect,
+  onCategorySelect,
   statusFilter,
   categoryId,
   excludeIds,
@@ -28,6 +31,37 @@ export function MarketList({
   const filtered = excludeIds?.length
     ? markets.filter((m) => !excludeIds.includes(m.id))
     : markets;
+
+  // Group by category when showing all markets
+  const groups = useMemo(() => {
+    if (categoryId || !categoryMap?.size) return null;
+
+    const map = new Map<string, Market[]>();
+    const uncategorized: Market[] = [];
+
+    for (const m of filtered) {
+      if (m.category_id && categoryMap.has(m.category_id)) {
+        const list = map.get(m.category_id) ?? [];
+        list.push(m);
+        map.set(m.category_id, list);
+      } else {
+        uncategorized.push(m);
+      }
+    }
+
+    const result: { id: string | null; name: string; markets: Market[] }[] = [];
+    for (const [id, list] of map) {
+      result.push({ id, name: categoryMap.get(id) ?? 'Other', markets: list });
+    }
+    // Sort groups alphabetically
+    result.sort((a, b) => a.name.localeCompare(b.name));
+
+    if (uncategorized.length > 0) {
+      result.push({ id: null, name: 'Other', markets: uncategorized });
+    }
+
+    return result;
+  }, [filtered, categoryId, categoryMap]);
 
   if (loading) {
     return (
@@ -56,6 +90,36 @@ export function MarketList({
     );
   }
 
+  // Grouped view when showing all categories
+  if (groups) {
+    return (
+      <div className="space-y-8">
+        {groups.map((group) => (
+          <section key={group.id ?? 'other'}>
+            <button
+              className="mb-3 flex items-center gap-1 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => group.id && onCategorySelect?.(group.id)}
+              disabled={!group.id}
+            >
+              {group.name}
+              {group.id && <ChevronRight className="size-3.5" />}
+            </button>
+            <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+              {group.markets.map((market) => (
+                <MarketCardCompact
+                  key={market.id}
+                  market={market}
+                  onSelect={onMarketSelect}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    );
+  }
+
+  // Flat grid when a specific category is selected
   return (
     <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
       {filtered.map((market) => (
