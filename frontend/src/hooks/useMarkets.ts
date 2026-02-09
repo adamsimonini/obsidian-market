@@ -4,10 +4,18 @@ import { useEffect, useState } from 'react';
 import { getSupabase } from '@/lib/supabase';
 import type { Market, MarketStatus } from '@/types/supabase';
 
-export function useMarkets(status?: MarketStatus) {
+interface UseMarketsOptions {
+  status?: MarketStatus;
+  categoryId?: string;
+}
+
+export function useMarkets(options?: UseMarketsOptions) {
   const [markets, setMarkets] = useState<Market[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  const status = options?.status;
+  const categoryId = options?.categoryId;
 
   useEffect(() => {
     const fetchMarkets = async () => {
@@ -16,10 +24,16 @@ export function useMarkets(status?: MarketStatus) {
         let query = getSupabase()
           .from('markets')
           .select('*')
+          .order('featured', { ascending: false })
+          .order('total_volume', { ascending: false })
           .order('created_at', { ascending: false });
 
         if (status) {
           query = query.eq('status', status);
+        }
+
+        if (categoryId) {
+          query = query.eq('category_id', categoryId);
         }
 
         const { data, error: fetchError } = await query;
@@ -72,7 +86,7 @@ export function useMarkets(status?: MarketStatus) {
     return () => {
       getSupabase().removeChannel(channel);
     };
-  }, [status]);
+  }, [status, categoryId]);
 
-  return { markets, loading, error, refetch: () => {} };
+  return { markets, loading, error };
 }

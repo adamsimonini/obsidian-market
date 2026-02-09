@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/hooks/useWallet';
 import { cn } from '@/lib/utils';
 import type { Market } from '@/types/supabase';
@@ -14,12 +15,54 @@ interface BetFormProps {
   onClose: () => void;
 }
 
+function formatPercent(price: number): string {
+  return `${Math.round(price * 100)}%`;
+}
+
 export function BetForm({ market, onClose }: BetFormProps) {
   const { address, connected } = useWallet();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSide, setSelectedSide] = useState<boolean | null>(null);
+  const [selectedSide, setSelectedSide] = useState<'yes' | 'no' | null>(null);
   const [betAmount, setBetAmount] = useState('1');
+
+  // CPMM price impact calculation
+  const priceImpact = useMemo(() => {
+    const amount = parseFloat(betAmount) || 0;
+    if (amount === 0 || !selectedSide) return null;
+
+    const amountMicro = amount * 1_000_000;
+    let yesR = market.yes_reserves;
+    let noR = market.no_reserves;
+
+    if (yesR === 0 || noR === 0) return null;
+
+    // CPMM: k = yes * no (constant product)
+    const k = yesR * noR;
+
+    if (selectedSide === 'yes') {
+      // Buying yes: add to no pool, remove from yes pool
+      noR += amountMicro;
+      yesR = k / noR;
+    } else {
+      // Buying no: add to yes pool, remove from no pool
+      yesR += amountMicro;
+      noR = k / yesR;
+    }
+
+    const newYesPrice = noR / (yesR + noR);
+    const newNoPrice = yesR / (yesR + noR);
+    const shares = selectedSide === 'yes'
+      ? market.yes_reserves - yesR
+      : market.no_reserves - noR;
+
+    return {
+      newYesPrice,
+      newNoPrice,
+      shares,
+      estimatedPayout: shares / 1_000_000, // convert back from microcredits
+    };
+  }, [betAmount, selectedSide, market.yes_reserves, market.no_reserves]);
 
   const handlePlaceBet = useCallback(async () => {
     if (!connected || !address) {
@@ -58,11 +101,6 @@ export function BetForm({ market, onClose }: BetFormProps) {
     }
   }, [connected, address, selectedSide, betAmount, market, onClose]);
 
-  const calculatePayout = (amount: number, side: boolean) => {
-    const odds = side ? market.yes_odds : market.no_odds;
-    return amount * odds;
-  };
-
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6">
       {/* Title and Description */}
@@ -73,6 +111,11 @@ export function BetForm({ market, onClose }: BetFormProps) {
             {market.description}
           </p>
         )}
+        <div className="mt-3 flex gap-3 text-sm text-muted-foreground">
+          <span>Volume: {market.total_volume.toLocaleString()}</span>
+          <span>Trades: {market.trade_count}</span>
+          <span>Fee: {market.fee_bps / 100}%</span>
+        </div>
       </div>
 
       {/* Error Message */}
@@ -97,51 +140,41 @@ export function BetForm({ market, onClose }: BetFormProps) {
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={() => setSelectedSide(true)}
+            onClick={() => setSelectedSide('yes')}
             className={cn(
               'flex flex-col items-center rounded-lg border p-4 transition-colors',
-              selectedSide === true
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-border bg-card text-card-foreground hover:border-primary/50',
+              selectedSide === 'yes'
+                ? 'border-green-500 bg-green-500/10 text-foreground'
+                : 'border-border bg-card text-card-foreground hover:border-green-500/50',
             )}
           >
-            <span className="mb-2 text-lg font-semibold">Yes</span>
-            <span
-              className={cn(
-                'mb-2 text-xs',
-                selectedSide === true ? 'text-primary-foreground/80' : 'text-muted-foreground',
-              )}
-            >
-              {market.yes_odds}x odds
+            <span className="mb-1 text-lg font-semibold">Yes</span>
+            <span className="text-2xl font-bold text-green-500">
+              {formatPercent(market.yes_price)}
             </span>
-            {selectedSide === true && (
-              <span className="text-xs font-semibold text-primary-foreground/90">
-                Payout: {calculatePayout(parseFloat(betAmount) || 0, true).toFixed(2)} ALEO
+            {selectedSide === 'yes' && priceImpact && (
+              <span className="mt-1 text-xs text-muted-foreground">
+                → {formatPercent(priceImpact.newYesPrice)}
               </span>
             )}
           </button>
           <button
             type="button"
-            onClick={() => setSelectedSide(false)}
+            onClick={() => setSelectedSide('no')}
             className={cn(
               'flex flex-col items-center rounded-lg border p-4 transition-colors',
-              selectedSide === false
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-border bg-card text-card-foreground hover:border-primary/50',
+              selectedSide === 'no'
+                ? 'border-red-500 bg-red-500/10 text-foreground'
+                : 'border-border bg-card text-card-foreground hover:border-red-500/50',
             )}
           >
-            <span className="mb-2 text-lg font-semibold">No</span>
-            <span
-              className={cn(
-                'mb-2 text-xs',
-                selectedSide === false ? 'text-primary-foreground/80' : 'text-muted-foreground',
-              )}
-            >
-              {market.no_odds}x odds
+            <span className="mb-1 text-lg font-semibold">No</span>
+            <span className="text-2xl font-bold text-red-500">
+              {formatPercent(market.no_price)}
             </span>
-            {selectedSide === false && (
-              <span className="text-xs font-semibold text-primary-foreground/90">
-                Payout: {calculatePayout(parseFloat(betAmount) || 0, false).toFixed(2)} ALEO
+            {selectedSide === 'no' && priceImpact && (
+              <span className="mt-1 text-xs text-muted-foreground">
+                → {formatPercent(priceImpact.newNoPrice)}
               </span>
             )}
           </button>
@@ -164,19 +197,29 @@ export function BetForm({ market, onClose }: BetFormProps) {
       </div>
 
       {/* Summary */}
-      {selectedSide !== null && (
+      {selectedSide !== null && priceImpact && (
         <Card>
-          <CardContent className="py-4">
-            <p className="text-sm">
-              Betting {betAmount || '0'} ALEO on{' '}
-              <span className="font-semibold">{selectedSide ? 'Yes' : 'No'}</span>
-            </p>
-            <p className="text-sm">
-              Potential Payout:{' '}
-              <span className="font-semibold">
-                {calculatePayout(parseFloat(betAmount) || 0, selectedSide).toFixed(2)} ALEO
+          <CardContent className="space-y-2 py-4">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Position</span>
+              <Badge variant={selectedSide === 'yes' ? 'default' : 'destructive'}>
+                {selectedSide.toUpperCase()}
+              </Badge>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Cost</span>
+              <span className="font-semibold">{betAmount || '0'} ALEO</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Est. Shares</span>
+              <span className="font-semibold">{priceImpact.estimatedPayout.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Max Payout (if correct)</span>
+              <span className="font-semibold text-green-500">
+                {priceImpact.estimatedPayout.toFixed(2)} ALEO
               </span>
-            </p>
+            </div>
           </CardContent>
         </Card>
       )}

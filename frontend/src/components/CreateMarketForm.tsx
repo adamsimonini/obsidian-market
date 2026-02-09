@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useAdmin } from '@/hooks/useAdmin';
-import { getSupabase } from '@/lib/supabase';
+import { useCategories } from '@/hooks/useCategories';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,9 +15,12 @@ interface CreateMarketFormProps {
 
 export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
   const { address, connected } = useWallet();
-  const { isAdmin, loading: adminLoading } = useAdmin(address);
+  const { isAdmin, role, loading: adminLoading } = useAdmin(address);
+  const { categories } = useCategories();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const canCreate = isAdmin && (role === 'super_admin' || role === 'market_creator');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -25,8 +28,8 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
     resolution_rules: '',
     resolution_source: 'Admin manual',
     resolution_deadline: '',
-    yes_odds: '2.0',
-    no_odds: '2.0',
+    category_id: '',
+    initial_liquidity: '1000',
   });
 
   const handleChange = useCallback(
@@ -45,8 +48,8 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         return;
       }
 
-      if (!isAdmin) {
-        setError('Only admins can create markets');
+      if (!canCreate) {
+        setError('You do not have permission to create markets');
         return;
       }
 
@@ -59,23 +62,25 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         setLoading(true);
         setError(null);
 
-        const marketId = Date.now();
-
-        const { error: supabaseError } = await getSupabase().from('markets').insert({
-          title: formData.title,
-          description: formData.description || null,
-          resolution_rules: formData.resolution_rules,
-          resolution_source: formData.resolution_source,
-          resolution_deadline: formData.resolution_deadline,
-          status: 'open',
-          yes_odds: parseFloat(formData.yes_odds),
-          no_odds: parseFloat(formData.no_odds),
-          creator_address: address,
-          market_id_onchain: marketId.toString(),
+        const res = await fetch('/api/admin/markets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wallet_address: address,
+            title: formData.title,
+            description: formData.description || null,
+            resolution_rules: formData.resolution_rules,
+            resolution_source: formData.resolution_source,
+            resolution_deadline: formData.resolution_deadline,
+            category_id: formData.category_id || null,
+            initial_liquidity: formData.initial_liquidity,
+          }),
         });
 
-        if (supabaseError) {
-          throw supabaseError;
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to create market');
         }
 
         onClose();
@@ -85,7 +90,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         setLoading(false);
       }
     },
-    [connected, address, isAdmin, formData, onClose],
+    [connected, address, canCreate, formData, onClose],
   );
 
   if (adminLoading) {
@@ -97,10 +102,10 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
     );
   }
 
-  if (!isAdmin) {
+  if (!canCreate) {
     return (
       <div className="flex items-center justify-center p-10">
-        <p className="text-destructive">Only admins can create markets</p>
+        <p className="text-destructive">You do not have permission to create markets</p>
       </div>
     );
   }
@@ -123,7 +128,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
             <Input
               value={formData.title}
               onChange={(e) => handleChange('title', e.target.value)}
-              placeholder="Will Bitcoin reach $100k by end of 2024?"
+              placeholder="Will Bitcoin reach $150k by end of 2026?"
             />
           </div>
 
@@ -136,6 +141,22 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
               rows={3}
               className="border-input bg-transparent placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Category</label>
+            <select
+              value={formData.category_id}
+              onChange={(e) => handleChange('category_id', e.target.value)}
+              className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
+            >
+              <option value="">No category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="space-y-2">
@@ -158,29 +179,18 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold">Yes Odds</label>
-              <Input
-                type="number"
-                step="0.1"
-                min="1"
-                value={formData.yes_odds}
-                onChange={(e) => handleChange('yes_odds', e.target.value)}
-                placeholder="2.0"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-semibold">No Odds</label>
-              <Input
-                type="number"
-                step="0.1"
-                min="1"
-                value={formData.no_odds}
-                onChange={(e) => handleChange('no_odds', e.target.value)}
-                placeholder="2.0"
-              />
-            </div>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Initial Liquidity (microcredits)</label>
+            <Input
+              type="number"
+              min="100"
+              value={formData.initial_liquidity}
+              onChange={(e) => handleChange('initial_liquidity', e.target.value)}
+              placeholder="1000"
+            />
+            <p className="text-xs text-muted-foreground">
+              Sets the initial yes/no reserves for CPMM pricing. Higher = more stable prices.
+            </p>
           </div>
 
           <div className="flex gap-3 pt-2">

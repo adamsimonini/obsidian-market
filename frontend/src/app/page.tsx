@@ -5,11 +5,18 @@ import { Button } from '@/components/ui/button';
 import { MarketList } from '@/components/MarketList';
 import { CreateMarketForm } from '@/components/CreateMarketForm';
 import { BetForm } from '@/components/BetForm';
+import { useAdmin } from '@/hooks/useAdmin';
+import { useWallet } from '@/hooks/useWallet';
 import type { Market } from '@/types/supabase';
 
 export default function HomePage() {
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
+  const { address } = useWallet();
+  const { isAdmin, role } = useAdmin(address);
+
+  const canCreate = isAdmin && (role === 'super_admin' || role === 'market_creator');
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,11 +50,17 @@ export default function HomePage() {
           <div>
             <div className="mb-6 flex items-center justify-between">
               <h1 className="text-2xl font-bold">Markets</h1>
-              <Button onClick={() => setShowCreateForm(true)}>
-                Create Market
-              </Button>
+              {canCreate && (
+                <Button onClick={() => setShowCreateForm(true)}>
+                  Create Market
+                </Button>
+              )}
             </div>
-            <MarketList onMarketSelect={setSelectedMarket} />
+            <MarketList
+              onMarketSelect={setSelectedMarket}
+              categoryId={categoryId}
+              onCategoryChange={setCategoryId}
+            />
           </div>
         )}
       </div>
