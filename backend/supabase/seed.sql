@@ -161,9 +161,9 @@ INSERT INTO public.markets (
 -- ============ SPORTS (3) ============
 
 (
-    'Will Real Madrid win the 2025-26 UEFA Champions League?',
-    'Resolves based on the winner of the 2025-26 UEFA Champions League final.',
-    'Resolves YES if Real Madrid wins the 2025-26 Champions League final. NO if any other team wins.',
+    'Will Real Madrid win the 2026-26 UEFA Champions League?',
+    'Resolves based on the winner of the 2026-26 UEFA Champions League final.',
+    'Resolves YES if Real Madrid wins the 2026-26 Champions League final. NO if any other team wins.',
     'UEFA official results',
     '2026-06-30T23:59:59Z',
     'open', 2.0, 2.0,

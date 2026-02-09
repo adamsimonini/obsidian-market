@@ -83,7 +83,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="container-main mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Markets</h1>

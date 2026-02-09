@@ -126,3 +126,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Wide-mode container — driven by data attribute set before first paint */
+.container-main {
+  max-width: 80rem; /* max-w-7xl */
+  transition: max-width 300ms;
+}
+html[data-wide] .container-main {
+  max-width: 100rem; /* 1600px */
+}

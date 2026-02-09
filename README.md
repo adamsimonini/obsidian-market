@@ -2,6 +2,7 @@
 
 [GitHub Repo](https://github.com/adamsimonini/obsidian-market)
 [Vercel Deployment](https://obsidian-market.vercel.app/)
+[Supabase](https://supabase.com/dashboard/project/giarcxkfqogumngtygmt)
 
 A privacy-focused prediction market built on [Aleo](https://aleo.org/). Users can create and bet on binary (Yes/No) markets with private bet positions powered by zero-knowledge proofs.
 

@@ -4,9 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WalletButton } from '@/components/WalletButton';
+import { useWideMode } from '@/hooks/useWideMode';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
@@ -18,10 +19,11 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const { wide, toggleWide } = useWideMode();
 
   return (
     <header className="border-b border-border bg-background px-6 py-4">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
+      <div className="container-main mx-auto flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
             <Image src="/obsidian-logo.png" alt="Obsidian Market" width={32} height={32} />
@@ -45,6 +47,15 @@ export function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden xl:inline-flex"
+            onClick={toggleWide}
+            title={wide ? 'Standard view' : 'Wide view'}
+          >
+            {wide ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+          </Button>
           <Button
             variant="ghost"
             size="icon"
