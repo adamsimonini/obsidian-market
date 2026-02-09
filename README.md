@@ -1,6 +1,7 @@
 # Obsidian Market
 
 [GitHub Repo](https://github.com/adamsimonini/obsidian-market)
+[Vercel Deployment](https://obsidian-market.vercel.app/)
 
 A privacy-focused prediction market built on [Aleo](https://aleo.org/). Users can create and bet on binary (Yes/No) markets with private bet positions powered by zero-knowledge proofs.
 
@@ -51,6 +52,7 @@ obsidian-market/
 ### Tech Stack
 
 **Frontend**
+
 - [Next.js 16](https://nextjs.org/) (App Router)
 - [React 19](https://react.dev/)
 - [Tailwind CSS v4](https://tailwindcss.com/)
@@ -60,11 +62,13 @@ obsidian-market/
 - TypeScript
 
 **Blockchain**
+
 - [Aleo](https://aleo.org/) / [Leo](https://docs.leo-lang.org/) smart contracts
 - [@provablehq/aleo-wallet-adaptor-react](https://www.npmjs.com/package/@provablehq/aleo-wallet-adaptor-react) for wallet integration
 - [Amareleo-Chain](https://github.com/kaxxa123/amareleo-chain) for local development
 
 **Backend**
+
 - [Supabase](https://supabase.com/) (PostgreSQL + REST API)
 
 ## Getting Started
@@ -89,12 +93,14 @@ obsidian-market/
 2. **Set up environment variables**
 
    Create `frontend/.env.local`:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
    NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
    ```
 
    Create `aleo/.env`:
+
    ```env
    NETWORK=testnet
    PRIVATE_KEY=<your-private-key>
@@ -168,10 +174,10 @@ record BetRecord {         // PRIVATE - held by user
 
 ### Transitions
 
-| Transition | Description | Access |
-|---|---|---|
-| `create_market(market_id, yes_odds, no_odds)` | Create a new market with initial reserves | Admin only |
-| `place_bet_cpmm(market_id, yes_reserves, no_reserves, amount, side)` | Place a bet using CPMM formula | Anyone |
+| Transition                                                           | Description                               | Access     |
+| -------------------------------------------------------------------- | ----------------------------------------- | ---------- |
+| `create_market(market_id, yes_odds, no_odds)`                        | Create a new market with initial reserves | Admin only |
+| `place_bet_cpmm(market_id, yes_reserves, no_reserves, amount, side)` | Place a bet using CPMM formula            | Anyone     |
 
 ### Key Commands
 
