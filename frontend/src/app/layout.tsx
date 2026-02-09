@@ -17,9 +17,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Obsidian Market',
   description: 'Privacy-focused prediction market built on Aleo',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Obsidian Market',
+  },
   icons: {
     icon: '/obsidian-logo.png',
-    apple: '/obsidian-logo.png',
+    apple: '/apple-touch-icon.png',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
   },
 };
 
@@ -31,6 +40,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
         <script
           dangerouslySetInnerHTML={{
             __html: `try{if(localStorage.getItem('wide-mode')==='1')document.documentElement.setAttribute('data-wide','')}catch(e){}`,
