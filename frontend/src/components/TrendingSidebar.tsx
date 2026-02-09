@@ -25,6 +25,9 @@ function SidebarEntry({
   onSelect?: (market: Market) => void;
 }) {
   const yesPercent = Math.round(market.yes_price * 100);
+  const noPercent = 100 - yesPercent;
+  const yesWins = yesPercent >= noPercent;
+  const displayPercent = yesWins ? yesPercent : noPercent;
 
   return (
     <button
@@ -44,14 +47,19 @@ function SidebarEntry({
           )}
         </div>
       </div>
-      <span
-        className={cn(
-          'shrink-0 text-sm font-bold tabular-nums',
-          yesPercent >= 50 ? 'text-primary' : 'text-destructive',
-        )}
-      >
-        {yesPercent}%
-      </span>
+      <div className="shrink-0 text-right">
+        <span
+          className={cn(
+            'block text-sm font-bold tabular-nums',
+            yesWins ? 'text-primary' : 'text-destructive',
+          )}
+        >
+          {displayPercent}%
+        </span>
+        <span className={cn('text-[10px]', yesWins ? 'text-primary/70' : 'text-destructive/70')}>
+          {yesWins ? 'Yes' : 'No'}
+        </span>
+      </div>
     </button>
   );
 }
