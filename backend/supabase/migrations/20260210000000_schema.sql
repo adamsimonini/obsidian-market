@@ -50,7 +50,8 @@ create unique index idx_languages_default on public.languages (is_default) where
 insert into public.languages (code, name, native_name, is_default) values
     ('en', 'English',  'English',   true),
     ('es', 'Spanish',  'Español',   false),
-    ('fr', 'French',   'Français',  false);
+    ('fr', 'French',   'Français',  false),
+    ('zh', 'Chinese',  '中文',      false);
 
 
 -- ---------------------------------------------------------------------------

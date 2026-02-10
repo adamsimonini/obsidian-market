@@ -1,5 +1,5 @@
 -- =============================================================================
--- Obsidian Market — Seed Data (en / es / fr)
+-- Obsidian Market — Seed Data (en / es / fr / zh)
 -- Run: supabase db reset   (auto-runs migrations + this seed)
 -- =============================================================================
 
@@ -51,6 +51,16 @@ INSERT INTO public.category_translations (category_id, language_code, name, desc
     ((SELECT id FROM categories WHERE slug='sports'),     'fr', 'Sports',       'Événements et compétitions sportives'),
     ((SELECT id FROM categories WHERE slug='science'),    'fr', 'Science',      'Découvertes scientifiques et espace'),
     ((SELECT id FROM categories WHERE slug='culture'),    'fr', 'Culture',      'Divertissement, cinéma et médias')
+ON CONFLICT (category_id, language_code) DO NOTHING;
+
+-- Category translations: zh
+INSERT INTO public.category_translations (category_id, language_code, name, description) VALUES
+    ((SELECT id FROM categories WHERE slug='crypto'),     'zh', '加密货币',    '加密货币和区块链市场'),
+    ((SELECT id FROM categories WHERE slug='politics'),   'zh', '政治',        '政府、选举和政策市场'),
+    ((SELECT id FROM categories WHERE slug='technology'), 'zh', '科技',        '科技行业和创新市场'),
+    ((SELECT id FROM categories WHERE slug='sports'),     'zh', '体育',        '体育赛事和竞技'),
+    ((SELECT id FROM categories WHERE slug='science'),    'zh', '科学',        '科学突破和太空探索'),
+    ((SELECT id FROM categories WHERE slug='culture'),    'zh', '文化',        '娱乐、电影和媒体')
 ON CONFLICT (category_id, language_code) DO NOTHING;
 
 
@@ -589,4 +599,137 @@ INSERT INTO public.market_translations (market_id, language_code, title, descrip
  'Se résout selon les recettes totales mondiales du box-office en salles pour l''année 2026.',
  'Se résout OUI si les recettes mondiales du box-office en salles dépassent 50 milliards USD en 2026 selon Box Office Mojo ou The Numbers. NON sinon.',
  'Rapports annuels de Box Office Mojo / The Numbers')
+ON CONFLICT (market_id, language_code) DO NOTHING;
+
+
+-- ---------------------------------------------------------------------------
+-- MARKET TRANSLATIONS — Chinese (Simplified)
+-- ---------------------------------------------------------------------------
+INSERT INTO public.market_translations (market_id, language_code, title, description, resolution_rules, resolution_source) VALUES
+
+-- Crypto
+((SELECT id FROM markets WHERE slug='btc-150k-2026'), 'zh',
+ '比特币会在2026年底前达到15万美元吗？',
+ '根据比特币是否在2026年12月31日前达到或超过15万美元来解决。',
+ '如果比特币价格在2026年12月31日23:59 UTC前在CoinGecko上达到15万美元，则解决为是。否则为否。',
+ 'CoinGecko API'),
+
+((SELECT id FROM markets WHERE slug='eth-10k-2026'), 'zh',
+ '以太坊会在2026年底前达到1万美元吗？',
+ '根据以太坊是否在2026年12月31日前达到或超过1万美元来解决。',
+ '如果以太坊价格在2026年12月31日23:59 UTC前在CoinGecko上达到1万美元，则解决为是。否则为否。',
+ 'CoinGecko API'),
+
+((SELECT id FROM markets WHERE slug='stablecoin-depeg-2026'), 'zh',
+ '2026年会有主要稳定币脱锚超过24小时吗？',
+ '涵盖USDT、USDC、DAI以及任何市值超过10亿美元的稳定币跌破0.95美元或高于1.05美元并持续24小时的情况。',
+ '如果任何市值超过10亿美元的稳定币在2026年根据CoinGecko每小时数据低于0.95美元或高于1.05美元持续24小时，则解决为是。否则为否。',
+ 'CoinGecko每小时价格数据'),
+
+((SELECT id FROM markets WHERE slug='aleo-tvl-500m-2027'), 'zh',
+ 'Aleo主网TVL会在2027年底前超过5亿美元吗？',
+ '根据所有Aleo主网协议的总锁仓价值是否超过5亿美元来解决。',
+ '如果Aleo主网TVL在2027年12月31日前根据DefiLlama报告超过5亿美元，则解决为是。否则为否。',
+ 'DefiLlama'),
+
+-- Politics
+((SELECT id FROM markets WHERE slug='us-crypto-regulation-2027'), 'zh',
+ '美国会在2027年底前通过联邦加密货币监管法案吗？',
+ '根据美国国会是否通过并总统签署综合性联邦加密货币监管法案来解决。',
+ '如果在2027年12月31日前有专门监管加密货币市场的联邦法案签署成为法律，则解决为是。必须是独立的加密货币法案。否则为否。',
+ 'Congress.gov和白宫新闻稿'),
+
+((SELECT id FROM markets WHERE slug='third-party-5pct-2028'), 'zh',
+ '第三党候选人会在2028年美国总统大选中获得超过5%的普选票吗？',
+ '根据2028年美国总统大选官方认证的普选票结果来解决。',
+ '如果任何非民主党或共和党提名的候选人根据认证结果获得超过5%的总普选票，则解决为是。否则为否。',
+ '联邦选举委员会认证结果'),
+
+((SELECT id FROM markets WHERE slug='eu-digital-euro-2027'), 'zh',
+ '欧盟会在2027年底前实施数字欧元CBDC吗？',
+ '根据欧洲中央银行是否推出供公众使用的数字欧元来解决。',
+ '如果欧洲央行在2027年12月31日前推出可供公众交易的数字欧元，则解决为是。仅限于特定机构的试点项目不计入。否则为否。',
+ '欧洲中央银行官方公告'),
+
+((SELECT id FROM markets WHERE slug='fed-rate-cut-2026'), 'zh',
+ '美联储会在2026年将利率累计下调至少0.5%吗？',
+ '根据2026年美联储累计降息是否达到至少50个基点来解决。',
+ '如果美联储在2026年宣布的累计降息等于或超过0.5%（50个基点），则解决为是。多次较小的降息累计计算。否则为否。',
+ '美联储FOMC声明'),
+
+-- Technology
+((SELECT id FROM markets WHERE slug='apple-ar-glasses-2026'), 'zh',
+ '苹果会在2026年底前发布消费级AR眼镜吗？',
+ '根据苹果是否推出消费级增强现实眼镜产品（非Vision Pro）来解决。',
+ '如果苹果在2026年12月31日前发布可供消费者购买的独立AR眼镜产品，则解决为是。否则为否。',
+ '苹果新闻稿和产品列表'),
+
+((SELECT id FROM markets WHERE slug='openai-gpt5-2026'), 'zh',
+ 'OpenAI会在2026年发布GPT-5吗？',
+ '根据OpenAI是否公开发布正式命名为GPT-5的模型来解决。',
+ '如果OpenAI在2026年12月31日前公开发布正式品牌为"GPT-5"的模型，则解决为是。否则为否。',
+ 'OpenAI官方博客和API文档'),
+
+((SELECT id FROM markets WHERE slug='robotaxi-10-cities-2026'), 'zh',
+ '自动驾驶出租车会在2026年底前在超过10个美国城市运营吗？',
+ '根据全自动出租车服务是否在超过10个不同的美国大都市区商业化运营来解决。',
+ '如果至少10个不同的美国大都市区在2026年12月31日前拥有无安全驾驶员、面向公众的商业运营出租车服务，则解决为是。否则为否。',
+ '公司新闻稿、州DMV记录和新闻报道'),
+
+((SELECT id FROM markets WHERE slug='ai-chip-revenue-200b-2026'), 'zh',
+ '2026年全球AI芯片收入会超过2000亿美元吗？',
+ '根据2026日历年全球AI专用半导体芯片的总收入来解决。',
+ '如果根据Gartner、IDC或同等机构报告，2026日历年全球AI芯片收入超过2000亿美元，则解决为是。否则为否。',
+ 'Gartner或IDC半导体市场报告'),
+
+-- Sports
+((SELECT id FROM markets WHERE slug='real-madrid-ucl-2026'), 'zh',
+ '皇家马德里会赢得2025-26赛季欧冠吗？',
+ '根据2025-26赛季欧冠决赛的获胜者来解决。',
+ '如果皇家马德里赢得2025-26赛季欧冠决赛，则解决为是。如果其他球队获胜则为否。',
+ 'UEFA官方结果'),
+
+((SELECT id FROM markets WHERE slug='usa-most-golds-2028'), 'zh',
+ '美国会在2028年洛杉矶奥运会上赢得最多金牌吗？',
+ '根据2028年夏季奥运会最终金牌榜来解决。',
+ '如果美国在2028年洛杉矶奥运会上赢得最多金牌，则解决为是。如果并列，美国是并列国家之一也解决为是。否则为否。',
+ '国际奥委会官方结果'),
+
+((SELECT id FROM markets WHERE slug='sub-2hr-marathon-2028'), 'zh',
+ '2028年前会有官方马拉松在2小时内完成吗？',
+ '根据是否有跑者在正式认可的马拉松中跑进2:00:00来解决。',
+ '如果有跑者在2027年12月31日前在世界田径联合会认可的马拉松中跑进2:00:00，则解决为是。非官方尝试不计入。否则为否。',
+ '世界田径联合会官方记录'),
+
+-- Science
+((SELECT id FROM markets WHERE slug='room-temp-superconductor-2027'), 'zh',
+ '2027年底前会有室温超导体被独立验证吗？',
+ '根据在室温和常压下表现出超导性的材料是否被独立复制来解决。',
+ '如果在2027年12月31日前有经同行评审的论文在Nature、Science或Physical Review Letters上确认室温常压超导性，并由至少2个实验室独立复制，则解决为是。否则为否。',
+ 'Nature、Science或Physical Review Letters'),
+
+((SELECT id FROM markets WHERE slug='starship-orbital-2026'), 'zh',
+ 'SpaceX星舰会在2026年底前完成完整轨道飞行吗？',
+ '根据SpaceX星舰是否完成完整的轨道飞行和受控着陆/溅落来解决。',
+ '如果星舰在2026年12月31日前完成至少一次完整的地球轨道飞行并实现受控着陆或溅落，则解决为是。否则为否。',
+ 'SpaceX官方通讯和FAA记录'),
+
+((SELECT id FROM markets WHERE slug='crispr-common-disease-2027'), 'zh',
+ '2027年底前会有CRISPR基因疗法获批用于常见疾病吗？',
+ '根据FDA或EMA是否批准针对影响超过100万人的疾病的CRISPR疗法来解决。',
+ '如果FDA或EMA在2027年12月31日前完全批准针对美国或欧盟超过100万人患病的CRISPR基因疗法，则解决为是。否则为否。',
+ 'FDA和EMA批准数据库'),
+
+-- Culture
+((SELECT id FROM markets WHERE slug='ai-film-festival-2027'), 'zh',
+ 'AI生成的电影会在2027年底前赢得主要电影节奖项吗？',
+ '根据主要由AI生成的电影是否在戛纳、威尼斯、柏林、圣丹斯或多伦多电影节上获奖来解决。',
+ '如果视觉内容主要由AI生成的电影在2027年12月31日前在戛纳、威尼斯、柏林、圣丹斯或TIFF上赢得官方奖项，则解决为是。否则为否。',
+ '官方电影节公告'),
+
+((SELECT id FROM markets WHERE slug='box-office-50b-2026'), 'zh',
+ '2026年全球票房收入会超过500亿美元吗？',
+ '根据2026日历年全球影院票房总收入来解决。',
+ '如果根据Box Office Mojo或The Numbers报告，2026年全球影院票房收入超过500亿美元，则解决为是。否则为否。',
+ 'Box Office Mojo / The Numbers年度报告')
 ON CONFLICT (market_id, language_code) DO NOTHING;

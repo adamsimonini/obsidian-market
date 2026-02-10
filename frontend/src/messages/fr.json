@@ -25,6 +25,7 @@
   },
   "wallet": {
     "connect": "Connecter le Portefeuille",
+    "connected": "Connecté {address}",
     "disconnect": "Déconnecter ({address})",
     "connectFirst": "Veuillez d'abord connecter votre portefeuille",
     "failedToConnect": "Échec de la connexion au portefeuille"

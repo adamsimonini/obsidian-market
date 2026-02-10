@@ -169,3 +169,5 @@ Make it executable:
 chmod +x setup-supabase.sh
 ./setup-supabase.sh
 ```
+
+supabase db reset --linked

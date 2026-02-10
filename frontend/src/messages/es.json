@@ -25,6 +25,7 @@
   },
   "wallet": {
     "connect": "Conectar Billetera",
+    "connected": "Conectado {address}",
     "disconnect": "Desconectar ({address})",
     "connectFirst": "Por favor conecta tu billetera primero",
     "failedToConnect": "Error al conectar la billetera"
