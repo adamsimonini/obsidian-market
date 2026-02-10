@@ -20,9 +20,7 @@ export default function SettingsPage() {
             <CardDescription>App configuration controls will live here.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              App configuration controls will live here.
-            </p>
+            <p className="text-muted-foreground">...</p>
           </CardContent>
         </Card>
 
