@@ -7,6 +7,7 @@ import { routing } from '@/i18n/routing';
 import { Providers } from '@/components/layout/Providers';
 import { Navbar } from '@/components/layout/Navbar';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { MainLayout } from '@/components/layout/MainLayout';
 import '../globals.css';
 
 const geistSans = Geist({
@@ -69,7 +70,9 @@ export default async function LocaleLayout({
           <Providers>
             <Navbar />
             <PageHeader />
-            <main>{children}</main>
+            <MainLayout>
+              <main>{children}</main>
+            </MainLayout>
           </Providers>
         </NextIntlClientProvider>
       </body>

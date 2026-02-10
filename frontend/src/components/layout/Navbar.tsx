@@ -79,8 +79,8 @@ export function Navbar() {
           <div className="hidden sm:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label={t('changeLanguage')}>
-                  <Globe className="size-4" />
+                <Button variant="ghost" size="sm" aria-label={t('changeLanguage')} className="font-semibold">
+                  {locale.toUpperCase()}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -122,6 +122,17 @@ export function Navbar() {
                   >
                     {t(link.key)}
                   </Link>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              {routing.locales.map((loc) => (
+                <DropdownMenuItem
+                  key={loc}
+                  onClick={() => switchLocale(loc)}
+                  className={cn(locale === loc && 'font-bold')}
+                >
+                  <Globe className="mr-2 size-4" />
+                  {LOCALE_LABELS[loc]}
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
