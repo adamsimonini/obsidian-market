@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +11,10 @@ import { useWallet } from '@/hooks/useWallet';
 import type { Admin, AdminRole } from '@/types/supabase';
 import { isValidAleoAddress } from '@/lib/aleo-address';
 
-const ROLE_LABELS: Record<AdminRole, string> = {
-  super_admin: 'Super Admin',
-  market_creator: 'Market Creator',
-  resolver: 'Resolver',
+const ROLE_KEYS: Record<AdminRole, string> = {
+  super_admin: 'superAdmin',
+  market_creator: 'marketCreator',
+  resolver: 'resolver',
 };
 
 const ROLE_VARIANTS: Record<AdminRole, 'default' | 'secondary' | 'outline'> = {
@@ -23,6 +24,7 @@ const ROLE_VARIANTS: Record<AdminRole, 'default' | 'secondary' | 'outline'> = {
 };
 
 export function AdminPanel() {
+  const t = useTranslations('admin');
   const { address } = useWallet();
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,17 +44,17 @@ export function AdminPanel() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to fetch admins');
+        throw new Error(data.error || t('failedFetch'));
       }
 
       setAdmins(data.admins);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch admins');
+      setError(err instanceof Error ? err.message : t('failedFetch'));
     } finally {
       setLoading(false);
     }
-  }, [address]);
+  }, [address, t]);
 
   useEffect(() => {
     fetchAdmins();
@@ -64,7 +66,7 @@ export function AdminPanel() {
     if (!address || !newAddress.trim()) return;
 
     if (!isValidAleoAddress(newAddress.trim())) {
-      setError('Invalid Aleo address. Must start with aleo1 and be 63 characters.');
+      setError(t('invalidAddress'));
       return;
     }
 
@@ -85,14 +87,14 @@ export function AdminPanel() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to add admin');
+        throw new Error(data.error || t('failedAdd'));
       }
 
       setNewAddress('');
       setNewRole('market_creator');
       await fetchAdmins();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add admin');
+      setError(err instanceof Error ? err.message : t('failedAdd'));
     } finally {
       setActionLoading(false);
     }
@@ -113,12 +115,12 @@ export function AdminPanel() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to remove admin');
+        throw new Error(data.error || t('failedRemove'));
       }
 
       await fetchAdmins();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove admin');
+      setError(err instanceof Error ? err.message : t('failedRemove'));
     } finally {
       setActionLoading(false);
     }
@@ -128,7 +130,7 @@ export function AdminPanel() {
     return (
       <div className="flex flex-col items-center justify-center p-10">
         <Loader2 className="size-8 animate-spin text-primary" />
-        <p className="mt-3 text-muted-foreground">Loading admin panel...</p>
+        <p className="mt-3 text-muted-foreground">{t('loadingPanel')}</p>
       </div>
     );
   }
@@ -144,7 +146,7 @@ export function AdminPanel() {
       {/* Current Admins */}
       <Card>
         <CardHeader>
-          <CardTitle>Admins ({admins.length})</CardTitle>
+          <CardTitle>{t('admins', { count: admins.length })}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -156,7 +158,7 @@ export function AdminPanel() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-mono text-sm">{admin.wallet_address}</p>
                   <Badge variant={ROLE_VARIANTS[admin.role]} className="mt-1">
-                    {ROLE_LABELS[admin.role]}
+                    {t(ROLE_KEYS[admin.role])}
                   </Badge>
                 </div>
                 {admin.wallet_address !== address && (
@@ -178,12 +180,12 @@ export function AdminPanel() {
       {/* Add Admin Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Add Admin</CardTitle>
+          <CardTitle>{t('addAdmin')}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAddAdmin} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold">Wallet Address</label>
+              <label className="text-sm font-semibold">{t('walletAddress')}</label>
               <Input
                 value={newAddress}
                 onChange={(e) => setNewAddress(e.target.value)}
@@ -192,30 +194,30 @@ export function AdminPanel() {
               />
               {newAddress.trim() && !isValidAleoAddress(newAddress.trim()) && (
                 <p className="text-xs text-destructive">
-                  Invalid address — must start with aleo1 and be 63 characters
+                  {t('invalidAddressShort')}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold">Role</label>
+              <label className="text-sm font-semibold">{t('role')}</label>
               <select
                 value={newRole}
                 onChange={(e) => setNewRole(e.target.value as AdminRole)}
                 className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
               >
-                <option value="market_creator">Market Creator</option>
-                <option value="resolver">Resolver</option>
-                <option value="super_admin">Super Admin</option>
+                <option value="market_creator">{t('marketCreator')}</option>
+                <option value="resolver">{t('resolver')}</option>
+                <option value="super_admin">{t('superAdmin')}</option>
               </select>
               <p className="text-xs text-muted-foreground">
-                Super Admin: full access. Market Creator: create markets. Resolver: resolve markets.
+                {t('roleDescription')}
               </p>
             </div>
 
             <Button type="submit" disabled={actionLoading || !newAddress.trim() || !isValidAleoAddress(newAddress.trim())}>
               {actionLoading && <Loader2 className="size-4 animate-spin" />}
-              Add Admin
+              {t('addAdmin')}
             </Button>
           </form>
         </CardContent>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -14,6 +15,7 @@ interface TrendingSidebarProps {
 }
 
 function SidebarEntry({ rank, market, categoryName, onSelect }: { rank: number; market: Market; categoryName?: string; onSelect?: (market: Market) => void }) {
+  const tc = useTranslations('common');
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = 100 - yesPercent;
   const yesWins = yesPercent >= noPercent;
@@ -34,13 +36,15 @@ function SidebarEntry({ rank, market, categoryName, onSelect }: { rank: number; 
       </div>
       <div className="shrink-0 text-right">
         <span className={cn('block text-sm font-bold tabular-nums', yesWins ? 'text-primary' : 'text-destructive')}>{displayPercent}%</span>
-        <span className={cn('text-[-4px]', yesWins ? 'text-primary/70' : 'text-destructive/70')}>{yesWins ? 'Yes' : 'No'}</span>
+        <span className={cn('text-[-4px]', yesWins ? 'text-primary/70' : 'text-destructive/70')}>{yesWins ? tc('yes') : tc('no')}</span>
       </div>
     </button>
   );
 }
 
 export function TrendingSidebar({ markets, excludeId, categoryMap, onSelect }: TrendingSidebarProps) {
+  const t = useTranslations('sidebar');
+  const th = useTranslations('home');
   const { topByVolume, latest } = useMemo(() => {
     const filtered = excludeId ? markets.filter((m) => m.id !== excludeId) : markets;
 
@@ -56,11 +60,11 @@ export function TrendingSidebar({ markets, excludeId, categoryMap, onSelect }: T
       {/* Top Markets */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold">Top Markets</CardTitle>
+          <CardTitle className="text-sm font-semibold">{t('topMarkets')}</CardTitle>
         </CardHeader>
         <CardContent className="px-2 pb-3">
           {topByVolume.length === 0 ? (
-            <p className="px-2 text-xs text-muted-foreground">No markets yet</p>
+            <p className="px-2 text-xs text-muted-foreground">{th('noMarketsYet')}</p>
           ) : (
             <div className="divide-y divide-border/50">
               {topByVolume.map((market, i) => (
@@ -74,11 +78,11 @@ export function TrendingSidebar({ markets, excludeId, categoryMap, onSelect }: T
       {/* Latest Markets */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold">Latest</CardTitle>
+          <CardTitle className="text-sm font-semibold">{t('latest')}</CardTitle>
         </CardHeader>
         <CardContent className="px-2 pb-3">
           {latest.length === 0 ? (
-            <p className="px-2 text-xs text-muted-foreground">No markets yet</p>
+            <p className="px-2 text-xs text-muted-foreground">{th('noMarketsYet')}</p>
           ) : (
             <div className="divide-y divide-border/50">
               {latest.map((market, i) => (

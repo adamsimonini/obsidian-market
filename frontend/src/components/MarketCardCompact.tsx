@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations, useFormatter } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -18,14 +19,6 @@ interface MarketCardCompactProps {
   onSelect?: (market: Market) => void;
 }
 
-function formatDeadline(deadline: string) {
-  return new Date(deadline).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
 function formatVolume(volume: number): string {
   if (volume >= 1_000_000) return `${(volume / 1_000_000).toFixed(1)}M`;
   if (volume >= 1_000) return `${(volume / 1_000).toFixed(1)}K`;
@@ -33,6 +26,9 @@ function formatVolume(volume: number): string {
 }
 
 export function MarketCardCompact({ market, categoryName, onSelect }: MarketCardCompactProps) {
+  const tc = useTranslations('common');
+  const td = useTranslations('marketDetail');
+  const format = useFormatter();
   const [expanded, setExpanded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -58,10 +54,10 @@ export function MarketCardCompact({ market, categoryName, onSelect }: MarketCard
           <div className="flex items-baseline justify-between">
             <div className="flex items-baseline gap-1">
               <span className={cn('font-mono text-lg font-bold', yesPercent >= 50 ? 'text-primary' : 'text-muted-foreground')}>{yesPercent}%</span>
-              <span className="text-xs text-muted-foreground">Yes</span>
+              <span className="text-xs text-muted-foreground">{tc('yes')}</span>
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xs text-muted-foreground">No</span>
+              <span className="text-xs text-muted-foreground">{tc('no')}</span>
               <span className={cn('font-mono text-lg font-bold', noPercent > 50 ? 'text-destructive' : 'text-muted-foreground')}>{noPercent}%</span>
             </div>
           </div>
@@ -81,10 +77,10 @@ export function MarketCardCompact({ market, categoryName, onSelect }: MarketCard
 
           {/* Stats */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{formatVolume(market.total_volume)} vol</span>
+            <span>{formatVolume(market.total_volume)} {tc('vol')}</span>
             <span className="text-border">|</span>
             <span>
-              {market.trade_count} trade{market.trade_count !== 1 ? 's' : ''}
+              {tc('trades', { count: market.trade_count })}
             </span>
             {categoryName && (
               <>
@@ -97,7 +93,7 @@ export function MarketCardCompact({ market, categoryName, onSelect }: MarketCard
           </div>
 
           {/* End date */}
-          <p className="text-xs text-muted-foreground">Ends {formatDeadline(market.resolution_deadline)}</p>
+          <p className="text-xs text-muted-foreground">{tc('ends', { date: format.dateTime(new Date(market.resolution_deadline), { month: 'short', day: 'numeric', year: 'numeric' }) })}</p>
 
           {/* Inline expanded details */}
           <div className={cn('grid overflow-hidden transition-all duration-300', expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
@@ -115,7 +111,7 @@ export function MarketCardCompact({ market, categoryName, onSelect }: MarketCard
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{market.title}</DialogTitle>
-            <DialogDescription>Market Details</DialogDescription>
+            <DialogDescription>{td('marketDetails')}</DialogDescription>
           </DialogHeader>
           <MarketDetailPanel market={market} onTrade={onSelect} />
         </DialogContent>

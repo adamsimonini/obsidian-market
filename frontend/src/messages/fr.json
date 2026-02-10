@@ -1,0 +1,137 @@
+{
+  "common": {
+    "yes": "Oui",
+    "no": "Non",
+    "all": "Tous",
+    "cancel": "Annuler",
+    "trade": "Trader",
+    "volume": "Volume",
+    "vol": "vol",
+    "trades": "{count, plural, one {1 transaction} other {# transactions}}",
+    "ends": "Fin {date}",
+    "other": "Autres",
+    "poweredByAleo": "propulsé par aleo"
+  },
+  "nav": {
+    "home": "Accueil",
+    "account": "Compte",
+    "settings": "Paramètres",
+    "standardView": "Vue standard",
+    "wideView": "Vue large",
+    "toggleTheme": "Changer le thème",
+    "changeLanguage": "Changer la langue"
+  },
+  "wallet": {
+    "connect": "Connecter le Portefeuille",
+    "disconnect": "Déconnecter ({address})",
+    "connectFirst": "Veuillez d'abord connecter votre portefeuille",
+    "failedToConnect": "Échec de la connexion au portefeuille"
+  },
+  "home": {
+    "title": "Marchés Entièrement Privés",
+    "createMarket": "Créer un Marché",
+    "backToMarkets": "Retour aux Marchés",
+    "loadingMarkets": "Chargement des marchés...",
+    "errorLoading": "Erreur de chargement des marchés : {message}",
+    "noMarketsFound": "Aucun marché trouvé",
+    "noMarketsYet": "Pas encore de marchés"
+  },
+  "account": {
+    "title": "Mon Compte",
+    "connectedAs": "Connecté : {address}",
+    "connectPrompt": "Connectez votre portefeuille pour voir les détails du compte.",
+    "walletDetails": "Les détails du portefeuille et du profil apparaîtront ici."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Personnalisez votre expérience.",
+    "fontSize": "Taille de Police",
+    "fontSizeDescription": "Ajuste la taille du texte dans toute l'application.",
+    "small": "Petit",
+    "medium": "Moyen",
+    "large": "Grand",
+    "language": "Langue",
+    "languageDescription": "Choisissez votre langue préférée.",
+    "adminManagement": "Gestion des Administrateurs"
+  },
+  "betForm": {
+    "selectPrediction": "Sélectionnez Votre Prédiction",
+    "betAmount": "Montant du Pari (ALEO)",
+    "minimum": "Minimum : 1 ALEO",
+    "minimumBet": "Le pari minimum est de 1 ALEO",
+    "position": "Position",
+    "cost": "Coût",
+    "estShares": "Parts Est.",
+    "maxPayout": "Gain Max. (si correct)",
+    "placeBet": "Placer le Pari",
+    "selectYesOrNo": "Veuillez sélectionner Oui ou Non",
+    "notAcceptingBets": "Ce marché n'accepte pas les paris",
+    "marketStatus": "Ce marché est {status} et n'accepte pas les paris",
+    "failedToPlace": "Échec du placement du pari",
+    "volumeLabel": "Volume : {value}",
+    "tradesLabel": "Transactions : {value}",
+    "feeLabel": "Frais : {value}"
+  },
+  "createMarket": {
+    "title": "Créer un Nouveau Marché",
+    "titleLabel": "Titre",
+    "description": "Description",
+    "category": "Catégorie",
+    "noCategory": "Sans catégorie",
+    "resolutionRules": "Règles de Résolution",
+    "resolutionDeadline": "Date Limite de Résolution",
+    "initialLiquidity": "Liquidité Initiale (microcrédits)",
+    "liquidityHint": "Définit les réserves initiales oui/non pour les prix CPMM. Plus élevé = prix plus stables.",
+    "submit": "Créer le Marché",
+    "checkingAdmin": "Vérification du statut administrateur...",
+    "noPermission": "Vous n'avez pas la permission de créer des marchés",
+    "fillRequired": "Veuillez remplir tous les champs requis",
+    "failed": "Échec de la création du marché",
+    "titlePlaceholder": "Bitcoin atteindra-t-il 150k$ d'ici fin 2026 ?",
+    "descriptionPlaceholder": "Détails supplémentaires sur le marché...",
+    "rulesPlaceholder": "Comment ce marché sera-t-il résolu ?"
+  },
+  "marketDetail": {
+    "volume": "Volume",
+    "volume24h": "Volume 24h",
+    "liquidity": "Liquidité",
+    "trades": "Transactions",
+    "fee": "Frais",
+    "deadline": "Date Limite",
+    "potentialRoi": "ROI Potentiel",
+    "buyYes": "Acheter Oui",
+    "buyNo": "Acheter Non",
+    "featuredMarket": "Marché Vedette",
+    "marketDetails": "Détails du Marché"
+  },
+  "sidebar": {
+    "topMarkets": "Meilleurs Marchés",
+    "latest": "Récents"
+  },
+  "admin": {
+    "admins": "Administrateurs ({count})",
+    "addAdmin": "Ajouter un Admin",
+    "walletAddress": "Adresse du Portefeuille",
+    "role": "Rôle",
+    "superAdmin": "Super Admin",
+    "marketCreator": "Créateur de Marchés",
+    "resolver": "Résolveur",
+    "roleDescription": "Super Admin : accès complet. Créateur de Marchés : créer des marchés. Résolveur : résoudre des marchés.",
+    "loadingPanel": "Chargement du panneau d'administration...",
+    "invalidAddress": "Adresse Aleo invalide. Doit commencer par aleo1 et faire 63 caractères.",
+    "invalidAddressShort": "Adresse invalide — doit commencer par aleo1 et faire 63 caractères",
+    "failedFetch": "Échec de la récupération des administrateurs",
+    "failedAdd": "Échec de l'ajout de l'administrateur",
+    "failedRemove": "Échec de la suppression de l'administrateur"
+  },
+  "status": {
+    "open": "OUVERT",
+    "closed": "FERMÉ",
+    "resolved": "RÉSOLU",
+    "cancelled": "ANNULÉ"
+  },
+  "prototypes": {
+    "title": "Prototypes de Cartes",
+    "description": "Variantes de cartes pour marchés de prédiction binaires. Survolez pour les infobulles, cliquez pour les détails. Toutes les cartes utilisent les mêmes données d'exemple."
+  }
+}

@@ -1,11 +1,13 @@
 'use client';
 
 import { useCallback, useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useWallet } from '@/hooks/useWallet';
 import { Button } from '@/components/ui/button';
 
 export function WalletButton() {
   const { address, connected, network, connect, disconnect } = useWallet();
+  const t = useTranslations('wallet');
   const [error, setError] = useState<string | null>(null);
 
   // Clear error when wallet connects (e.g. via autoConnect after a failed manual attempt)
@@ -30,7 +32,7 @@ export function WalletButton() {
       } catch (error) {
         console.error('Failed to connect wallet:', error);
         const errorMessage =
-          error instanceof Error ? error.message : 'Failed to connect wallet';
+          error instanceof Error ? error.message : t('failedToConnect');
         setError(errorMessage);
       }
     }
@@ -59,8 +61,8 @@ export function WalletButton() {
           onClick={handleClick}
         >
           {connected
-            ? `Disconnect (${address?.slice(0, 8)}...)`
-            : 'Connect Wallet'}
+            ? t('disconnect', { address: `${address?.slice(0, 8)}...` })
+            : t('connect')}
         </Button>
       </div>
     </div>

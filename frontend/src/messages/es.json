@@ -1,0 +1,137 @@
+{
+  "common": {
+    "yes": "Sí",
+    "no": "No",
+    "all": "Todos",
+    "cancel": "Cancelar",
+    "trade": "Operar",
+    "volume": "Volumen",
+    "vol": "vol",
+    "trades": "{count, plural, one {1 operación} other {# operaciones}}",
+    "ends": "Cierra {date}",
+    "other": "Otros",
+    "poweredByAleo": "impulsado por aleo"
+  },
+  "nav": {
+    "home": "Inicio",
+    "account": "Cuenta",
+    "settings": "Ajustes",
+    "standardView": "Vista estándar",
+    "wideView": "Vista amplia",
+    "toggleTheme": "Cambiar tema",
+    "changeLanguage": "Cambiar idioma"
+  },
+  "wallet": {
+    "connect": "Conectar Billetera",
+    "disconnect": "Desconectar ({address})",
+    "connectFirst": "Por favor conecta tu billetera primero",
+    "failedToConnect": "Error al conectar la billetera"
+  },
+  "home": {
+    "title": "Mercados Totalmente Privados",
+    "createMarket": "Crear Mercado",
+    "backToMarkets": "Volver a Mercados",
+    "loadingMarkets": "Cargando mercados...",
+    "errorLoading": "Error al cargar mercados: {message}",
+    "noMarketsFound": "No se encontraron mercados",
+    "noMarketsYet": "Aún no hay mercados"
+  },
+  "account": {
+    "title": "Mi Cuenta",
+    "connectedAs": "Conectado: {address}",
+    "connectPrompt": "Conecta tu billetera para ver los detalles de la cuenta.",
+    "walletDetails": "Los detalles de la billetera y perfil aparecerán aquí."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "description": "Personaliza tu experiencia.",
+    "fontSize": "Tamaño de Fuente",
+    "fontSizeDescription": "Ajusta el tamaño del texto en toda la aplicación.",
+    "small": "Pequeño",
+    "medium": "Mediano",
+    "large": "Grande",
+    "language": "Idioma",
+    "languageDescription": "Elige tu idioma preferido.",
+    "adminManagement": "Gestión de Administradores"
+  },
+  "betForm": {
+    "selectPrediction": "Selecciona Tu Predicción",
+    "betAmount": "Monto de Apuesta (ALEO)",
+    "minimum": "Mínimo: 1 ALEO",
+    "minimumBet": "La apuesta mínima es 1 ALEO",
+    "position": "Posición",
+    "cost": "Costo",
+    "estShares": "Acciones Est.",
+    "maxPayout": "Pago Máx. (si es correcto)",
+    "placeBet": "Realizar Apuesta",
+    "selectYesOrNo": "Por favor selecciona Sí o No",
+    "notAcceptingBets": "Este mercado no acepta apuestas",
+    "marketStatus": "Este mercado está {status} y no acepta apuestas",
+    "failedToPlace": "Error al realizar la apuesta",
+    "volumeLabel": "Volumen: {value}",
+    "tradesLabel": "Operaciones: {value}",
+    "feeLabel": "Comisión: {value}"
+  },
+  "createMarket": {
+    "title": "Crear Nuevo Mercado",
+    "titleLabel": "Título",
+    "description": "Descripción",
+    "category": "Categoría",
+    "noCategory": "Sin categoría",
+    "resolutionRules": "Reglas de Resolución",
+    "resolutionDeadline": "Fecha Límite de Resolución",
+    "initialLiquidity": "Liquidez Inicial (microcréditos)",
+    "liquidityHint": "Establece las reservas iniciales sí/no para precios CPMM. Mayor = precios más estables.",
+    "submit": "Crear Mercado",
+    "checkingAdmin": "Verificando estado de administrador...",
+    "noPermission": "No tienes permiso para crear mercados",
+    "fillRequired": "Por favor completa todos los campos requeridos",
+    "failed": "Error al crear el mercado",
+    "titlePlaceholder": "¿Bitcoin alcanzará $150k para finales de 2026?",
+    "descriptionPlaceholder": "Detalles adicionales sobre el mercado...",
+    "rulesPlaceholder": "¿Cómo se resolverá este mercado?"
+  },
+  "marketDetail": {
+    "volume": "Volumen",
+    "volume24h": "Volumen 24h",
+    "liquidity": "Liquidez",
+    "trades": "Operaciones",
+    "fee": "Comisión",
+    "deadline": "Fecha Límite",
+    "potentialRoi": "ROI Potencial",
+    "buyYes": "Comprar Sí",
+    "buyNo": "Comprar No",
+    "featuredMarket": "Mercado Destacado",
+    "marketDetails": "Detalles del Mercado"
+  },
+  "sidebar": {
+    "topMarkets": "Mejores Mercados",
+    "latest": "Recientes"
+  },
+  "admin": {
+    "admins": "Administradores ({count})",
+    "addAdmin": "Agregar Admin",
+    "walletAddress": "Dirección de Billetera",
+    "role": "Rol",
+    "superAdmin": "Super Admin",
+    "marketCreator": "Creador de Mercados",
+    "resolver": "Resolutor",
+    "roleDescription": "Super Admin: acceso total. Creador de Mercados: crear mercados. Resolutor: resolver mercados.",
+    "loadingPanel": "Cargando panel de administración...",
+    "invalidAddress": "Dirección Aleo inválida. Debe comenzar con aleo1 y tener 63 caracteres.",
+    "invalidAddressShort": "Dirección inválida — debe comenzar con aleo1 y tener 63 caracteres",
+    "failedFetch": "Error al obtener administradores",
+    "failedAdd": "Error al agregar administrador",
+    "failedRemove": "Error al eliminar administrador"
+  },
+  "status": {
+    "open": "ABIERTO",
+    "closed": "CERRADO",
+    "resolved": "RESUELTO",
+    "cancelled": "CANCELADO"
+  },
+  "prototypes": {
+    "title": "Prototipos de Tarjetas",
+    "description": "Variantes de tarjetas para mercados de predicción binarios. Pasa el cursor para ver tooltips, haz clic para detalles. Todas las tarjetas usan los mismos datos de ejemplo."
+  }
+}

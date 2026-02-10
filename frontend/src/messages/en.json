@@ -1,0 +1,137 @@
+{
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "cancel": "Cancel",
+    "trade": "Trade",
+    "volume": "Volume",
+    "vol": "vol",
+    "trades": "{count, plural, one {1 trade} other {# trades}}",
+    "ends": "Ends {date}",
+    "other": "Other",
+    "poweredByAleo": "powered by aleo"
+  },
+  "nav": {
+    "home": "Home",
+    "account": "Account",
+    "settings": "Settings",
+    "standardView": "Standard view",
+    "wideView": "Wide view",
+    "toggleTheme": "Toggle theme",
+    "changeLanguage": "Change language"
+  },
+  "wallet": {
+    "connect": "Connect Wallet",
+    "disconnect": "Disconnect ({address})",
+    "connectFirst": "Please connect your wallet first",
+    "failedToConnect": "Failed to connect wallet"
+  },
+  "home": {
+    "title": "Fully Private Markets",
+    "createMarket": "Create Market",
+    "backToMarkets": "Back to Markets",
+    "loadingMarkets": "Loading markets...",
+    "errorLoading": "Error loading markets: {message}",
+    "noMarketsFound": "No markets found",
+    "noMarketsYet": "No markets yet"
+  },
+  "account": {
+    "title": "My Account",
+    "connectedAs": "Connected: {address}",
+    "connectPrompt": "Connect your wallet to view account details.",
+    "walletDetails": "Wallet & profile details will appear here."
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Customize your experience.",
+    "fontSize": "Font Size",
+    "fontSizeDescription": "Adjusts text size across the entire app.",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "language": "Language",
+    "languageDescription": "Choose your preferred language.",
+    "adminManagement": "Admin Management"
+  },
+  "betForm": {
+    "selectPrediction": "Select Your Prediction",
+    "betAmount": "Bet Amount (ALEO)",
+    "minimum": "Minimum: 1 ALEO",
+    "minimumBet": "Minimum bet is 1 ALEO",
+    "position": "Position",
+    "cost": "Cost",
+    "estShares": "Est. Shares",
+    "maxPayout": "Max Payout (if correct)",
+    "placeBet": "Place Bet",
+    "selectYesOrNo": "Please select Yes or No",
+    "notAcceptingBets": "This market is not accepting bets",
+    "marketStatus": "This market is {status} and not accepting bets",
+    "failedToPlace": "Failed to place bet",
+    "volumeLabel": "Volume: {value}",
+    "tradesLabel": "Trades: {value}",
+    "feeLabel": "Fee: {value}"
+  },
+  "createMarket": {
+    "title": "Create New Market",
+    "titleLabel": "Title",
+    "description": "Description",
+    "category": "Category",
+    "noCategory": "No category",
+    "resolutionRules": "Resolution Rules",
+    "resolutionDeadline": "Resolution Deadline",
+    "initialLiquidity": "Initial Liquidity (microcredits)",
+    "liquidityHint": "Sets the initial yes/no reserves for CPMM pricing. Higher = more stable prices.",
+    "submit": "Create Market",
+    "checkingAdmin": "Checking admin status...",
+    "noPermission": "You do not have permission to create markets",
+    "fillRequired": "Please fill in all required fields",
+    "failed": "Failed to create market",
+    "titlePlaceholder": "Will Bitcoin reach $150k by end of 2026?",
+    "descriptionPlaceholder": "Additional details about the market...",
+    "rulesPlaceholder": "How will this market be resolved?"
+  },
+  "marketDetail": {
+    "volume": "Volume",
+    "volume24h": "24h Volume",
+    "liquidity": "Liquidity",
+    "trades": "Trades",
+    "fee": "Fee",
+    "deadline": "Deadline",
+    "potentialRoi": "Potential ROI",
+    "buyYes": "Buy Yes",
+    "buyNo": "Buy No",
+    "featuredMarket": "Featured Market",
+    "marketDetails": "Market Details"
+  },
+  "sidebar": {
+    "topMarkets": "Top Markets",
+    "latest": "Latest"
+  },
+  "admin": {
+    "admins": "Admins ({count})",
+    "addAdmin": "Add Admin",
+    "walletAddress": "Wallet Address",
+    "role": "Role",
+    "superAdmin": "Super Admin",
+    "marketCreator": "Market Creator",
+    "resolver": "Resolver",
+    "roleDescription": "Super Admin: full access. Market Creator: create markets. Resolver: resolve markets.",
+    "loadingPanel": "Loading admin panel...",
+    "invalidAddress": "Invalid Aleo address. Must start with aleo1 and be 63 characters.",
+    "invalidAddressShort": "Invalid address — must start with aleo1 and be 63 characters",
+    "failedFetch": "Failed to fetch admins",
+    "failedAdd": "Failed to add admin",
+    "failedRemove": "Failed to remove admin"
+  },
+  "status": {
+    "open": "OPEN",
+    "closed": "CLOSED",
+    "resolved": "RESOLVED",
+    "cancelled": "CANCELLED"
+  },
+  "prototypes": {
+    "title": "Card Prototypes",
+    "description": "Binary prediction market card variants. Hover for tooltips, click/tap for details. All cards use the same sample market data."
+  }
+}

@@ -1,154 +1,210 @@
-# Implementation Plan: V2 Frontend + Admin API
+# i18n Implementation Plan — Obsidian Market
 
-## Phase 1: TypeScript Types
-**File:** `frontend/src/types/supabase.ts`
-- Add types: `AdminRole`, `MarketType`, `Category`, `Event`, `Outcome`, `Trade`, `MarketSnapshot`, `PublicTrade`
-- Update `Market` interface: add all v2 columns (reserves, prices, volume, category_id, event_id, slug, featured, fee_bps, etc.) while keeping existing v1 columns
-- Update `Admin` interface: add `role`, `permissions`, `updated_at`
-- Update `Database` interface with all table definitions
+## Overview
+Add full internationalization using **next-intl** with URL-prefixed locale routing (`/en/`, `/es/`, `/fr/`). English is the default locale. All ~100 static UI strings get extracted into translation JSON files. Dynamic DB content (market titles/descriptions) stays untranslated.
 
-## Phase 2: Server-side Supabase Client
-**File:** `frontend/src/lib/supabase-server.ts` (new)
-- Creates Supabase client using `SUPABASE_SERVICE_ROLE_KEY` (not NEXT_PUBLIC_)
-- Used by API routes only — bypasses RLS for admin writes
-- Env var: `SUPABASE_SERVICE_ROLE_KEY` (must be added to Vercel + .env.local)
+---
 
-## Phase 3: API Routes
+## Phase 1: Infrastructure (no visual changes)
 
-### Admin auth helper
-**File:** `frontend/src/lib/admin-auth.ts` (new)
-- `verifyAdmin(walletAddress, requiredRole?)` — queries admins table, checks role
-- Role hierarchy: super_admin > market_creator/resolver
-- Returns `{ authorized, admin, error }`
-- NOTE: MVP uses wallet address only (no signature verification). TODO for production.
+### 1.1 Install next-intl
+```bash
+cd frontend && npm install next-intl
+```
 
-### Routes:
+### 1.2 Create config files
 
-**`POST /api/trades`** — Record anonymized trade
-- Body: `{ market_id, side, shares, amount, price_before, price_after, yes_reserves_after, no_reserves_after, tx_hash? }`
-- No admin required — called after successful Aleo tx
-- Validates market exists and is open
-- Inserts via service_role (RLS blocks anon inserts)
+**`src/i18n/routing.ts`** — locale list + default
+```ts
+import { defineRouting } from 'next-intl/routing';
+export const routing = defineRouting({
+  locales: ['en', 'es', 'fr'],
+  defaultLocale: 'en',
+  localePrefix: 'always',  // /en/settings, /es/settings, /fr/settings
+});
+```
 
-**`GET /api/admin/admins`** — List admins
-- Query param: `wallet_address` (for auth)
-- Requires: super_admin
-- Returns all admins with roles
+**`src/i18n/request.ts`** — per-request message loader
+```ts
+import { getRequestConfig } from 'next-intl/server';
+import { routing } from './routing';
+export default getRequestConfig(async ({ requestLocale }) => {
+  let locale = await requestLocale;
+  if (!locale || !routing.locales.includes(locale as any)) locale = routing.defaultLocale;
+  return { locale, messages: (await import(`../../messages/${locale}.json`)).default };
+});
+```
 
-**`POST /api/admin/admins`** — Add admin
-- Body: `{ wallet_address, target_address, role }`
-- Requires: super_admin
-- Prevents duplicate entries
+**`src/i18n/navigation.ts`** — locale-aware Link, usePathname, useRouter
+```ts
+import { createNavigation } from 'next-intl/navigation';
+import { routing } from './routing';
+export const { Link, redirect, usePathname, useRouter } = createNavigation(routing);
+```
 
-**`DELETE /api/admin/admins/[address]`** — Remove admin
-- Query param: `wallet_address` (for auth)
-- Requires: super_admin
-- Cannot remove yourself
+### 1.3 Create middleware (`src/middleware.ts`)
+- Detects locale from Accept-Language header
+- Redirects `/` to `/en/`
+- Excludes `/api`, `/_next`, and static files from locale routing
 
-**`POST /api/admin/markets`** — Create market
-- Body: market fields (title, description, category_id, resolution_rules, etc.)
-- Requires: super_admin or market_creator
-- Auto-generates slug from title
-- Creates default Yes/No outcomes
+### 1.4 Update `next.config.ts`
+- Wrap with `createNextIntlPlugin('./src/i18n/request.ts')`
 
-**`PATCH /api/admin/markets/[id]/resolve`** — Resolve market
-- Body: `{ wallet_address, resolution_outcome }` ('yes'|'no'|'invalid')
-- Requires: super_admin or resolver
-- Updates market status to 'resolved', sets resolution_outcome and resolved_at
-- Updates outcome resolution_values (1.0 for winner, 0.0 for loser)
+### 1.5 Create translation files
+- `messages/en.json` — all English strings extracted from components
+- `messages/es.json` — Spanish (placeholder initially, real translations in Phase 5)
+- `messages/fr.json` — French (placeholder initially, real translations in Phase 5)
 
-## Phase 4: Update Hooks
+Translation namespaces: `common`, `nav`, `wallet`, `home`, `account`, `settings`, `betForm`, `createMarket`, `marketDetail`, `sidebar`, `admin`, `prototypes`
 
-### useAdmin hook update
-- Return `{ isAdmin, role, loading, error }` instead of just `{ isAdmin }`
-- Fetch the full admin row including role
+---
 
-### useMarkets hook update
-- Fetch v2 columns (yes_price, no_price, total_volume, trade_count, liquidity, category_id, featured, slug)
-- Add optional `categoryId` filter parameter
-- Keep real-time subscription
+## Phase 2: Route restructuring
 
-### New hook: useCategories
-**File:** `frontend/src/hooks/useCategories.ts` (new)
-- Fetches categories from Supabase
-- Returns `{ categories, loading }`
-- Simple one-time fetch (categories rarely change)
+### 2.1 Split layout.tsx
 
-## Phase 5: Frontend Components
+**Root layout (`app/layout.tsx`)** becomes a minimal passthrough:
+- Keeps only the `metadata` export
+- Returns `{children}` directly (no `<html>` or `<body>`)
 
-### MarketCard update
-- Show `yes_price`/`no_price` as probability percentages (e.g., "72% Yes") instead of odds
-- Show total_volume formatted (e.g., "$12.5K")
-- Show trade_count
-- Show category badge
-- Visual indicator for featured markets
-- Remove old yes_odds/no_odds display
+**Locale layout (`app/[locale]/layout.tsx`)** becomes the real layout:
+- `<html lang={locale}>` (dynamic)
+- `<head>` with theme-color metas + localStorage init script
+- `<NextIntlClientProvider>` wrapping `<Providers>` + `<Navbar>` + `<main>`
 
-### MarketList update
-- Add category filter tabs at top (All + each category)
-- Pass categoryId to useMarkets
-- Featured markets section at top (when on "All" tab)
+### 2.2 Move pages into `[locale]/`
+```
+app/page.tsx           -> app/[locale]/page.tsx
+app/account/page.tsx   -> app/[locale]/account/page.tsx
+app/settings/page.tsx  -> app/[locale]/settings/page.tsx
+app/prototypes/page.tsx-> app/[locale]/prototypes/page.tsx
+```
 
-### Home page update
-- Wire up category filtering state
-- Pass selected category to MarketList
+`app/api/` stays where it is — untouched by locale routing.
 
-### BetForm update
-- Display CPMM prices instead of odds
-- Show price as probability %
-- Calculate estimated price impact (how price moves after trade)
-- Use yes_reserves/no_reserves for calculation
+### 2.3 Verification checkpoint
+Visit `localhost:3000` should redirect to `/en/`. All pages render with original hardcoded English. API routes still work.
 
-### CreateMarketForm update
-- Add category dropdown (fetched from categories table)
-- Remove yes_odds/no_odds fields (prices derived from reserves via CPMM)
-- Add initial liquidity field (sets initial reserves)
-- Submit via POST /api/admin/markets instead of direct Supabase insert
-- Add slug auto-generation from title
+---
 
-### New: AdminPanel component
-**File:** `frontend/src/components/AdminPanel.tsx` (new)
-- Only visible to super_admin
-- Lists all admins with roles
-- Add admin form: wallet address + role dropdown
-- Remove admin button (with confirmation)
-- Calls API routes
+## Phase 3: Navbar + language switcher
 
-### Settings page update
-- Add AdminPanel for super_admin users
-- Keep existing placeholder for non-admin users
+### 3.1 Update Navbar.tsx
+- Replace `next/link` with `@/i18n/navigation` Link
+- Replace `next/navigation` usePathname with `@/i18n/navigation` usePathname
+- Add `useTranslations('nav')` for labels ("Home", "Account", "Settings", etc.)
 
-## Phase 6: Seed Super Admin
-**File:** `backend/supabase/migrations/20260208000000_seed_super_admin.sql` (new)
-- Insert user's wallet as super_admin:
-  ```sql
-  INSERT INTO public.admins (wallet_address, role)
-  VALUES ('aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv', 'super_admin')
-  ON CONFLICT (wallet_address) DO UPDATE SET role = 'super_admin';
-  ```
-- Push migration to remote Supabase
+### 3.2 Add language switcher dropdown
+- Globe icon button next to theme toggle
+- Dropdown with English / Espanol / Francais (names always in native language)
+- Uses `router.replace(pathname, { locale: newLocale })` to switch
+- May need `npx shadcn@latest add dropdown-menu`
 
-## File Summary
+---
 
-### New files (6):
-1. `frontend/src/lib/supabase-server.ts`
-2. `frontend/src/lib/admin-auth.ts`
-3. `frontend/src/hooks/useCategories.ts`
-4. `frontend/src/components/AdminPanel.tsx`
-5. `frontend/src/app/api/trades/route.ts`
-6. `frontend/src/app/api/admin/admins/route.ts`
-7. `frontend/src/app/api/admin/admins/[address]/route.ts`
-8. `frontend/src/app/api/admin/markets/route.ts`
-9. `frontend/src/app/api/admin/markets/[id]/resolve/route.ts`
-10. `backend/supabase/migrations/20260208000000_seed_super_admin.sql`
+## Phase 4: Component migration (page by page)
 
-### Modified files (9):
-1. `frontend/src/types/supabase.ts`
-2. `frontend/src/hooks/useMarkets.ts`
-3. `frontend/src/hooks/useAdmin.ts`
-4. `frontend/src/components/MarketCard.tsx`
-5. `frontend/src/components/MarketList.tsx`
-6. `frontend/src/components/BetForm.tsx`
-7. `frontend/src/components/CreateMarketForm.tsx`
-8. `frontend/src/app/page.tsx`
-9. `frontend/src/app/settings/page.tsx`
+Each component gets `useTranslations('namespace')` and replaces hardcoded strings with `t('key')`.
+
+| Priority | Component | Namespace | Strings | Special handling |
+|----------|-----------|-----------|---------|-----------------|
+| 1 | account/page.tsx | `account` | ~4 | Interpolation for `{address}` |
+| 2 | settings/page.tsx | `settings` | ~8 | Font size labels, add Language section |
+| 3 | page.tsx (home) | `home`, `common` | ~5 | "All" filter, heading |
+| 4 | WalletButton | `wallet` | ~3 | Interpolation for disconnect label |
+| 5 | MarketList | `common`, `home` | ~4 | Loading/error/empty states |
+| 6 | MarketCardCompact | `common` | ~6 | Pluralization for trades, date formatting |
+| 7 | FeaturedMarket | `common`, `marketDetail` | ~8 | Pluralization, useFormatter() for dates, SVG text |
+| 8 | MarketDetailPanel | `marketDetail` | ~10 | Stat labels, ROI labels, date formatting |
+| 9 | TrendingSidebar | `sidebar`, `common` | ~4 | Section headings |
+| 10 | BetForm | `betForm`, `common` | ~15 | Error messages, form labels |
+| 11 | CreateMarketForm | `createMarket` | ~15 | Labels, placeholders, errors |
+| 12 | AdminPanel | `admin` | ~15 | Role labels, validation, errors |
+| 13 | Prototypes | `prototypes` | ~8 | Low priority, developer-facing |
+
+### Date formatting migration
+Replace `toLocaleDateString('en-US', ...)` with `useFormatter().dateTime()` from next-intl for locale-aware dates.
+
+### Pluralization
+Replace `trade_count !== 1 ? 's' : ''` patterns with ICU MessageFormat:
+```json
+"trades": "{count, plural, one {1 trade} other {# trades}}"
+```
+
+### Navigation links
+Replace `import Link from 'next/link'` with `import { Link } from '@/i18n/navigation'` — auto-prefixes current locale. Replace `usePathname` from `next/navigation` with the one from `@/i18n/navigation` (strips locale prefix, so active-link detection keeps working).
+
+---
+
+## Phase 5: Polish
+
+- Replace placeholder es.json / fr.json with real translations
+- Locale-aware metadata via `generateMetadata` + `getTranslations`
+- `hreflang` link tags for SEO (next-intl middleware `alternateLinks`)
+- Language preference persisted via next-intl's built-in `localeCookie`
+- Language selector section on settings page alongside font size
+
+---
+
+## Final file structure
+
+```
+frontend/src/
+  i18n/
+    routing.ts
+    request.ts
+    navigation.ts
+  messages/
+    en.json
+    es.json
+    fr.json
+  middleware.ts
+  app/
+    layout.tsx              <- minimal (metadata only, returns children)
+    globals.css
+    [locale]/
+      layout.tsx            <- real layout with NextIntlClientProvider
+      page.tsx
+      account/page.tsx
+      settings/page.tsx
+      prototypes/page.tsx
+    api/                    <- unchanged
+  components/               <- unchanged structure, strings use t()
+```
+
+## New files (8)
+1. `src/i18n/routing.ts`
+2. `src/i18n/request.ts`
+3. `src/i18n/navigation.ts`
+4. `src/middleware.ts`
+5. `src/messages/en.json`
+6. `src/messages/es.json`
+7. `src/messages/fr.json`
+8. `src/app/[locale]/layout.tsx`
+
+## Modified files (17)
+1. `next.config.ts` — wrap with createNextIntlPlugin
+2. `src/app/layout.tsx` — strip down to minimal passthrough
+3. `src/app/page.tsx` — move to [locale]/, add useTranslations
+4. `src/app/account/page.tsx` — move to [locale]/, add useTranslations
+5. `src/app/settings/page.tsx` — move to [locale]/, add useTranslations + language section
+6. `src/app/prototypes/page.tsx` — move to [locale]/
+7. `src/components/layout/Navbar.tsx` — locale-aware Link, translations, language switcher
+8. `src/components/WalletButton.tsx` — useTranslations
+9. `src/components/MarketList.tsx` — useTranslations
+10. `src/components/MarketCardCompact.tsx` — useTranslations + useFormatter
+11. `src/components/FeaturedMarket.tsx` — useTranslations + useFormatter
+12. `src/components/MarketDetailPanel.tsx` — useTranslations + useFormatter
+13. `src/components/TrendingSidebar.tsx` — useTranslations
+14. `src/components/BetForm.tsx` — useTranslations
+15. `src/components/CreateMarketForm.tsx` — useTranslations
+16. `src/components/AdminPanel.tsx` — useTranslations
+17. `src/components/MarketCard.tsx` — useTranslations
+
+## Key decisions
+- **next-intl** over custom solution — industry standard for App Router, handles client components, built-in pluralization/date formatting/middleware
+- **`localePrefix: 'always'`** — even `/en/` is explicit in URLs for consistency
+- **NextIntlClientProvider in locale layout** — makes useTranslations() available to all client components without modifying Providers.tsx
+- **Language names not translated** — "English" always says "English", "Espanol" always says "Espanol" (standard UX so users can find their language)
+- **DB content untranslated** — market titles/descriptions from Supabase stay as-is
+- **Providers.tsx unchanged** — sits inside NextIntlClientProvider, no modifications needed

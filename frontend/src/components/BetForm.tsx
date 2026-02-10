@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,9 @@ function formatPercent(price: number): string {
 }
 
 export function BetForm({ market, onClose }: BetFormProps) {
+  const t = useTranslations('betForm');
+  const tc = useTranslations('common');
+  const tw = useTranslations('wallet');
   const { address, connected } = useWallet();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,23 +70,23 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
   const handlePlaceBet = useCallback(async () => {
     if (!connected || !address) {
-      setError('Please connect your wallet first');
+      setError(tw('connectFirst'));
       return;
     }
 
     if (selectedSide === null) {
-      setError('Please select Yes or No');
+      setError(t('selectYesOrNo'));
       return;
     }
 
     if (market.status !== 'open') {
-      setError('This market is not accepting bets');
+      setError(t('notAcceptingBets'));
       return;
     }
 
     const amount = parseFloat(betAmount);
     if (isNaN(amount) || amount < 1) {
-      setError('Minimum bet is 1 ALEO');
+      setError(t('minimumBet'));
       return;
     }
 
@@ -95,7 +99,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to place bet');
+      setError(err instanceof Error ? err.message : t('failedToPlace'));
     } finally {
       setLoading(false);
     }
@@ -112,9 +116,9 @@ export function BetForm({ market, onClose }: BetFormProps) {
           </p>
         )}
         <div className="mt-3 flex gap-3 text-sm text-muted-foreground">
-          <span>Volume: {market.total_volume.toLocaleString()}</span>
-          <span>Trades: {market.trade_count}</span>
-          <span>Fee: {market.fee_bps / 100}%</span>
+          <span>{t('volumeLabel', { value: market.total_volume.toLocaleString() })}</span>
+          <span>{t('tradesLabel', { value: market.trade_count })}</span>
+          <span>{t('feeLabel', { value: `${market.fee_bps / 100}%` })}</span>
         </div>
       </div>
 
@@ -129,14 +133,14 @@ export function BetForm({ market, onClose }: BetFormProps) {
       {market.status !== 'open' && (
         <div className="rounded-md bg-accent p-3">
           <p className="text-sm text-accent-foreground">
-            This market is {market.status} and not accepting bets
+            {t('marketStatus', { status: market.status })}
           </p>
         </div>
       )}
 
       {/* Prediction Selection */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold">Select Your Prediction</h2>
+        <h2 className="mb-4 text-lg font-semibold">{t('selectPrediction')}</h2>
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
@@ -148,7 +152,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
                 : 'border-border bg-card text-card-foreground hover:border-green-500/50',
             )}
           >
-            <span className="mb-1 text-lg font-semibold">Yes</span>
+            <span className="mb-1 text-lg font-semibold">{tc('yes')}</span>
             <span className="text-2xl font-bold text-green-500">
               {formatPercent(market.yes_price)}
             </span>
@@ -168,7 +172,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
                 : 'border-border bg-card text-card-foreground hover:border-red-500/50',
             )}
           >
-            <span className="mb-1 text-lg font-semibold">No</span>
+            <span className="mb-1 text-lg font-semibold">{tc('no')}</span>
             <span className="text-2xl font-bold text-red-500">
               {formatPercent(market.no_price)}
             </span>
@@ -183,7 +187,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
       {/* Bet Amount Input */}
       <div>
-        <label className="mb-2 block text-sm font-semibold">Bet Amount (ALEO)</label>
+        <label className="mb-2 block text-sm font-semibold">{t('betAmount')}</label>
         <Input
           type="number"
           min="1"
@@ -193,7 +197,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
           placeholder="1"
           className="mb-2"
         />
-        <p className="text-xs text-muted-foreground">Minimum: 1 ALEO</p>
+        <p className="text-xs text-muted-foreground">{t('minimum')}</p>
       </div>
 
       {/* Summary */}
@@ -201,21 +205,21 @@ export function BetForm({ market, onClose }: BetFormProps) {
         <Card>
           <CardContent className="space-y-2 py-4">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Position</span>
+              <span className="text-muted-foreground">{t('position')}</span>
               <Badge variant={selectedSide === 'yes' ? 'default' : 'destructive'}>
                 {selectedSide.toUpperCase()}
               </Badge>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Cost</span>
+              <span className="text-muted-foreground">{t('cost')}</span>
               <span className="font-semibold">{betAmount || '0'} ALEO</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Est. Shares</span>
+              <span className="text-muted-foreground">{t('estShares')}</span>
               <span className="font-semibold">{priceImpact.estimatedPayout.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Max Payout (if correct)</span>
+              <span className="text-muted-foreground">{t('maxPayout')}</span>
               <span className="font-semibold text-green-500">
                 {priceImpact.estimatedPayout.toFixed(2)} ALEO
               </span>
@@ -232,10 +236,10 @@ export function BetForm({ market, onClose }: BetFormProps) {
           disabled={loading || selectedSide === null || market.status !== 'open'}
         >
           {loading && <Loader2 className="size-4 animate-spin" />}
-          Place Bet
+          {t('placeBet')}
         </Button>
         <Button variant="secondary" className="flex-1" onClick={onClose}>
-          Cancel
+          {tc('cancel')}
         </Button>
       </div>
     </div>

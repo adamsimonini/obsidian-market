@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { useMarkets } from '@/hooks/useMarkets';
 import { MarketCardCompact } from './MarketCardCompact';
@@ -23,6 +24,7 @@ export function MarketList({
   excludeIds,
   categoryMap,
 }: MarketListProps) {
+  const t = useTranslations('home');
   const { markets, loading, error } = useMarkets({
     status: statusFilter,
     categoryId,
@@ -67,7 +69,7 @@ export function MarketList({
     return (
       <div className="flex flex-col items-center justify-center p-10">
         <Loader2 className="size-8 animate-spin text-primary" />
-        <p className="mt-3 text-muted-foreground">Loading markets...</p>
+        <p className="mt-3 text-muted-foreground">{t('loadingMarkets')}</p>
       </div>
     );
   }
@@ -76,7 +78,7 @@ export function MarketList({
     return (
       <div className="flex items-center justify-center p-10">
         <p className="text-destructive">
-          Error loading markets: {error.message}
+          {t('errorLoading', { message: error.message })}
         </p>
       </div>
     );
@@ -85,7 +87,7 @@ export function MarketList({
   if (filtered.length === 0) {
     return (
       <div className="flex items-center justify-center p-10">
-        <p className="text-muted-foreground">No markets found</p>
+        <p className="text-muted-foreground">{t('noMarketsFound')}</p>
       </div>
     );
   }

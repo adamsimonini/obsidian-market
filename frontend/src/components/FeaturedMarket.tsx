@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useTranslations, useFormatter } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { MarketDetailPanel } from '@/components/MarketDetailPanel';
@@ -22,14 +23,6 @@ function formatVolume(volume: number): string {
   if (volume >= 1_000_000) return `${(volume / 1_000_000).toFixed(1)}M`;
   if (volume >= 1_000) return `${(volume / 1_000).toFixed(1)}K`;
   return volume.toFixed(0);
-}
-
-function formatDeadline(deadline: string) {
-  return new Date(deadline).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
 }
 
 /**
@@ -108,6 +101,9 @@ function SemiGauge({ yesPercent, noPercent }: { yesPercent: number; noPercent: n
 }
 
 export function FeaturedMarket({ market, categoryName, onSelect }: FeaturedMarketProps) {
+  const tc = useTranslations('common');
+  const td = useTranslations('marketDetail');
+  const format = useFormatter();
   const [expanded, setExpanded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -148,17 +144,17 @@ export function FeaturedMarket({ market, categoryName, onSelect }: FeaturedMarke
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">{formatVolume(market.total_volume)}</span>
-                  <span>volume</span>
+                  <span>{tc('volume')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">{market.trade_count}</span>
-                  <span>trade{market.trade_count !== 1 ? 's' : ''}</span>
+                  <span>{tc('trades', { count: market.trade_count })}</span>
                 </div>
               </div>
 
               {/* Ends date — pushed to bottom to align with gauge baseline */}
               <div className="mt-auto text-sm text-muted-foreground">
-                <span>Ends {formatDeadline(market.resolution_deadline)}</span>
+                <span>{tc('ends', { date: format.dateTime(new Date(market.resolution_deadline), { month: 'short', day: 'numeric', year: 'numeric' }) })}</span>
               </div>
             </div>
 
@@ -184,7 +180,7 @@ export function FeaturedMarket({ market, categoryName, onSelect }: FeaturedMarke
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{market.title}</DialogTitle>
-            <DialogDescription>Featured Market</DialogDescription>
+            <DialogDescription>{td('featuredMarket')}</DialogDescription>
           </DialogHeader>
           <MarketDetailPanel market={market} onTrade={onSelect} />
         </DialogContent>

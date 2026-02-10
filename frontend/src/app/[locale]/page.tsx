@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { MarketList } from '@/components/MarketList';
 import { FeaturedMarket } from '@/components/FeaturedMarket';
@@ -24,12 +25,13 @@ export default function HomePage() {
     status: 'open',
     categoryId,
   });
+  const t = useTranslations('home');
+  const tc = useTranslations('common');
 
   const canCreate = isAdmin && (role === 'super_admin' || role === 'market_creator');
 
   const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c.name])), [categories]);
 
-  // Hero = highest volume market in the current view; fallback to first
   const featuredMarket = useMemo(() => {
     if (markets.length === 0) return null;
     return [...markets].sort((a, b) => b.total_volume - a.total_volume)[0];
@@ -37,13 +39,12 @@ export default function HomePage() {
 
   const excludeIds = useMemo(() => (featuredMarket ? [featuredMarket.id] : []), [featuredMarket]);
 
-  // Full-screen views for BetForm / CreateMarketForm
   if (selectedMarket) {
     return (
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
           <Button variant="ghost" className="mb-4" onClick={() => setSelectedMarket(null)}>
-            &larr; Back to Markets
+            &larr; {t('backToMarkets')}
           </Button>
           <BetForm market={selectedMarket} onClose={() => setSelectedMarket(null)} />
         </div>
@@ -56,7 +57,7 @@ export default function HomePage() {
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
           <Button variant="ghost" className="mb-4" onClick={() => setShowCreateForm(false)}>
-            &larr; Back to Markets
+            &larr; {t('backToMarkets')}
           </Button>
           <CreateMarketForm onClose={() => setShowCreateForm(false)} />
         </div>
@@ -67,17 +68,15 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container-main mx-auto px-4 py-8 md:px-8">
-        {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Fully Private Markets</h1>
-          {canCreate && <Button onClick={() => setShowCreateForm(true)}>Create Market</Button>}
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          {canCreate && <Button onClick={() => setShowCreateForm(true)}>{t('createMarket')}</Button>}
         </div>
 
-        {/* Category Tabs */}
         {categories.length > 0 && (
           <div className="mb-6 flex flex-wrap gap-2">
             <Button variant={!categoryId ? 'default' : 'outline'} size="sm" onClick={() => setCategoryId(undefined)}>
-              All
+              {tc('all')}
             </Button>
             {categories.map((cat) => (
               <Button key={cat.id} variant={categoryId === cat.id ? 'default' : 'outline'} size="sm" onClick={() => setCategoryId(cat.id)}>
@@ -87,20 +86,13 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Main Content + Sidebar */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_1fr]">
-          {/* Left: Featured + Grid */}
           <div className="min-w-0 space-y-6">
-            {/* Featured Market */}
             {!loading && featuredMarket && (
               <FeaturedMarket market={featuredMarket} categoryName={featuredMarket.category_id ? categoryMap.get(featuredMarket.category_id) : undefined} onSelect={setSelectedMarket} />
             )}
-
-            {/* Compact Grid */}
             <MarketList onMarketSelect={setSelectedMarket} onCategorySelect={setCategoryId} categoryId={categoryId} excludeIds={excludeIds} categoryMap={categoryMap} />
           </div>
-
-          {/* Right: Sidebar (hidden on smaller screens) */}
           <div className="hidden lg:block">
             <TrendingSidebar markets={markets} excludeId={featuredMarket?.id} categoryMap={categoryMap} onSelect={setSelectedMarket} />
           </div>

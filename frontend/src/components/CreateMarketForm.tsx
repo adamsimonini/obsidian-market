@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -14,6 +15,9 @@ interface CreateMarketFormProps {
 }
 
 export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
+  const t = useTranslations('createMarket');
+  const tc = useTranslations('common');
+  const tw = useTranslations('wallet');
   const { address, connected } = useWallet();
   const { isAdmin, role, loading: adminLoading } = useAdmin(address);
   const { categories } = useCategories();
@@ -44,17 +48,17 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
       e.preventDefault();
 
       if (!connected || !address) {
-        setError('Please connect your wallet first');
+        setError(tw('connectFirst'));
         return;
       }
 
       if (!canCreate) {
-        setError('You do not have permission to create markets');
+        setError(t('noPermission'));
         return;
       }
 
       if (!formData.title || !formData.resolution_rules || !formData.resolution_deadline) {
-        setError('Please fill in all required fields');
+        setError(t('fillRequired'));
         return;
       }
 
@@ -85,7 +89,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
 
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create market');
+        setError(err instanceof Error ? err.message : t('failed'));
       } finally {
         setLoading(false);
       }
@@ -97,7 +101,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
     return (
       <div className="flex flex-col items-center justify-center p-10">
         <Loader2 className="size-8 animate-spin text-primary" />
-        <p className="mt-3 text-muted-foreground">Checking admin status...</p>
+        <p className="mt-3 text-muted-foreground">{t('checkingAdmin')}</p>
       </div>
     );
   }
@@ -105,7 +109,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
   if (!canCreate) {
     return (
       <div className="flex items-center justify-center p-10">
-        <p className="text-destructive">You do not have permission to create markets</p>
+        <p className="text-destructive">{t('noPermission')}</p>
       </div>
     );
   }
@@ -113,7 +117,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
   return (
     <Card className="mx-auto w-full max-w-2xl">
       <CardHeader>
-        <CardTitle className="text-2xl">Create New Market</CardTitle>
+        <CardTitle className="text-2xl">{t('title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -124,33 +128,33 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">Title *</label>
+            <label className="text-sm font-semibold">{t('titleLabel')} *</label>
             <Input
               value={formData.title}
               onChange={(e) => handleChange('title', e.target.value)}
-              placeholder="Will Bitcoin reach $150k by end of 2026?"
+              placeholder={t('titlePlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">Description</label>
+            <label className="text-sm font-semibold">{t('description')}</label>
             <textarea
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Additional details about the market..."
+              placeholder={t('descriptionPlaceholder')}
               rows={3}
               className="border-input bg-transparent placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">Category</label>
+            <label className="text-sm font-semibold">{t('category')}</label>
             <select
               value={formData.category_id}
               onChange={(e) => handleChange('category_id', e.target.value)}
               className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
             >
-              <option value="">No category</option>
+              <option value="">{t('noCategory')}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
@@ -160,18 +164,18 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">Resolution Rules *</label>
+            <label className="text-sm font-semibold">{t('resolutionRules')} *</label>
             <textarea
               value={formData.resolution_rules}
               onChange={(e) => handleChange('resolution_rules', e.target.value)}
-              placeholder="How will this market be resolved?"
+              placeholder={t('rulesPlaceholder')}
               rows={3}
               className="border-input bg-transparent placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">Resolution Deadline *</label>
+            <label className="text-sm font-semibold">{t('resolutionDeadline')} *</label>
             <Input
               type="datetime-local"
               value={formData.resolution_deadline}
@@ -180,7 +184,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">Initial Liquidity (microcredits)</label>
+            <label className="text-sm font-semibold">{t('initialLiquidity')}</label>
             <Input
               type="number"
               min="100"
@@ -189,17 +193,17 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
               placeholder="1000"
             />
             <p className="text-xs text-muted-foreground">
-              Sets the initial yes/no reserves for CPMM pricing. Higher = more stable prices.
+              {t('liquidityHint')}
             </p>
           </div>
 
           <div className="flex gap-3 pt-2">
             <Button type="submit" className="flex-1" disabled={loading}>
               {loading && <Loader2 className="size-4 animate-spin" />}
-              Create Market
+              {t('submit')}
             </Button>
             <Button type="button" variant="secondary" className="flex-1" onClick={onClose}>
-              Cancel
+              {tc('cancel')}
             </Button>
           </div>
         </form>
