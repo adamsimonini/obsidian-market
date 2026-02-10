@@ -136,5 +136,13 @@
   "prototypes": {
     "title": "Prototipos de Tarjetas",
     "description": "Variantes de tarjetas para mercados de predicción binarios. Pasa el cursor para ver tooltips, haz clic para detalles. Todas las tarjetas usan los mismos datos de ejemplo."
+  },
+  "notFound": {
+    "title": "Página No Encontrada",
+    "description": "La página que buscas no existe.",
+    "backHome": "Volver al Inicio"
+  },
+  "meta": {
+    "description": "Mercado de predicciones privado construido en Aleo"
   }
 }

@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Obsidian Market',
-  description: 'Privacy-focused prediction market built on Aleo',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,

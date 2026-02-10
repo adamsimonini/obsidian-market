@@ -5,17 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/navigation';
+import { COMPACT_NUMBER } from '@/lib/locale-utils';
 import type { LocalizedMarket } from '@/types/supabase';
 
 interface MarketCardCompactProps {
   market: LocalizedMarket;
   categoryName?: string;
-}
-
-function formatVolume(volume: number): string {
-  if (volume >= 1_000_000) return `${(volume / 1_000_000).toFixed(1)}M`;
-  if (volume >= 1_000) return `${(volume / 1_000).toFixed(1)}K`;
-  return volume.toFixed(0);
 }
 
 export function MarketCardCompact({ market, categoryName }: MarketCardCompactProps) {
@@ -59,7 +54,7 @@ export function MarketCardCompact({ market, categoryName }: MarketCardCompactPro
 
           {/* Stats */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{formatVolume(market.total_volume)} {tc('vol')}</span>
+            <span>{format.number(market.total_volume, COMPACT_NUMBER)} {tc('vol')}</span>
             <span className="text-border">|</span>
             <span>
               {tc('trades', { count: market.trade_count })}

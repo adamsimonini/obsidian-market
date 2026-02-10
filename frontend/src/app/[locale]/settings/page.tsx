@@ -10,18 +10,13 @@ import { useFontSize, type FontSize } from '@/hooks/useFontSize';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { LOCALE_LABELS } from '@/lib/locale-utils';
 
 const FONT_OPTIONS: { value: FontSize; key: 'small' | 'medium' | 'large' }[] = [
   { value: '14', key: 'small' },
   { value: '16', key: 'medium' },
   { value: '18', key: 'large' },
 ];
-
-const LOCALE_LABELS: Record<string, string> = {
-  en: 'English',
-  es: 'Español',
-  fr: 'Français',
-};
 
 export default function SettingsPage() {
   const { address } = useWallet();

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/navigation';
+import { COMPACT_NUMBER } from '@/lib/locale-utils';
 import type { LocalizedMarket } from '@/types/supabase';
 
 interface FeaturedMarketProps {
@@ -12,18 +13,12 @@ interface FeaturedMarketProps {
   categoryName?: string;
 }
 
-function formatVolume(volume: number): string {
-  if (volume >= 1_000_000) return `${(volume / 1_000_000).toFixed(1)}M`;
-  if (volume >= 1_000) return `${(volume / 1_000).toFixed(1)}K`;
-  return volume.toFixed(0);
-}
-
 /**
  * Semi-circular gauge with two competing arcs — Yes (primary) from
  * the left and No (destructive) from the right.
  * Yes/No labels are baked into the SVG, positioned under each arc end.
  */
-function SemiGauge({ yesPercent, noPercent }: { yesPercent: number; noPercent: number }) {
+function SemiGauge({ yesPercent, noPercent, yesLabel, noLabel }: { yesPercent: number; noPercent: number; yesLabel: string; noLabel: string }) {
   const cx = 100;
   const cy = 85;
   const r = 70;
@@ -71,19 +66,19 @@ function SemiGauge({ yesPercent, noPercent }: { yesPercent: number; noPercent: n
         {yesPercent >= noPercent ? yesPercent : noPercent}%
       </text>
       <text x={cx} y={cy + 8} textAnchor="middle" className="fill-muted-foreground text-[10px]">
-        {yesPercent >= noPercent ? 'YES' : 'NO'}
+        {yesPercent >= noPercent ? yesLabel : noLabel}
       </text>
       {/* Yes label — under left arc end */}
       <circle cx={22} cy={labelY - 1} r={3.5} fill="var(--color-primary)" />
       <text x={30} y={labelY} textAnchor="start" dominantBaseline="middle" className="fill-muted-foreground text-[10px]">
-        Yes
+        {yesLabel}
       </text>
       <text x={50} y={labelY} textAnchor="start" dominantBaseline="middle" className="fill-primary font-mono text-xs font-bold">
         {yesPercent}%
       </text>
       {/* No label — under right arc end */}
       <text x={150} y={labelY} textAnchor="end" dominantBaseline="middle" className="fill-muted-foreground text-[10px]">
-        No
+        {noLabel}
       </text>
       <text x={155} y={labelY} textAnchor="start" dominantBaseline="middle" className="fill-destructive font-mono text-xs font-bold">
         {noPercent}%
@@ -125,7 +120,7 @@ export function FeaturedMarket({ market, categoryName }: FeaturedMarketProps) {
               {/* Stats */}
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">{formatVolume(market.total_volume)}</span>
+                  <span className="font-semibold text-foreground">{format.number(market.total_volume, COMPACT_NUMBER)}</span>
                   <span>{tc('volume')}</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -142,7 +137,7 @@ export function FeaturedMarket({ market, categoryName }: FeaturedMarketProps) {
 
             {/* Right: radial gauge (with Yes/No labels baked in) */}
             <div className="order-1 md:order-2">
-              <SemiGauge yesPercent={yesPercent} noPercent={noPercent} />
+              <SemiGauge yesPercent={yesPercent} noPercent={noPercent} yesLabel={tc('yes')} noLabel={tc('no')} />
             </div>
           </div>
         </CardContent>

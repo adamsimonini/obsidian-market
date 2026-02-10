@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useFormatter } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
   const t = useTranslations('betForm');
   const tc = useTranslations('common');
   const tw = useTranslations('wallet');
+  const format = useFormatter();
   const { address, connected } = useWallet();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,7 +117,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
           </p>
         )}
         <div className="mt-3 flex gap-3 text-sm text-muted-foreground">
-          <span>{t('volumeLabel', { value: market.total_volume.toLocaleString() })}</span>
+          <span>{t('volumeLabel', { value: format.number(market.total_volume) })}</span>
           <span>{t('tradesLabel', { value: market.trade_count })}</span>
           <span>{t('feeLabel', { value: `${market.fee_bps / 100}%` })}</span>
         </div>
@@ -207,7 +208,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('position')}</span>
               <Badge variant={selectedSide === 'yes' ? 'default' : 'destructive'}>
-                {selectedSide.toUpperCase()}
+                {selectedSide === 'yes' ? tc('yes') : tc('no')}
               </Badge>
             </div>
             <div className="flex justify-between text-sm">

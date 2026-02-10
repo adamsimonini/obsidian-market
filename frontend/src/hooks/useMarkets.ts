@@ -30,8 +30,8 @@ export function useMarkets(options?: UseMarketsOptions) {
         setLoading(true);
         let query = getSupabase()
           .from('markets')
-          .select('*, market_translations!inner(title, description, resolution_rules, resolution_source)')
-          .eq('market_translations.language_code', locale)
+          .select('*, market_translations!inner(title, description, resolution_rules, resolution_source, language_code)')
+          .in('market_translations.language_code', [locale, 'en'])
           .order('featured', { ascending: false })
           .order('total_volume', { ascending: false })
           .order('created_at', { ascending: false });
@@ -50,15 +50,18 @@ export function useMarkets(options?: UseMarketsOptions) {
           throw fetchError;
         }
 
-        // Flatten translation fields onto the market object
+        // Flatten translation fields onto the market object (prefer current locale, fall back to English)
         const localized: LocalizedMarket[] = (data || []).map((row: Record<string, unknown>) => {
           const translations = row.market_translations as Array<{
             title: string;
             description: string | null;
             resolution_rules: string;
             resolution_source: string;
+            language_code: string;
           }>;
-          const t = translations[0];
+          const t = translations.find((tr) => tr.language_code === locale)
+            ?? translations.find((tr) => tr.language_code === 'en')
+            ?? translations[0];
           const { market_translations: _, ...base } = row;
           return {
             ...base,

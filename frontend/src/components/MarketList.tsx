@@ -23,6 +23,7 @@ export function MarketList({
   categoryMap,
 }: MarketListProps) {
   const t = useTranslations('home');
+  const tc = useTranslations('common');
   const { markets, loading, error } = useMarkets({
     status: statusFilter,
     categoryId,
@@ -51,13 +52,13 @@ export function MarketList({
 
     const result: { id: string | null; name: string; markets: LocalizedMarket[] }[] = [];
     for (const [id, list] of map) {
-      result.push({ id, name: categoryMap.get(id) ?? 'Other', markets: list });
+      result.push({ id, name: categoryMap.get(id) ?? tc('other'), markets: list });
     }
     // Sort groups alphabetically
     result.sort((a, b) => a.name.localeCompare(b.name));
 
     if (uncategorized.length > 0) {
-      result.push({ id: null, name: 'Other', markets: uncategorized });
+      result.push({ id: null, name: tc('other'), markets: uncategorized });
     }
 
     return result;

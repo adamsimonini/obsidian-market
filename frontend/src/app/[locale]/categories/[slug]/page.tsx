@@ -47,11 +47,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   for (const loc of routing.locales) {
     languages[loc] = `/${loc}/categories/${slug}`;
   }
+  languages['x-default'] = `/en/categories/${slug}`;
 
   return {
     title: t.name,
     description: t.description || t.name,
     alternates: {
+      canonical: `/${locale}/categories/${slug}`,
       languages,
     },
     openGraph: {

@@ -16,12 +16,7 @@ import { useWideMode } from '@/hooks/useWideMode';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
-
-const LOCALE_LABELS: Record<string, string> = {
-  en: 'English',
-  es: 'Español',
-  fr: 'Français',
-};
+import { LOCALE_LABELS } from '@/lib/locale-utils';
 
 const navLinks = [
   { href: '/' as const, key: 'home' as const },

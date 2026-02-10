@@ -9,9 +9,8 @@ import { useCategories } from '@/hooks/useCategories';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const SUPPORTED_LOCALES = ['en', 'es', 'fr'] as const;
-const LOCALE_LABELS: Record<string, string> = { en: 'English', es: 'Español', fr: 'Français' };
+import { routing } from '@/i18n/routing';
+import { LOCALE_LABELS } from '@/lib/locale-utils';
 
 interface TranslationFields {
   title: string;
@@ -45,7 +44,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
   // Translation fields per language
   const [translations, setTranslations] = useState<Record<string, TranslationFields>>(() => {
     const init: Record<string, TranslationFields> = {};
-    for (const loc of SUPPORTED_LOCALES) {
+    for (const loc of routing.locales) {
       init[loc] = emptyTranslation();
     }
     return init;
@@ -163,7 +162,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
 
           {/* Language tabs */}
           <div className="flex gap-1 rounded-lg border p-1">
-            {SUPPORTED_LOCALES.map((loc) => (
+            {routing.locales.map((loc) => (
               <button
                 key={loc}
                 type="button"

@@ -10,7 +10,7 @@
     "trades": "{count, plural, one {1 trade} other {# trades}}",
     "ends": "Ends {date}",
     "other": "Other",
-    "poweredByAleo": "powered by aleo",
+    "poweredByAleo": "powered by Aleo",
     "back": "Back"
   },
   "nav": {
@@ -136,5 +136,13 @@
   "prototypes": {
     "title": "Card Prototypes",
     "description": "Binary prediction market card variants. Hover for tooltips, click/tap for details. All cards use the same sample market data."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist.",
+    "backHome": "Back to Home"
+  },
+  "meta": {
+    "description": "Privacy-focused prediction market built on Aleo"
   }
 }

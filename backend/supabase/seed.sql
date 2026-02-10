@@ -30,7 +30,8 @@ INSERT INTO public.category_translations (category_id, language_code, name, desc
     ((SELECT id FROM categories WHERE slug='technology'), 'en', 'Technology', 'Tech industry and innovation markets'),
     ((SELECT id FROM categories WHERE slug='sports'),     'en', 'Sports',     'Sporting events and competitions'),
     ((SELECT id FROM categories WHERE slug='science'),    'en', 'Science',    'Scientific breakthroughs and space'),
-    ((SELECT id FROM categories WHERE slug='culture'),    'en', 'Culture',    'Entertainment, film, and media');
+    ((SELECT id FROM categories WHERE slug='culture'),    'en', 'Culture',    'Entertainment, film, and media')
+ON CONFLICT (category_id, language_code) DO NOTHING;
 
 -- Category translations: es
 INSERT INTO public.category_translations (category_id, language_code, name, description) VALUES
@@ -39,7 +40,8 @@ INSERT INTO public.category_translations (category_id, language_code, name, desc
     ((SELECT id FROM categories WHERE slug='technology'), 'es', 'Tecnología',   'Industria tecnológica e innovación'),
     ((SELECT id FROM categories WHERE slug='sports'),     'es', 'Deportes',     'Eventos y competiciones deportivas'),
     ((SELECT id FROM categories WHERE slug='science'),    'es', 'Ciencia',      'Descubrimientos científicos y espacio'),
-    ((SELECT id FROM categories WHERE slug='culture'),    'es', 'Cultura',      'Entretenimiento, cine y medios');
+    ((SELECT id FROM categories WHERE slug='culture'),    'es', 'Cultura',      'Entretenimiento, cine y medios')
+ON CONFLICT (category_id, language_code) DO NOTHING;
 
 -- Category translations: fr
 INSERT INTO public.category_translations (category_id, language_code, name, description) VALUES
@@ -48,7 +50,8 @@ INSERT INTO public.category_translations (category_id, language_code, name, desc
     ((SELECT id FROM categories WHERE slug='technology'), 'fr', 'Technologie',  'Industrie technologique et innovation'),
     ((SELECT id FROM categories WHERE slug='sports'),     'fr', 'Sports',       'Événements et compétitions sportives'),
     ((SELECT id FROM categories WHERE slug='science'),    'fr', 'Science',      'Découvertes scientifiques et espace'),
-    ((SELECT id FROM categories WHERE slug='culture'),    'fr', 'Culture',      'Divertissement, cinéma et médias');
+    ((SELECT id FROM categories WHERE slug='culture'),    'fr', 'Culture',      'Divertissement, cinéma et médias')
+ON CONFLICT (category_id, language_code) DO NOTHING;
 
 
 -- ---------------------------------------------------------------------------
@@ -319,7 +322,8 @@ INSERT INTO public.market_translations (market_id, language_code, title, descrip
  'Will global box office revenue exceed $50B in 2026?',
  'Resolves based on total worldwide theatrical box office revenue for calendar year 2026.',
  'Resolves YES if total global theatrical box office revenue exceeds $50B USD for 2026 as reported by Box Office Mojo or The Numbers. NO otherwise.',
- 'Box Office Mojo / The Numbers annual reports');
+ 'Box Office Mojo / The Numbers annual reports')
+ON CONFLICT (market_id, language_code) DO NOTHING;
 
 
 -- ---------------------------------------------------------------------------
@@ -451,7 +455,8 @@ INSERT INTO public.market_translations (market_id, language_code, title, descrip
  '¿Los ingresos globales de taquilla superarán los $50B en 2026?',
  'Se resuelve según los ingresos totales mundiales de taquilla teatral para el año 2026.',
  'Se resuelve SÍ si los ingresos globales de taquilla teatral superan $50B USD en 2026 según Box Office Mojo o The Numbers. NO en caso contrario.',
- 'Informes anuales de Box Office Mojo / The Numbers');
+ 'Informes anuales de Box Office Mojo / The Numbers')
+ON CONFLICT (market_id, language_code) DO NOTHING;
 
 
 -- ---------------------------------------------------------------------------
@@ -583,4 +588,5 @@ INSERT INTO public.market_translations (market_id, language_code, title, descrip
  'Les recettes mondiales du box-office dépasseront-elles 50 milliards $ en 2026 ?',
  'Se résout selon les recettes totales mondiales du box-office en salles pour l''année 2026.',
  'Se résout OUI si les recettes mondiales du box-office en salles dépassent 50 milliards USD en 2026 selon Box Office Mojo ou The Numbers. NON sinon.',
- 'Rapports annuels de Box Office Mojo / The Numbers');
+ 'Rapports annuels de Box Office Mojo / The Numbers')
+ON CONFLICT (market_id, language_code) DO NOTHING;
