@@ -10,7 +10,7 @@
     "trades": "{count, plural, one {1 trade} other {# trades}}",
     "ends": "Ends {date}",
     "other": "Other",
-    "poweredByAleo": "powered by aleo"
+    "poweredByAleo": "powered by Aleo"
   },
   "nav": {
     "home": "Home",
