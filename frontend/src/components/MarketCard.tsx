@@ -11,15 +11,15 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { Market } from '@/types/supabase';
+import type { LocalizedMarket } from '@/types/supabase';
 
 interface MarketCardProps {
-  market: Market;
+  market: LocalizedMarket;
   categoryName?: string;
-  onSelect?: (market: Market) => void;
+  onSelect?: (market: LocalizedMarket) => void;
 }
 
-const statusVariant: Record<Market['status'], string> = {
+const statusVariant: Record<LocalizedMarket['status'], string> = {
   open: 'bg-primary text-primary-foreground',
   closed: 'bg-accent text-accent-foreground',
   resolved: 'bg-blue-500 text-white',

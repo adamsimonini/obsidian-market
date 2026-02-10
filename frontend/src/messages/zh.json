@@ -1,0 +1,155 @@
+{
+  "common": {
+    "yes": "是",
+    "no": "否",
+    "all": "全部",
+    "cancel": "取消",
+    "trade": "交易",
+    "volume": "交易量",
+    "vol": "量",
+    "trades": "{count, plural, one {1 笔交易} other {# 笔交易}}",
+    "ends": "结束时间 {date}",
+    "other": "其他",
+    "poweredByAleo": "由 Aleo 提供支持",
+    "back": "返回"
+  },
+  "nav": {
+    "home": "首页",
+    "account": "账户",
+    "settings": "设置",
+    "standardView": "标准视图",
+    "wideView": "宽视图",
+    "toggleTheme": "切换主题",
+    "changeLanguage": "更改语言",
+    "menu": "菜单"
+  },
+  "wallet": {
+    "connect": "连接钱包",
+    "connected": "已连接 {address}",
+    "disconnect": "断开连接 ({address})",
+    "connectFirst": "请先连接您的钱包",
+    "failedToConnect": "连接钱包失败"
+  },
+  "home": {
+    "title": "最大隐私预测市场",
+    "description": "全球最私密的预测市场",
+    "createMarket": "创建市场",
+    "backToMarkets": "返回市场列表",
+    "loadingMarkets": "正在加载市场...",
+    "errorLoading": "加载市场出错：{message}",
+    "noMarketsFound": "未找到市场",
+    "noMarketsYet": "暂无市场"
+  },
+  "account": {
+    "title": "我的账户",
+    "connectedAs": "已连接：{address}",
+    "connectPrompt": "连接钱包以查看账户详情。",
+    "walletDetails": "钱包和个人资料详情将显示在此处。"
+  },
+  "settings": {
+    "title": "设置",
+    "description": "自定义您的体验。",
+    "fontSize": "字体大小",
+    "fontSizeDescription": "调整整个应用的文本大小。",
+    "small": "小",
+    "medium": "中",
+    "large": "大",
+    "language": "语言",
+    "languageDescription": "选择您偏好的语言。",
+    "adminManagement": "管理员管理",
+    "theme": "主题",
+    "themeDescription": "在浅色和深色模式之间切换。",
+    "light": "浅色",
+    "dark": "深色"
+  },
+  "betForm": {
+    "selectPrediction": "选择您的预测",
+    "betAmount": "投注金额 (ALEO)",
+    "minimum": "最低：1 ALEO",
+    "minimumBet": "最低投注额为 1 ALEO",
+    "position": "仓位",
+    "cost": "成本",
+    "estShares": "预计份额",
+    "maxPayout": "最大赔付（若正确）",
+    "placeBet": "下注",
+    "selectYesOrNo": "请选择是或否",
+    "notAcceptingBets": "此市场不接受投注",
+    "marketStatus": "此市场已{status}，不接受投注",
+    "failedToPlace": "下注失败",
+    "volumeLabel": "交易量：{value}",
+    "tradesLabel": "交易：{value}",
+    "feeLabel": "费用：{value}"
+  },
+  "createMarket": {
+    "title": "创建新市场",
+    "titleLabel": "标题",
+    "description": "描述",
+    "category": "分类",
+    "noCategory": "无分类",
+    "resolutionRules": "决议规则",
+    "resolutionDeadline": "决议截止时间",
+    "initialLiquidity": "初始流动性（微信用）",
+    "liquidityHint": "设置CPMM定价的初始是/否储备。数值越高，价格越稳定。",
+    "submit": "创建市场",
+    "checkingAdmin": "正在检查管理员权限...",
+    "noPermission": "您没有权限创建市场",
+    "fillRequired": "请填写所有必填字段",
+    "failed": "创建市场失败",
+    "titlePlaceholder": "比特币会在2026年底前达到15万美元吗？",
+    "descriptionPlaceholder": "关于此市场的更多详情...",
+    "rulesPlaceholder": "此市场如何决议？"
+  },
+  "marketDetail": {
+    "volume": "交易量",
+    "volume24h": "24小时交易量",
+    "liquidity": "流动性",
+    "trades": "交易",
+    "fee": "费用",
+    "deadline": "截止时间",
+    "potentialRoi": "潜在ROI",
+    "buyYes": "买入是",
+    "buyNo": "买入否",
+    "featuredMarket": "精选市场",
+    "marketDetails": "市场详情",
+    "resolutionRules": "决议规则",
+    "source": "来源"
+  },
+  "sidebar": {
+    "topMarkets": "热门市场",
+    "latest": "最新"
+  },
+  "admin": {
+    "admins": "管理员 ({count})",
+    "addAdmin": "添加管理员",
+    "walletAddress": "钱包地址",
+    "role": "角色",
+    "superAdmin": "超级管理员",
+    "marketCreator": "市场创建者",
+    "resolver": "决议者",
+    "roleDescription": "超级管理员：完全访问权限。市场创建者：创建市场。决议者：决议市场。",
+    "loadingPanel": "正在加载管理员面板...",
+    "invalidAddress": "无效的Aleo地址。必须以aleo1开头且为63个字符。",
+    "invalidAddressShort": "无效地址 — 必须以aleo1开头且为63个字符",
+    "failedFetch": "获取管理员列表失败",
+    "failedAdd": "添加管理员失败",
+    "failedRemove": "移除管理员失败"
+  },
+  "status": {
+    "open": "进行中",
+    "closed": "已关闭",
+    "resolved": "已决议",
+    "cancelled": "已取消"
+  },
+  "prototypes": {
+    "title": "卡片原型",
+    "description": "二元预测市场卡片变体。悬停查看工具提示，点击/轻触查看详情。所有卡片使用相同示例市场数据。"
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "description": "您要查找的页面不存在。",
+    "backHome": "返回首页"
+  },
+  "meta": {
+    "description": "基于Aleo构建的注重隐私的预测市场"
+  }
+}

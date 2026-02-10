@@ -10,7 +10,8 @@
     "trades": "{count, plural, one {1 trade} other {# trades}}",
     "ends": "Ends {date}",
     "other": "Other",
-    "poweredByAleo": "powered by Aleo"
+    "poweredByAleo": "powered by Aleo",
+    "back": "Back"
   },
   "nav": {
     "home": "Home",
@@ -19,16 +20,19 @@
     "standardView": "Standard view",
     "wideView": "Wide view",
     "toggleTheme": "Toggle theme",
-    "changeLanguage": "Change language"
+    "changeLanguage": "Change language",
+    "menu": "Menu"
   },
   "wallet": {
-    "connect": "Connect Wallet",
+    "connect": "Connect Leo Wallet",
+    "connected": "Connected {address}",
     "disconnect": "Disconnect ({address})",
     "connectFirst": "Please connect your wallet first",
     "failedToConnect": "Failed to connect wallet"
   },
   "home": {
-    "title": "Fully Private Markets",
+    "title": "Maximum privacy markets",
+    "description": "The world's most private prediction market",
     "createMarket": "Create Market",
     "backToMarkets": "Back to Markets",
     "loadingMarkets": "Loading markets...",
@@ -52,7 +56,11 @@
     "large": "Large",
     "language": "Language",
     "languageDescription": "Choose your preferred language.",
-    "adminManagement": "Admin Management"
+    "adminManagement": "Admin Management",
+    "theme": "Theme",
+    "themeDescription": "Switch between light and dark mode.",
+    "light": "Light",
+    "dark": "Dark"
   },
   "betForm": {
     "selectPrediction": "Select Your Prediction",
@@ -102,7 +110,9 @@
     "buyYes": "Buy Yes",
     "buyNo": "Buy No",
     "featuredMarket": "Featured Market",
-    "marketDetails": "Market Details"
+    "marketDetails": "Market Details",
+    "resolutionRules": "Resolution Rules",
+    "source": "Source"
   },
   "sidebar": {
     "topMarkets": "Top Markets",
@@ -133,5 +143,13 @@
   "prototypes": {
     "title": "Card Prototypes",
     "description": "Binary prediction market card variants. Hover for tooltips, click/tap for details. All cards use the same sample market data."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist.",
+    "backHome": "Back to Home"
+  },
+  "meta": {
+    "description": "Privacy-focused prediction market built on Aleo"
   }
 }

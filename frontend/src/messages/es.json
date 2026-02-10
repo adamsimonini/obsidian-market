@@ -10,7 +10,8 @@
     "trades": "{count, plural, one {1 operación} other {# operaciones}}",
     "ends": "Cierra {date}",
     "other": "Otros",
-    "poweredByAleo": "impulsado por aleo"
+    "poweredByAleo": "impulsado por aleo",
+    "back": "Volver"
   },
   "nav": {
     "home": "Inicio",
@@ -19,16 +20,19 @@
     "standardView": "Vista estándar",
     "wideView": "Vista amplia",
     "toggleTheme": "Cambiar tema",
-    "changeLanguage": "Cambiar idioma"
+    "changeLanguage": "Cambiar idioma",
+    "menu": "Menú"
   },
   "wallet": {
     "connect": "Conectar Billetera",
+    "connected": "Conectado {address}",
     "disconnect": "Desconectar ({address})",
     "connectFirst": "Por favor conecta tu billetera primero",
     "failedToConnect": "Error al conectar la billetera"
   },
   "home": {
     "title": "Mercados Totalmente Privados",
+    "description": "El mercado de predicción más privado del mundo.",
     "createMarket": "Crear Mercado",
     "backToMarkets": "Volver a Mercados",
     "loadingMarkets": "Cargando mercados...",
@@ -52,7 +56,11 @@
     "large": "Grande",
     "language": "Idioma",
     "languageDescription": "Elige tu idioma preferido.",
-    "adminManagement": "Gestión de Administradores"
+    "adminManagement": "Gestión de Administradores",
+    "theme": "Tema",
+    "themeDescription": "Cambia entre modo claro y oscuro.",
+    "light": "Claro",
+    "dark": "Oscuro"
   },
   "betForm": {
     "selectPrediction": "Selecciona Tu Predicción",
@@ -102,7 +110,9 @@
     "buyYes": "Comprar Sí",
     "buyNo": "Comprar No",
     "featuredMarket": "Mercado Destacado",
-    "marketDetails": "Detalles del Mercado"
+    "marketDetails": "Detalles del Mercado",
+    "resolutionRules": "Reglas de Resolución",
+    "source": "Fuente"
   },
   "sidebar": {
     "topMarkets": "Mejores Mercados",
@@ -133,5 +143,13 @@
   "prototypes": {
     "title": "Prototipos de Tarjetas",
     "description": "Variantes de tarjetas para mercados de predicción binarios. Pasa el cursor para ver tooltips, haz clic para detalles. Todas las tarjetas usan los mismos datos de ejemplo."
+  },
+  "notFound": {
+    "title": "Página No Encontrada",
+    "description": "La página que buscas no existe.",
+    "backHome": "Volver al Inicio"
+  },
+  "meta": {
+    "description": "Mercado de predicciones privado construido en Aleo"
   }
 }

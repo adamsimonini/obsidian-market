@@ -1,28 +1,16 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations, useFormatter } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { MarketDetailPanel } from '@/components/MarketDetailPanel';
 import { cn } from '@/lib/utils';
-import type { Market } from '@/types/supabase';
-
-// --- Change this to 'modal' to use a modal instead of inline expand ---
-type InteractionMode = 'expand' | 'modal';
-const INTERACTION_MODE: InteractionMode = 'expand';
+import { Link } from '@/i18n/navigation';
+import { COMPACT_NUMBER } from '@/lib/locale-utils';
+import type { LocalizedMarket } from '@/types/supabase';
 
 interface FeaturedMarketProps {
-  market: Market;
+  market: LocalizedMarket;
   categoryName?: string;
-  onSelect?: (market: Market) => void;
-}
-
-function formatVolume(volume: number): string {
-  if (volume >= 1_000_000) return `${(volume / 1_000_000).toFixed(1)}M`;
-  if (volume >= 1_000) return `${(volume / 1_000).toFixed(1)}K`;
-  return volume.toFixed(0);
 }
 
 /**
@@ -30,7 +18,7 @@ function formatVolume(volume: number): string {
  * the left and No (destructive) from the right.
  * Yes/No labels are baked into the SVG, positioned under each arc end.
  */
-function SemiGauge({ yesPercent, noPercent }: { yesPercent: number; noPercent: number }) {
+function SemiGauge({ yesPercent, noPercent, yesLabel, noLabel }: { yesPercent: number; noPercent: number; yesLabel: string; noLabel: string }) {
   const cx = 100;
   const cy = 85;
   const r = 70;
@@ -78,19 +66,19 @@ function SemiGauge({ yesPercent, noPercent }: { yesPercent: number; noPercent: n
         {yesPercent >= noPercent ? yesPercent : noPercent}%
       </text>
       <text x={cx} y={cy + 8} textAnchor="middle" className="fill-muted-foreground text-[10px]">
-        {yesPercent >= noPercent ? 'YES' : 'NO'}
+        {yesPercent >= noPercent ? yesLabel : noLabel}
       </text>
       {/* Yes label — under left arc end */}
       <circle cx={22} cy={labelY - 1} r={3.5} fill="var(--color-primary)" />
       <text x={30} y={labelY} textAnchor="start" dominantBaseline="middle" className="fill-muted-foreground text-[10px]">
-        Yes
+        {yesLabel}
       </text>
       <text x={50} y={labelY} textAnchor="start" dominantBaseline="middle" className="fill-primary font-mono text-xs font-bold">
         {yesPercent}%
       </text>
       {/* No label — under right arc end */}
       <text x={150} y={labelY} textAnchor="end" dominantBaseline="middle" className="fill-muted-foreground text-[10px]">
-        No
+        {noLabel}
       </text>
       <text x={155} y={labelY} textAnchor="start" dominantBaseline="middle" className="fill-destructive font-mono text-xs font-bold">
         {noPercent}%
@@ -100,27 +88,16 @@ function SemiGauge({ yesPercent, noPercent }: { yesPercent: number; noPercent: n
   );
 }
 
-export function FeaturedMarket({ market, categoryName, onSelect }: FeaturedMarketProps) {
+export function FeaturedMarket({ market, categoryName }: FeaturedMarketProps) {
   const tc = useTranslations('common');
-  const td = useTranslations('marketDetail');
   const format = useFormatter();
-  const [expanded, setExpanded] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
 
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = 100 - yesPercent;
 
-  const handleClick = () => {
-    if (INTERACTION_MODE === 'modal') {
-      setModalOpen(true);
-    } else {
-      setExpanded((v) => !v);
-    }
-  };
-
   return (
-    <>
-      <Card className={cn('cursor-pointer border-primary/30 transition-all duration-300 hover:border-primary/60')} onClick={handleClick}>
+    <Link href={`/markets/${market.slug}`} className="block">
+      <Card className={cn('cursor-pointer border-primary/30 transition-all duration-300 hover:border-primary/60')}>
         {/* Title + Badge (full width) */}
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
@@ -143,7 +120,7 @@ export function FeaturedMarket({ market, categoryName, onSelect }: FeaturedMarke
               {/* Stats */}
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">{formatVolume(market.total_volume)}</span>
+                  <span className="font-semibold text-foreground">{format.number(market.total_volume, COMPACT_NUMBER)}</span>
                   <span>{tc('volume')}</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -160,31 +137,11 @@ export function FeaturedMarket({ market, categoryName, onSelect }: FeaturedMarke
 
             {/* Right: radial gauge (with Yes/No labels baked in) */}
             <div className="order-1 md:order-2">
-              <SemiGauge yesPercent={yesPercent} noPercent={noPercent} />
-            </div>
-          </div>
-
-          {/* Inline expanded details */}
-          <div className={cn('grid overflow-hidden transition-all duration-300', expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
-            <div className="overflow-hidden">
-              <div className="border-t pt-4">
-                <MarketDetailPanel market={market} onTrade={onSelect} />
-              </div>
+              <SemiGauge yesPercent={yesPercent} noPercent={noPercent} yesLabel={tc('yes')} noLabel={tc('no')} />
             </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Modal (used when INTERACTION_MODE === 'modal') */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{market.title}</DialogTitle>
-            <DialogDescription>{td('featuredMarket')}</DialogDescription>
-          </DialogHeader>
-          <MarketDetailPanel market={market} onTrade={onSelect} />
-        </DialogContent>
-      </Dialog>
-    </>
+    </Link>
   );
 }

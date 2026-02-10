@@ -9,6 +9,36 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/**
+ * Generate a unique slug by checking for collisions in the DB.
+ * If "btc-150k-2026" exists, tries "btc-150k-2026-2", "btc-150k-2026-3", etc.
+ */
+async function uniqueSlug(supabase: ReturnType<typeof getSupabaseAdmin>, base: string): Promise<string> {
+  const { count } = await supabase
+    .from('markets')
+    .select('id', { count: 'exact', head: true })
+    .eq('slug', base);
+
+  if (!count) return base;
+
+  // Collision — find next available suffix
+  let suffix = 2;
+  while (suffix < 100) {
+    const candidate = `${base}-${suffix}`;
+    const { count: exists } = await supabase
+      .from('markets')
+      .select('id', { count: 'exact', head: true })
+      .eq('slug', candidate);
+
+    if (!exists) return candidate;
+    suffix++;
+  }
+
+  // Fallback: append short random string
+  const rand = Math.random().toString(36).slice(2, 7);
+  return `${base}-${rand}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -21,32 +51,28 @@ export async function POST(req: NextRequest) {
     }
 
     const {
-      title,
-      description,
-      resolution_rules,
-      resolution_source,
+      // Translations keyed by language code: { en: { title, description, ... }, es: { ... } }
+      translations,
       resolution_deadline,
       category_id,
       initial_liquidity,
     } = marketData;
 
-    if (!title || !resolution_rules || !resolution_deadline) {
-      return NextResponse.json({ error: 'Missing required fields: title, resolution_rules, resolution_deadline' }, { status: 400 });
+    if (!translations || !translations.en?.title || !translations.en?.resolution_rules || !resolution_deadline) {
+      return NextResponse.json(
+        { error: 'Missing required fields: translations.en.title, translations.en.resolution_rules, resolution_deadline' },
+        { status: 400 },
+      );
     }
 
-    const slug = slugify(title);
+    const supabase = getSupabaseAdmin();
+    const slug = await uniqueSlug(supabase, slugify(translations.en.title));
     const liquidity = parseInt(initial_liquidity) || 1000;
 
-    const supabase = getSupabaseAdmin();
-
-    // Create market with CPMM reserves
+    // 1. Create the market (language-agnostic base row)
     const { data: market, error: marketError } = await supabase
       .from('markets')
       .insert({
-        title,
-        description: description || null,
-        resolution_rules,
-        resolution_source: resolution_source || 'Admin manual',
         resolution_deadline,
         status: 'open',
         creator_address: wallet_address,
@@ -57,7 +83,6 @@ export async function POST(req: NextRequest) {
         no_odds: 2.0,
         yes_reserves: liquidity,
         no_reserves: liquidity,
-        // prices auto-calculated by DB trigger
         fee_bps: 200,
       })
       .select()
@@ -67,15 +92,79 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: marketError.message }, { status: 500 });
     }
 
-    // Create default Yes/No outcomes
-    const { error: outcomesError } = await supabase.from('outcomes').insert([
-      { market_id: market.id, index: 0, label: 'Yes', outcome_type: 'binary', price: 0.5 },
-      { market_id: market.id, index: 1, label: 'No', outcome_type: 'binary', price: 0.5 },
-    ]);
+    // 2. Insert translations for each provided language
+    const translationRows = Object.entries(translations as Record<string, {
+      title: string;
+      description?: string;
+      resolution_rules: string;
+      resolution_source?: string;
+    }>).map(([lang, t]) => ({
+      market_id: market.id,
+      language_code: lang,
+      title: t.title,
+      description: t.description || null,
+      resolution_rules: t.resolution_rules,
+      resolution_source: t.resolution_source || 'Admin manual',
+    }));
+
+    const { error: transError } = await supabase
+      .from('market_translations')
+      .insert(translationRows);
+
+    if (transError) {
+      console.error('Failed to create market translations:', transError.message);
+    }
+
+    // 3. Create default Yes/No outcomes (base rows)
+    const { data: outcomes, error: outcomesError } = await supabase
+      .from('outcomes')
+      .insert([
+        { market_id: market.id, index: 0, outcome_type: 'binary', price: 0.5 },
+        { market_id: market.id, index: 1, outcome_type: 'binary', price: 0.5 },
+      ])
+      .select();
 
     if (outcomesError) {
-      // Market created but outcomes failed — log but don't fail the request
       console.error('Failed to create outcomes:', outcomesError.message);
+    }
+
+    // 4. Create outcome translations for each language
+    if (outcomes && outcomes.length === 2) {
+      const yesOutcome = outcomes.find((o) => o.index === 0);
+      const noOutcome = outcomes.find((o) => o.index === 1);
+
+      // Default labels per language
+      const outcomeLabels: Record<string, { yes: string; no: string }> = {
+        en: { yes: 'Yes', no: 'No' },
+        es: { yes: 'Sí', no: 'No' },
+        fr: { yes: 'Oui', no: 'Non' },
+      };
+
+      const outcomeTransRows: Array<{
+        outcome_id: string;
+        language_code: string;
+        label: string;
+      }> = [];
+
+      for (const lang of Object.keys(translations)) {
+        const labels = outcomeLabels[lang] || outcomeLabels.en;
+        if (yesOutcome) {
+          outcomeTransRows.push({ outcome_id: yesOutcome.id, language_code: lang, label: labels.yes });
+        }
+        if (noOutcome) {
+          outcomeTransRows.push({ outcome_id: noOutcome.id, language_code: lang, label: labels.no });
+        }
+      }
+
+      if (outcomeTransRows.length > 0) {
+        const { error: outcomeTransError } = await supabase
+          .from('outcome_translations')
+          .insert(outcomeTransRows);
+
+        if (outcomeTransError) {
+          console.error('Failed to create outcome translations:', outcomeTransError.message);
+        }
+      }
     }
 
     return NextResponse.json({ market }, { status: 201 });

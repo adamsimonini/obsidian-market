@@ -10,7 +10,8 @@
     "trades": "{count, plural, one {1 transaction} other {# transactions}}",
     "ends": "Fin {date}",
     "other": "Autres",
-    "poweredByAleo": "propulsé par aleo"
+    "poweredByAleo": "propulsé par aleo",
+    "back": "Retour"
   },
   "nav": {
     "home": "Accueil",
@@ -19,16 +20,19 @@
     "standardView": "Vue standard",
     "wideView": "Vue large",
     "toggleTheme": "Changer le thème",
-    "changeLanguage": "Changer la langue"
+    "changeLanguage": "Changer la langue",
+    "menu": "Menu"
   },
   "wallet": {
     "connect": "Connecter le Portefeuille",
+    "connected": "Connecté {address}",
     "disconnect": "Déconnecter ({address})",
     "connectFirst": "Veuillez d'abord connecter votre portefeuille",
     "failedToConnect": "Échec de la connexion au portefeuille"
   },
   "home": {
     "title": "Marchés Entièrement Privés",
+    "description": "Le marché de prédiction le plus privé au monde.",
     "createMarket": "Créer un Marché",
     "backToMarkets": "Retour aux Marchés",
     "loadingMarkets": "Chargement des marchés...",
@@ -52,7 +56,11 @@
     "large": "Grand",
     "language": "Langue",
     "languageDescription": "Choisissez votre langue préférée.",
-    "adminManagement": "Gestion des Administrateurs"
+    "adminManagement": "Gestion des Administrateurs",
+    "theme": "Thème",
+    "themeDescription": "Basculer entre le mode clair et sombre.",
+    "light": "Clair",
+    "dark": "Sombre"
   },
   "betForm": {
     "selectPrediction": "Sélectionnez Votre Prédiction",
@@ -102,7 +110,9 @@
     "buyYes": "Acheter Oui",
     "buyNo": "Acheter Non",
     "featuredMarket": "Marché Vedette",
-    "marketDetails": "Détails du Marché"
+    "marketDetails": "Détails du Marché",
+    "resolutionRules": "Règles de Résolution",
+    "source": "Source"
   },
   "sidebar": {
     "topMarkets": "Meilleurs Marchés",
@@ -133,5 +143,13 @@
   "prototypes": {
     "title": "Prototypes de Cartes",
     "description": "Variantes de cartes pour marchés de prédiction binaires. Survolez pour les infobulles, cliquez pour les détails. Toutes les cartes utilisent les mêmes données d'exemple."
+  },
+  "notFound": {
+    "title": "Page Non Trouvée",
+    "description": "La page que vous cherchez n'existe pas.",
+    "backHome": "Retour à l'Accueil"
+  },
+  "meta": {
+    "description": "Marché de prédiction axé sur la confidentialité construit sur Aleo"
   }
 }

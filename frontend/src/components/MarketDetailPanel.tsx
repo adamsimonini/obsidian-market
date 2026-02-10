@@ -2,17 +2,12 @@
 
 import { useTranslations, useFormatter } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import type { Market } from '@/types/supabase';
+import { COMPACT_NUMBER } from '@/lib/locale-utils';
+import type { LocalizedMarket } from '@/types/supabase';
 
 interface MarketDetailPanelProps {
-  market: Market;
-  onTrade?: (market: Market) => void;
-}
-
-function formatVolume(volume: number): string {
-  if (volume >= 1_000_000) return `$${(volume / 1_000_000).toFixed(1)}M`;
-  if (volume >= 1_000) return `$${(volume / 1_000).toFixed(1)}K`;
-  return `$${volume.toFixed(0)}`;
+  market: LocalizedMarket;
+  onTrade?: (market: LocalizedMarket) => void;
 }
 
 export function MarketDetailPanel({ market, onTrade }: MarketDetailPanelProps) {
@@ -26,10 +21,10 @@ export function MarketDetailPanel({ market, onTrade }: MarketDetailPanelProps) {
     <div className="space-y-4">
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3">
-        <Stat label={t('volume')} value={formatVolume(market.total_volume)} />
-        <Stat label={t('volume24h')} value={formatVolume(market.volume_24h)} />
-        <Stat label={t('liquidity')} value={formatVolume(market.liquidity)} />
-        <Stat label={t('trades')} value={market.trade_count.toLocaleString()} />
+        <Stat label={t('volume')} value={format.number(market.total_volume, COMPACT_NUMBER)} />
+        <Stat label={t('volume24h')} value={format.number(market.volume_24h, COMPACT_NUMBER)} />
+        <Stat label={t('liquidity')} value={format.number(market.liquidity, COMPACT_NUMBER)} />
+        <Stat label={t('trades')} value={format.number(market.trade_count)} />
         <Stat label={t('fee')} value={`${(market.fee_bps / 100).toFixed(1)}%`} />
         <Stat label={t('deadline')} value={format.dateTime(new Date(market.resolution_deadline), { month: 'short', day: 'numeric', year: 'numeric' })} />
       </div>

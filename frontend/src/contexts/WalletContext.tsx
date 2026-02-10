@@ -18,9 +18,11 @@ import { Network } from '@provablehq/aleo-types';
 interface WalletContextType {
   address: string | null;
   connected: boolean;
+  connecting: boolean;
+  disconnecting: boolean;
   network: 'testnet' | 'mainnet';
   connect: () => Promise<void>;
-  disconnect: () => void;
+  disconnect: () => Promise<void>;
   signMessage: (message: string) => Promise<string | null>;
 }
 
@@ -30,19 +32,23 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
   const provable = useProvableWallet();
 
   const connect = useCallback(async () => {
-    // Already connected (e.g. autoConnect finished) — nothing to do
-    if (provable.connected) return;
+    if (provable.connected || provable.connecting || provable.disconnecting) return;
 
     try {
-      // If a wallet is already selected, connect directly
-      if (provable.wallet) {
-        await provable.connect(Network.TESTNET);
-        return;
+      // Always select the wallet to ensure it's ready
+      provable.selectWallet('Leo Wallet' as never);
+
+      // Wait for wallet to be selected (poll with timeout)
+      let retries = 30;
+      while (!provable.wallet && retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        retries--;
       }
 
-      // No wallet selected — pick Leo Wallet, wait for adapter, then connect
-      provable.selectWallet('Leo Wallet' as never);
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      if (!provable.wallet) {
+        throw new Error('Wallet selection failed - Leo Wallet not found');
+      }
+
       await provable.connect(Network.TESTNET);
     } catch (error) {
       console.error('Wallet connection error:', error);
@@ -50,8 +56,8 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
     }
   }, [provable]);
 
-  const disconnect = useCallback(() => {
-    provable.disconnect();
+  const disconnect = useCallback(async () => {
+    await provable.disconnect();
   }, [provable]);
 
   const signMessage = useCallback(
@@ -72,6 +78,8 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
       value={{
         address: provable.address,
         connected: provable.connected,
+        connecting: provable.connecting,
+        disconnecting: provable.disconnecting,
         network: 'testnet',
         connect,
         disconnect,
@@ -102,7 +110,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       wallets={wallets}
       decryptPermission={DecryptPermission.UponRequest}
       network={Network.TESTNET}
-      autoConnect
     >
       <WalletProviderInner>{children}</WalletProviderInner>
     </AleoWalletProvider>

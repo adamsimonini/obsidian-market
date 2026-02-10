@@ -5,16 +5,16 @@ import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { Market } from '@/types/supabase';
+import { Link } from '@/i18n/navigation';
+import type { LocalizedMarket } from '@/types/supabase';
 
 interface TrendingSidebarProps {
-  markets: Market[];
+  markets: LocalizedMarket[];
   excludeId?: string;
   categoryMap: Map<string, string>;
-  onSelect?: (market: Market) => void;
 }
 
-function SidebarEntry({ rank, market, categoryName, onSelect }: { rank: number; market: Market; categoryName?: string; onSelect?: (market: Market) => void }) {
+function SidebarEntry({ rank, market, categoryName }: { rank: number; market: LocalizedMarket; categoryName?: string }) {
   const tc = useTranslations('common');
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = 100 - yesPercent;
@@ -22,7 +22,7 @@ function SidebarEntry({ rank, market, categoryName, onSelect }: { rank: number; 
   const displayPercent = yesWins ? yesPercent : noPercent;
 
   return (
-    <button className="flex w-full items-start gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-muted/50" onClick={() => onSelect?.(market)}>
+    <Link href={`/markets/${market.slug}`} className="flex w-full items-start gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-muted/50">
       <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[0.625rem] font-bold text-muted-foreground">{rank}</span>
       <div className="min-w-0 flex-1">
         <p className="line-clamp-2 text-sm font-medium leading-snug">{market.title}</p>
@@ -38,11 +38,11 @@ function SidebarEntry({ rank, market, categoryName, onSelect }: { rank: number; 
         <span className={cn('block text-sm font-bold tabular-nums', yesWins ? 'text-primary' : 'text-destructive')}>{displayPercent}%</span>
         <span className={cn('text-[-4px]', yesWins ? 'text-primary/70' : 'text-destructive/70')}>{yesWins ? tc('yes') : tc('no')}</span>
       </div>
-    </button>
+    </Link>
   );
 }
 
-export function TrendingSidebar({ markets, excludeId, categoryMap, onSelect }: TrendingSidebarProps) {
+export function TrendingSidebar({ markets, excludeId, categoryMap }: TrendingSidebarProps) {
   const t = useTranslations('sidebar');
   const th = useTranslations('home');
   const { topByVolume, latest } = useMemo(() => {
@@ -68,7 +68,7 @@ export function TrendingSidebar({ markets, excludeId, categoryMap, onSelect }: T
           ) : (
             <div className="divide-y divide-border/50">
               {topByVolume.map((market, i) => (
-                <SidebarEntry key={market.id} rank={i + 1} market={market} categoryName={market.category_id ? categoryMap.get(market.category_id) : undefined} onSelect={onSelect} />
+                <SidebarEntry key={market.id} rank={i + 1} market={market} categoryName={market.category_id ? categoryMap.get(market.category_id) : undefined} />
               ))}
             </div>
           )}
@@ -86,7 +86,7 @@ export function TrendingSidebar({ markets, excludeId, categoryMap, onSelect }: T
           ) : (
             <div className="divide-y divide-border/50">
               {latest.map((market, i) => (
-                <SidebarEntry key={market.id} rank={i + 1} market={market} categoryName={market.category_id ? categoryMap.get(market.category_id) : undefined} onSelect={onSelect} />
+                <SidebarEntry key={market.id} rank={i + 1} market={market} categoryName={market.category_id ? categoryMap.get(market.category_id) : undefined} />
               ))}
             </div>
           )}

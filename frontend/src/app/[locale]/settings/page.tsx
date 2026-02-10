@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AdminPanel } from '@/components/AdminPanel';
@@ -10,6 +11,7 @@ import { useFontSize, type FontSize } from '@/hooks/useFontSize';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { LOCALE_LABELS } from '@/lib/locale-utils';
 
 const FONT_OPTIONS: { value: FontSize; key: 'small' | 'medium' | 'large' }[] = [
   { value: '14', key: 'small' },
@@ -17,16 +19,11 @@ const FONT_OPTIONS: { value: FontSize; key: 'small' | 'medium' | 'large' }[] = [
   { value: '18', key: 'large' },
 ];
 
-const LOCALE_LABELS: Record<string, string> = {
-  en: 'English',
-  es: 'Español',
-  fr: 'Français',
-};
-
 export default function SettingsPage() {
   const { address } = useWallet();
   const { isAdmin, role } = useAdmin(address);
   const { size, setSize } = useFontSize();
+  const { theme, setTheme } = useTheme();
   const t = useTranslations('settings');
   const locale = useLocale();
   const router = useRouter();
@@ -80,6 +77,31 @@ export default function SettingsPage() {
               </div>
               <p className="text-xs text-muted-foreground">
                 {t('languageDescription')}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">{t('theme')}</p>
+              <div className="flex gap-2">
+                <Button
+                  variant={theme === 'light' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTheme('light')}
+                  className={cn('min-w-20', theme === 'light' && 'pointer-events-none')}
+                >
+                  {t('light')}
+                </Button>
+                <Button
+                  variant={theme === 'dark' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTheme('dark')}
+                  className={cn('min-w-20', theme === 'dark' && 'pointer-events-none')}
+                >
+                  {t('dark')}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t('themeDescription')}
               </p>
             </div>
           </CardContent>

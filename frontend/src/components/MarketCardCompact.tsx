@@ -1,51 +1,28 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations, useFormatter } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { MarketDetailPanel } from '@/components/MarketDetailPanel';
 import { cn } from '@/lib/utils';
-import type { Market } from '@/types/supabase';
-
-// --- Change this to 'modal' to use a modal instead of inline expand ---
-type InteractionMode = 'expand' | 'modal';
-const INTERACTION_MODE: InteractionMode = 'expand';
+import { Link } from '@/i18n/navigation';
+import { COMPACT_NUMBER } from '@/lib/locale-utils';
+import type { LocalizedMarket } from '@/types/supabase';
 
 interface MarketCardCompactProps {
-  market: Market;
+  market: LocalizedMarket;
   categoryName?: string;
-  onSelect?: (market: Market) => void;
 }
 
-function formatVolume(volume: number): string {
-  if (volume >= 1_000_000) return `${(volume / 1_000_000).toFixed(1)}M`;
-  if (volume >= 1_000) return `${(volume / 1_000).toFixed(1)}K`;
-  return volume.toFixed(0);
-}
-
-export function MarketCardCompact({ market, categoryName, onSelect }: MarketCardCompactProps) {
+export function MarketCardCompact({ market, categoryName }: MarketCardCompactProps) {
   const tc = useTranslations('common');
-  const td = useTranslations('marketDetail');
   const format = useFormatter();
-  const [expanded, setExpanded] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
 
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = 100 - yesPercent;
 
-  const handleClick = () => {
-    if (INTERACTION_MODE === 'modal') {
-      setModalOpen(true);
-    } else {
-      setExpanded((v) => !v);
-    }
-  };
-
   return (
-    <>
-      <Card className={cn('cursor-pointer transition-all duration-300 hover:border-primary/50')} onClick={handleClick}>
+    <Link href={`/markets/${market.slug}`} className="block">
+      <Card className={cn('cursor-pointer transition-all duration-300 hover:border-primary/50')}>
         <CardContent className="space-y-3 px-6">
           {/* Title — fixed 2-line height so cards stay aligned side-by-side */}
           <p className="line-clamp-2 min-h-10 text-sm font-semibold leading-snug">{market.title}</p>
@@ -77,7 +54,7 @@ export function MarketCardCompact({ market, categoryName, onSelect }: MarketCard
 
           {/* Stats */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{formatVolume(market.total_volume)} {tc('vol')}</span>
+            <span>{format.number(market.total_volume, COMPACT_NUMBER)} {tc('vol')}</span>
             <span className="text-border">|</span>
             <span>
               {tc('trades', { count: market.trade_count })}
@@ -94,28 +71,8 @@ export function MarketCardCompact({ market, categoryName, onSelect }: MarketCard
 
           {/* End date */}
           <p className="text-xs text-muted-foreground">{tc('ends', { date: format.dateTime(new Date(market.resolution_deadline), { month: 'short', day: 'numeric', year: 'numeric' }) })}</p>
-
-          {/* Inline expanded details */}
-          <div className={cn('grid overflow-hidden transition-all duration-300', expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
-            <div className="overflow-hidden">
-              <div className="border-t pt-4">
-                <MarketDetailPanel market={market} onTrade={onSelect} />
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
-
-      {/* Modal (used when INTERACTION_MODE === 'modal') */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{market.title}</DialogTitle>
-            <DialogDescription>{td('marketDetails')}</DialogDescription>
-          </DialogHeader>
-          <MarketDetailPanel market={market} onTrade={onSelect} />
-        </DialogContent>
-      </Dialog>
-    </>
+    </Link>
   );
 }
