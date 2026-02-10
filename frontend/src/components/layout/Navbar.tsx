@@ -22,7 +22,7 @@ export function Navbar() {
   const { wide, toggleWide } = useWideMode();
 
   return (
-    <header className="border-b border-border bg-background px-6 py-4">
+    <header className="border-b border-border bg-background px-4 py-4 md:px-8">
       <div className="container-main mx-auto flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 text-foreground">

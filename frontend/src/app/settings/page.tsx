@@ -13,7 +13,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
+      <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 md:px-10">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Settings</CardTitle>

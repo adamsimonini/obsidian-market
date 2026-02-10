@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useWallet } from '@/hooks/useWallet';
 import type { Admin, AdminRole } from '@/types/supabase';
+import { isValidAleoAddress } from '@/lib/aleo-address';
 
 const ROLE_LABELS: Record<AdminRole, string> = {
   super_admin: 'Super Admin',
@@ -61,6 +62,11 @@ export function AdminPanel() {
     e.preventDefault();
 
     if (!address || !newAddress.trim()) return;
+
+    if (!isValidAleoAddress(newAddress.trim())) {
+      setError('Invalid Aleo address. Must start with aleo1 and be 63 characters.');
+      return;
+    }
 
     try {
       setActionLoading(true);
@@ -184,6 +190,11 @@ export function AdminPanel() {
                 placeholder="aleo1..."
                 className="font-mono"
               />
+              {newAddress.trim() && !isValidAleoAddress(newAddress.trim()) && (
+                <p className="text-xs text-destructive">
+                  Invalid address — must start with aleo1 and be 63 characters
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -202,7 +213,7 @@ export function AdminPanel() {
               </p>
             </div>
 
-            <Button type="submit" disabled={actionLoading || !newAddress.trim()}>
+            <Button type="submit" disabled={actionLoading || !newAddress.trim() || !isValidAleoAddress(newAddress.trim())}>
               {actionLoading && <Loader2 className="size-4 animate-spin" />}
               Add Admin
             </Button>

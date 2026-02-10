@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { verifyAdmin } from '@/lib/admin-auth';
+import { isValidAleoAddress } from '@/lib/aleo-address';
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,6 +40,13 @@ export async function POST(req: NextRequest) {
     if (!wallet_address || !target_address || !role) {
       return NextResponse.json(
         { error: 'wallet_address, target_address, and role are required' },
+        { status: 400 },
+      );
+    }
+
+    if (!isValidAleoAddress(target_address)) {
+      return NextResponse.json(
+        { error: 'Invalid Aleo address. Must start with aleo1 and be 63 characters.' },
         { status: 400 },
       );
     }

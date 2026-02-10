@@ -41,7 +41,7 @@ export default function HomePage() {
   if (selectedMarket) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-5xl px-4 py-8">
+        <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
           <Button variant="ghost" className="mb-4" onClick={() => setSelectedMarket(null)}>
             &larr; Back to Markets
           </Button>
@@ -54,7 +54,7 @@ export default function HomePage() {
   if (showCreateForm) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-5xl px-4 py-8">
+        <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
           <Button variant="ghost" className="mb-4" onClick={() => setShowCreateForm(false)}>
             &larr; Back to Markets
           </Button>
@@ -66,7 +66,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container-main mx-auto px-4 py-8">
+      <div className="container-main mx-auto px-4 py-8 md:px-8">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Fully Private Markets</h1>

@@ -1,12 +1,24 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useWallet } from '@/hooks/useWallet';
 import { Button } from '@/components/ui/button';
 
 export function WalletButton() {
   const { address, connected, network, connect, disconnect } = useWallet();
   const [error, setError] = useState<string | null>(null);
+
+  // Clear error when wallet connects (e.g. via autoConnect after a failed manual attempt)
+  useEffect(() => {
+    if (connected) setError(null);
+  }, [connected]);
+
+  // Auto-dismiss error after 5s
+  useEffect(() => {
+    if (!error) return;
+    const t = setTimeout(() => setError(null), 5000);
+    return () => clearTimeout(t);
+  }, [error]);
 
   const handleClick = useCallback(async () => {
     if (connected) {
@@ -27,9 +39,13 @@ export function WalletButton() {
   return (
     <div>
       {error && (
-        <div className="absolute top-16 right-4 z-50 max-w-sm rounded-lg bg-destructive px-4 py-2 text-sm text-white shadow-lg">
+        <button
+          type="button"
+          onClick={() => setError(null)}
+          className="absolute top-16 right-4 z-50 max-w-sm cursor-pointer rounded-lg bg-destructive px-4 py-2 text-left text-sm text-white shadow-lg"
+        >
           {error}
-        </div>
+        </button>
       )}
       <div className="flex items-center gap-2">
         {connected && (
