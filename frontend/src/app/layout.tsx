@@ -44,7 +44,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem('wide-mode')==='1')document.documentElement.setAttribute('data-wide','')}catch(e){}`,
+            __html: `try{if(localStorage.getItem('wide-mode')==='1')document.documentElement.setAttribute('data-wide','');var fs=localStorage.getItem('font-size');if(fs==='14'||fs==='18')document.documentElement.style.fontSize=fs+'px'}catch(e){}`,
           }}
         />
       </head>
