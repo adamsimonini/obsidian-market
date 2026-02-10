@@ -25,9 +25,12 @@ export function Navbar() {
     <header className="border-b border-border bg-background px-6 py-4">
       <div className="container-main mx-auto flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
+          <Link href="/" className="flex items-center gap-2 text-foreground">
             <Image src="/obsidian-logo.png" alt="Obsidian Market" width={32} height={32} />
-            Obsidian Market
+            <div>
+              <span className="text-xl font-bold leading-tight">Obsidian Market</span>
+              <span className="block text-[10px] leading-tight text-muted-foreground">powered by aleo</span>
+            </div>
           </Link>
           <nav className="hidden items-center gap-1 sm:flex">
             {navLinks.map((link) => (

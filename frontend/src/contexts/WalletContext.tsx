@@ -18,6 +18,7 @@ import { Network } from '@provablehq/aleo-types';
 interface WalletContextType {
   address: string | null;
   connected: boolean;
+  network: 'testnet' | 'mainnet';
   connect: () => Promise<void>;
   disconnect: () => void;
   signMessage: (message: string) => Promise<string | null>;
@@ -65,6 +66,7 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
       value={{
         address: provable.address,
         connected: provable.connected,
+        network: 'testnet',
         connect,
         disconnect,
         signMessage,
