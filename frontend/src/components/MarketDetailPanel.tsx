@@ -2,11 +2,11 @@
 
 import { useTranslations, useFormatter } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import type { Market } from '@/types/supabase';
+import type { LocalizedMarket } from '@/types/supabase';
 
 interface MarketDetailPanelProps {
-  market: Market;
-  onTrade?: (market: Market) => void;
+  market: LocalizedMarket;
+  onTrade?: (market: LocalizedMarket) => void;
 }
 
 function formatVolume(volume: number): string {

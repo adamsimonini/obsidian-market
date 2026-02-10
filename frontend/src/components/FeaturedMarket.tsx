@@ -7,16 +7,16 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { MarketDetailPanel } from '@/components/MarketDetailPanel';
 import { cn } from '@/lib/utils';
-import type { Market } from '@/types/supabase';
+import type { LocalizedMarket } from '@/types/supabase';
 
 // --- Change this to 'modal' to use a modal instead of inline expand ---
 type InteractionMode = 'expand' | 'modal';
 const INTERACTION_MODE: InteractionMode = 'expand';
 
 interface FeaturedMarketProps {
-  market: Market;
+  market: LocalizedMarket;
   categoryName?: string;
-  onSelect?: (market: Market) => void;
+  onSelect?: (market: LocalizedMarket) => void;
 }
 
 function formatVolume(volume: number): string {

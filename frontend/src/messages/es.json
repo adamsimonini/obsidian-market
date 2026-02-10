@@ -10,7 +10,8 @@
     "trades": "{count, plural, one {1 operación} other {# operaciones}}",
     "ends": "Cierra {date}",
     "other": "Otros",
-    "poweredByAleo": "impulsado por aleo"
+    "poweredByAleo": "impulsado por aleo",
+    "back": "Volver"
   },
   "nav": {
     "home": "Inicio",
@@ -102,7 +103,9 @@
     "buyYes": "Comprar Sí",
     "buyNo": "Comprar No",
     "featuredMarket": "Mercado Destacado",
-    "marketDetails": "Detalles del Mercado"
+    "marketDetails": "Detalles del Mercado",
+    "resolutionRules": "Reglas de Resolución",
+    "source": "Fuente"
   },
   "sidebar": {
     "topMarkets": "Mejores Mercados",

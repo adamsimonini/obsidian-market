@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -10,38 +10,64 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+const SUPPORTED_LOCALES = ['en', 'es', 'fr'] as const;
+const LOCALE_LABELS: Record<string, string> = { en: 'English', es: 'Español', fr: 'Français' };
+
+interface TranslationFields {
+  title: string;
+  description: string;
+  resolution_rules: string;
+  resolution_source: string;
+}
+
 interface CreateMarketFormProps {
   onClose: () => void;
+}
+
+function emptyTranslation(): TranslationFields {
+  return { title: '', description: '', resolution_rules: '', resolution_source: 'Admin manual' };
 }
 
 export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
   const t = useTranslations('createMarket');
   const tc = useTranslations('common');
   const tw = useTranslations('wallet');
+  const locale = useLocale();
   const { address, connected } = useWallet();
   const { isAdmin, role, loading: adminLoading } = useAdmin(address);
   const { categories } = useCategories();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeLang, setActiveLang] = useState(locale);
 
   const canCreate = isAdmin && (role === 'super_admin' || role === 'market_creator');
 
+  // Translation fields per language
+  const [translations, setTranslations] = useState<Record<string, TranslationFields>>(() => {
+    const init: Record<string, TranslationFields> = {};
+    for (const loc of SUPPORTED_LOCALES) {
+      init[loc] = emptyTranslation();
+    }
+    return init;
+  });
+
+  // Non-translatable fields
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    resolution_rules: '',
-    resolution_source: 'Admin manual',
     resolution_deadline: '',
     category_id: '',
     initial_liquidity: '1000',
   });
 
-  const handleChange = useCallback(
-    (field: string, value: string) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    },
-    [],
-  );
+  const handleFieldChange = useCallback((field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleTranslationChange = useCallback((lang: string, field: keyof TranslationFields, value: string) => {
+    setTranslations((prev) => ({
+      ...prev,
+      [lang]: { ...prev[lang], [field]: value },
+    }));
+  }, []);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -57,9 +83,18 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         return;
       }
 
-      if (!formData.title || !formData.resolution_rules || !formData.resolution_deadline) {
+      // English is required as the base language
+      if (!translations.en.title || !translations.en.resolution_rules || !formData.resolution_deadline) {
         setError(t('fillRequired'));
         return;
+      }
+
+      // Filter out empty translations (only include languages with a title)
+      const filledTranslations: Record<string, TranslationFields> = {};
+      for (const [lang, fields] of Object.entries(translations)) {
+        if (fields.title.trim()) {
+          filledTranslations[lang] = fields;
+        }
       }
 
       try {
@@ -71,10 +106,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             wallet_address: address,
-            title: formData.title,
-            description: formData.description || null,
-            resolution_rules: formData.resolution_rules,
-            resolution_source: formData.resolution_source,
+            translations: filledTranslations,
             resolution_deadline: formData.resolution_deadline,
             category_id: formData.category_id || null,
             initial_liquidity: formData.initial_liquidity,
@@ -94,7 +126,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
         setLoading(false);
       }
     },
-    [connected, address, canCreate, formData, onClose],
+    [connected, address, canCreate, translations, formData, onClose],
   );
 
   if (adminLoading) {
@@ -114,6 +146,8 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
     );
   }
 
+  const activeTranslation = translations[activeLang] ?? emptyTranslation();
+
   return (
     <Card className="mx-auto w-full max-w-2xl">
       <CardHeader>
@@ -127,20 +161,44 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
             </div>
           )}
 
+          {/* Language tabs */}
+          <div className="flex gap-1 rounded-lg border p-1">
+            {SUPPORTED_LOCALES.map((loc) => (
+              <button
+                key={loc}
+                type="button"
+                onClick={() => setActiveLang(loc)}
+                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  activeLang === loc
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {LOCALE_LABELS[loc]}
+                {loc === 'en' && ' *'}
+              </button>
+            ))}
+          </div>
+
+          {/* Translatable fields (changes per active language tab) */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold">{t('titleLabel')} *</label>
+            <label className="text-sm font-semibold">
+              {t('titleLabel')} ({LOCALE_LABELS[activeLang]}) {activeLang === 'en' && '*'}
+            </label>
             <Input
-              value={formData.title}
-              onChange={(e) => handleChange('title', e.target.value)}
+              value={activeTranslation.title}
+              onChange={(e) => handleTranslationChange(activeLang, 'title', e.target.value)}
               placeholder={t('titlePlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">{t('description')}</label>
+            <label className="text-sm font-semibold">
+              {t('description')} ({LOCALE_LABELS[activeLang]})
+            </label>
             <textarea
-              value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
+              value={activeTranslation.description}
+              onChange={(e) => handleTranslationChange(activeLang, 'description', e.target.value)}
               placeholder={t('descriptionPlaceholder')}
               rows={3}
               className="border-input bg-transparent placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
@@ -148,10 +206,24 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
           </div>
 
           <div className="space-y-2">
+            <label className="text-sm font-semibold">
+              {t('resolutionRules')} ({LOCALE_LABELS[activeLang]}) {activeLang === 'en' && '*'}
+            </label>
+            <textarea
+              value={activeTranslation.resolution_rules}
+              onChange={(e) => handleTranslationChange(activeLang, 'resolution_rules', e.target.value)}
+              placeholder={t('rulesPlaceholder')}
+              rows={3}
+              className="border-input bg-transparent placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
+            />
+          </div>
+
+          {/* Non-translatable fields (always visible) */}
+          <div className="space-y-2">
             <label className="text-sm font-semibold">{t('category')}</label>
             <select
               value={formData.category_id}
-              onChange={(e) => handleChange('category_id', e.target.value)}
+              onChange={(e) => handleFieldChange('category_id', e.target.value)}
               className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
             >
               <option value="">{t('noCategory')}</option>
@@ -164,22 +236,11 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">{t('resolutionRules')} *</label>
-            <textarea
-              value={formData.resolution_rules}
-              onChange={(e) => handleChange('resolution_rules', e.target.value)}
-              placeholder={t('rulesPlaceholder')}
-              rows={3}
-              className="border-input bg-transparent placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px]"
-            />
-          </div>
-
-          <div className="space-y-2">
             <label className="text-sm font-semibold">{t('resolutionDeadline')} *</label>
             <Input
               type="datetime-local"
               value={formData.resolution_deadline}
-              onChange={(e) => handleChange('resolution_deadline', e.target.value)}
+              onChange={(e) => handleFieldChange('resolution_deadline', e.target.value)}
             />
           </div>
 
@@ -189,7 +250,7 @@ export function CreateMarketForm({ onClose }: CreateMarketFormProps) {
               type="number"
               min="100"
               value={formData.initial_liquidity}
-              onChange={(e) => handleChange('initial_liquidity', e.target.value)}
+              onChange={(e) => handleFieldChange('initial_liquidity', e.target.value)}
               placeholder="1000"
             />
             <p className="text-xs text-muted-foreground">

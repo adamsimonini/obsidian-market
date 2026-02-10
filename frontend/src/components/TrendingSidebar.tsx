@@ -5,16 +5,16 @@ import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { Market } from '@/types/supabase';
+import type { LocalizedMarket } from '@/types/supabase';
 
 interface TrendingSidebarProps {
-  markets: Market[];
+  markets: LocalizedMarket[];
   excludeId?: string;
   categoryMap: Map<string, string>;
-  onSelect?: (market: Market) => void;
+  onSelect?: (market: LocalizedMarket) => void;
 }
 
-function SidebarEntry({ rank, market, categoryName, onSelect }: { rank: number; market: Market; categoryName?: string; onSelect?: (market: Market) => void }) {
+function SidebarEntry({ rank, market, categoryName, onSelect }: { rank: number; market: LocalizedMarket; categoryName?: string; onSelect?: (market: LocalizedMarket) => void }) {
   const tc = useTranslations('common');
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = 100 - yesPercent;

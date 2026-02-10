@@ -9,10 +9,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/hooks/useWallet';
 import { cn } from '@/lib/utils';
-import type { Market } from '@/types/supabase';
+import type { LocalizedMarket } from '@/types/supabase';
 
 interface BetFormProps {
-  market: Market;
+  market: LocalizedMarket;
   onClose: () => void;
 }
 

@@ -12,10 +12,10 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useWallet } from '@/hooks/useWallet';
 import { useMarkets } from '@/hooks/useMarkets';
 import { useCategories } from '@/hooks/useCategories';
-import type { Market } from '@/types/supabase';
+import type { LocalizedMarket } from '@/types/supabase';
 
 export default function HomePage() {
-  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
+  const [selectedMarket, setSelectedMarket] = useState<LocalizedMarket | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
   const { address } = useWallet();

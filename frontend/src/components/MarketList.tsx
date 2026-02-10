@@ -5,10 +5,10 @@ import { useTranslations } from 'next-intl';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { useMarkets } from '@/hooks/useMarkets';
 import { MarketCardCompact } from './MarketCardCompact';
-import type { Market, MarketStatus } from '@/types/supabase';
+import type { LocalizedMarket, MarketStatus } from '@/types/supabase';
 
 interface MarketListProps {
-  onMarketSelect?: (market: Market) => void;
+  onMarketSelect?: (market: LocalizedMarket) => void;
   onCategorySelect?: (categoryId: string) => void;
   statusFilter?: MarketStatus;
   categoryId?: string;
@@ -38,8 +38,8 @@ export function MarketList({
   const groups = useMemo(() => {
     if (categoryId || !categoryMap?.size) return null;
 
-    const map = new Map<string, Market[]>();
-    const uncategorized: Market[] = [];
+    const map = new Map<string, LocalizedMarket[]>();
+    const uncategorized: LocalizedMarket[] = [];
 
     for (const m of filtered) {
       if (m.category_id && categoryMap.has(m.category_id)) {
@@ -51,7 +51,7 @@ export function MarketList({
       }
     }
 
-    const result: { id: string | null; name: string; markets: Market[] }[] = [];
+    const result: { id: string | null; name: string; markets: LocalizedMarket[] }[] = [];
     for (const [id, list] of map) {
       result.push({ id, name: categoryMap.get(id) ?? 'Other', markets: list });
     }
