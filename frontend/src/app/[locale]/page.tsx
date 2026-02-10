@@ -35,7 +35,7 @@ export default function HomePage() {
   if (showCreateForm) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
+        <div className="mx-auto max-w-5xl py-8">
           <Button variant="ghost" className="mb-4" onClick={() => setShowCreateForm(false)}>
             &larr; {t('backToMarkets')}
           </Button>
@@ -47,7 +47,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container-main mx-auto px-4 py-8 md:px-8 pt-4">
+      <div className="py-8 pt-4">
         {canCreate && (
           <div className="mb-6 flex justify-end">
             <Button onClick={() => setShowCreateForm(true)}>{t('createMarket')}</Button>

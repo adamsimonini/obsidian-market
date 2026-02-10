@@ -4,8 +4,9 @@ import { routing } from './routing';
 import en from '../messages/en.json';
 import es from '../messages/es.json';
 import fr from '../messages/fr.json';
+import zh from '../messages/zh.json';
 
-const messages: Record<string, typeof en> = { en, es, fr };
+const messages: Record<string, typeof en> = { en, es, fr, zh };
 
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;

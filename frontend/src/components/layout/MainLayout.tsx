@@ -22,12 +22,12 @@ export function MainLayout({ children }: MainLayoutProps) {
     <>
       {showCategoriesBar && (
         <div className="bg-background">
-          <div className="container-main mx-auto px-4 pt-3 pb-0 md:px-8">
+          <div className="container-main mx-auto px-4 pt-3 pb-0 md:px-8 lg:px-8">
             <CategoriesBar categories={categories} activeSlug={activeSlug} />
           </div>
         </div>
       )}
-      {children}
+      <div className="container-main mx-auto px-4 md:px-8 lg:px-12">{children}</div>
     </>
   );
 }

@@ -25,6 +25,7 @@
   },
   "wallet": {
     "connect": "连接钱包",
+    "connected": "已连接 {address}",
     "disconnect": "断开连接 ({address})",
     "connectFirst": "请先连接您的钱包",
     "failedToConnect": "连接钱包失败"
