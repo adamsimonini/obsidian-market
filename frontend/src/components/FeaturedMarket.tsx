@@ -1,22 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations, useFormatter } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { MarketDetailPanel } from '@/components/MarketDetailPanel';
 import { cn } from '@/lib/utils';
+import { Link } from '@/i18n/navigation';
 import type { LocalizedMarket } from '@/types/supabase';
-
-// --- Change this to 'modal' to use a modal instead of inline expand ---
-type InteractionMode = 'expand' | 'modal';
-const INTERACTION_MODE: InteractionMode = 'expand';
 
 interface FeaturedMarketProps {
   market: LocalizedMarket;
   categoryName?: string;
-  onSelect?: (market: LocalizedMarket) => void;
 }
 
 function formatVolume(volume: number): string {
@@ -100,27 +93,16 @@ function SemiGauge({ yesPercent, noPercent }: { yesPercent: number; noPercent: n
   );
 }
 
-export function FeaturedMarket({ market, categoryName, onSelect }: FeaturedMarketProps) {
+export function FeaturedMarket({ market, categoryName }: FeaturedMarketProps) {
   const tc = useTranslations('common');
-  const td = useTranslations('marketDetail');
   const format = useFormatter();
-  const [expanded, setExpanded] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
 
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = 100 - yesPercent;
 
-  const handleClick = () => {
-    if (INTERACTION_MODE === 'modal') {
-      setModalOpen(true);
-    } else {
-      setExpanded((v) => !v);
-    }
-  };
-
   return (
-    <>
-      <Card className={cn('cursor-pointer border-primary/30 transition-all duration-300 hover:border-primary/60')} onClick={handleClick}>
+    <Link href={`/markets/${market.slug}`} className="block">
+      <Card className={cn('cursor-pointer border-primary/30 transition-all duration-300 hover:border-primary/60')}>
         {/* Title + Badge (full width) */}
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
@@ -163,28 +145,8 @@ export function FeaturedMarket({ market, categoryName, onSelect }: FeaturedMarke
               <SemiGauge yesPercent={yesPercent} noPercent={noPercent} />
             </div>
           </div>
-
-          {/* Inline expanded details */}
-          <div className={cn('grid overflow-hidden transition-all duration-300', expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
-            <div className="overflow-hidden">
-              <div className="border-t pt-4">
-                <MarketDetailPanel market={market} onTrade={onSelect} />
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
-
-      {/* Modal (used when INTERACTION_MODE === 'modal') */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{market.title}</DialogTitle>
-            <DialogDescription>{td('featuredMarket')}</DialogDescription>
-          </DialogHeader>
-          <MarketDetailPanel market={market} onTrade={onSelect} />
-        </DialogContent>
-      </Dialog>
-    </>
+    </Link>
   );
 }

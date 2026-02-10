@@ -9,6 +9,36 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/**
+ * Generate a unique slug by checking for collisions in the DB.
+ * If "btc-150k-2026" exists, tries "btc-150k-2026-2", "btc-150k-2026-3", etc.
+ */
+async function uniqueSlug(supabase: ReturnType<typeof getSupabaseAdmin>, base: string): Promise<string> {
+  const { count } = await supabase
+    .from('markets')
+    .select('id', { count: 'exact', head: true })
+    .eq('slug', base);
+
+  if (!count) return base;
+
+  // Collision — find next available suffix
+  let suffix = 2;
+  while (suffix < 100) {
+    const candidate = `${base}-${suffix}`;
+    const { count: exists } = await supabase
+      .from('markets')
+      .select('id', { count: 'exact', head: true })
+      .eq('slug', candidate);
+
+    if (!exists) return candidate;
+    suffix++;
+  }
+
+  // Fallback: append short random string
+  const rand = Math.random().toString(36).slice(2, 7);
+  return `${base}-${rand}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -35,10 +65,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const slug = slugify(translations.en.title);
-    const liquidity = parseInt(initial_liquidity) || 1000;
-
     const supabase = getSupabaseAdmin();
+    const slug = await uniqueSlug(supabase, slugify(translations.en.title));
+    const liquidity = parseInt(initial_liquidity) || 1000;
 
     // 1. Create the market (language-agnostic base row)
     const { data: market, error: marketError } = await supabase

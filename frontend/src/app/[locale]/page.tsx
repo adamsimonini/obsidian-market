@@ -7,15 +7,12 @@ import { MarketList } from '@/components/MarketList';
 import { FeaturedMarket } from '@/components/FeaturedMarket';
 import { TrendingSidebar } from '@/components/TrendingSidebar';
 import { CreateMarketForm } from '@/components/CreateMarketForm';
-import { BetForm } from '@/components/BetForm';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useWallet } from '@/hooks/useWallet';
 import { useMarkets } from '@/hooks/useMarkets';
 import { useCategories } from '@/hooks/useCategories';
-import type { LocalizedMarket } from '@/types/supabase';
 
 export default function HomePage() {
-  const [selectedMarket, setSelectedMarket] = useState<LocalizedMarket | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
   const { address } = useWallet();
@@ -38,19 +35,6 @@ export default function HomePage() {
   }, [markets]);
 
   const excludeIds = useMemo(() => (featuredMarket ? [featuredMarket.id] : []), [featuredMarket]);
-
-  if (selectedMarket) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
-          <Button variant="ghost" className="mb-4" onClick={() => setSelectedMarket(null)}>
-            &larr; {t('backToMarkets')}
-          </Button>
-          <BetForm market={selectedMarket} onClose={() => setSelectedMarket(null)} />
-        </div>
-      </div>
-    );
-  }
 
   if (showCreateForm) {
     return (
@@ -89,12 +73,12 @@ export default function HomePage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_1fr]">
           <div className="min-w-0 space-y-6">
             {!loading && featuredMarket && (
-              <FeaturedMarket market={featuredMarket} categoryName={featuredMarket.category_id ? categoryMap.get(featuredMarket.category_id) : undefined} onSelect={setSelectedMarket} />
+              <FeaturedMarket market={featuredMarket} categoryName={featuredMarket.category_id ? categoryMap.get(featuredMarket.category_id) : undefined} />
             )}
-            <MarketList onMarketSelect={setSelectedMarket} onCategorySelect={setCategoryId} categoryId={categoryId} excludeIds={excludeIds} categoryMap={categoryMap} />
+            <MarketList onCategorySelect={setCategoryId} categoryId={categoryId} excludeIds={excludeIds} categoryMap={categoryMap} />
           </div>
           <div className="hidden lg:block">
-            <TrendingSidebar markets={markets} excludeId={featuredMarket?.id} categoryMap={categoryMap} onSelect={setSelectedMarket} />
+            <TrendingSidebar markets={markets} excludeId={featuredMarket?.id} categoryMap={categoryMap} />
           </div>
         </div>
       </div>

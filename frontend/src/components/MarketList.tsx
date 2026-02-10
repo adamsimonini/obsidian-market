@@ -8,7 +8,6 @@ import { MarketCardCompact } from './MarketCardCompact';
 import type { LocalizedMarket, MarketStatus } from '@/types/supabase';
 
 interface MarketListProps {
-  onMarketSelect?: (market: LocalizedMarket) => void;
   onCategorySelect?: (categoryId: string) => void;
   statusFilter?: MarketStatus;
   categoryId?: string;
@@ -17,7 +16,6 @@ interface MarketListProps {
 }
 
 export function MarketList({
-  onMarketSelect,
   onCategorySelect,
   statusFilter,
   categoryId,
@@ -111,7 +109,6 @@ export function MarketList({
                 <MarketCardCompact
                   key={market.id}
                   market={market}
-                  onSelect={onMarketSelect}
                 />
               ))}
             </div>
@@ -129,7 +126,6 @@ export function MarketList({
           key={market.id}
           market={market}
           categoryName={market.category_id ? categoryMap?.get(market.category_id) : undefined}
-          onSelect={onMarketSelect}
         />
       ))}
     </div>
