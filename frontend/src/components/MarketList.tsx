@@ -15,13 +15,7 @@ interface MarketListProps {
   categoryMap?: Map<string, string>;
 }
 
-export function MarketList({
-  onCategorySelect,
-  statusFilter,
-  categoryId,
-  excludeIds,
-  categoryMap,
-}: MarketListProps) {
+export function MarketList({ onCategorySelect, statusFilter, categoryId, excludeIds, categoryMap }: MarketListProps) {
   const t = useTranslations('home');
   const tc = useTranslations('common');
   const { markets, loading, error } = useMarkets({
@@ -29,9 +23,7 @@ export function MarketList({
     categoryId,
   });
 
-  const filtered = excludeIds?.length
-    ? markets.filter((m) => !excludeIds.includes(m.id))
-    : markets;
+  const filtered = excludeIds?.length ? markets.filter((m) => !excludeIds.includes(m.id)) : markets;
 
   // Group by category when showing all markets
   const groups = useMemo(() => {
@@ -76,9 +68,7 @@ export function MarketList({
   if (error) {
     return (
       <div className="flex items-center justify-center p-10">
-        <p className="text-destructive">
-          {t('errorLoading', { message: error.message })}
-        </p>
+        <p className="text-destructive">{t('errorLoading', { message: error.message })}</p>
       </div>
     );
   }
@@ -98,7 +88,7 @@ export function MarketList({
         {groups.map((group) => (
           <section key={group.id ?? 'other'}>
             <button
-              className="mb-3 flex items-center gap-1 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+              className="mb-3 flex items-center gap-1 text-lg font-bold text-muted-foreground transition-colors hover:text-foreground"
               onClick={() => group.id && onCategorySelect?.(group.id)}
               disabled={!group.id}
             >
@@ -107,10 +97,7 @@ export function MarketList({
             </button>
             <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
               {group.markets.map((market) => (
-                <MarketCardCompact
-                  key={market.id}
-                  market={market}
-                />
+                <MarketCardCompact key={market.id} market={market} />
               ))}
             </div>
           </section>
@@ -123,11 +110,7 @@ export function MarketList({
   return (
     <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
       {filtered.map((market) => (
-        <MarketCardCompact
-          key={market.id}
-          market={market}
-          categoryName={market.category_id ? categoryMap?.get(market.category_id) : undefined}
-        />
+        <MarketCardCompact key={market.id} market={market} categoryName={market.category_id ? categoryMap?.get(market.category_id) : undefined} />
       ))}
     </div>
   );

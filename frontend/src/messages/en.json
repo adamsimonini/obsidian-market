@@ -20,7 +20,8 @@
     "standardView": "Standard view",
     "wideView": "Wide view",
     "toggleTheme": "Toggle theme",
-    "changeLanguage": "Change language"
+    "changeLanguage": "Change language",
+    "menu": "Menu"
   },
   "wallet": {
     "connect": "Connect Wallet",
@@ -53,7 +54,11 @@
     "large": "Large",
     "language": "Language",
     "languageDescription": "Choose your preferred language.",
-    "adminManagement": "Admin Management"
+    "adminManagement": "Admin Management",
+    "theme": "Theme",
+    "themeDescription": "Switch between light and dark mode.",
+    "light": "Light",
+    "dark": "Dark"
   },
   "betForm": {
     "selectPrediction": "Select Your Prediction",

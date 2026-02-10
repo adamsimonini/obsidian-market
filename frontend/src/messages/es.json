@@ -20,7 +20,8 @@
     "standardView": "Vista estándar",
     "wideView": "Vista amplia",
     "toggleTheme": "Cambiar tema",
-    "changeLanguage": "Cambiar idioma"
+    "changeLanguage": "Cambiar idioma",
+    "menu": "Menú"
   },
   "wallet": {
     "connect": "Conectar Billetera",
@@ -53,7 +54,11 @@
     "large": "Grande",
     "language": "Idioma",
     "languageDescription": "Elige tu idioma preferido.",
-    "adminManagement": "Gestión de Administradores"
+    "adminManagement": "Gestión de Administradores",
+    "theme": "Tema",
+    "themeDescription": "Cambia entre modo claro y oscuro.",
+    "light": "Claro",
+    "dark": "Oscuro"
   },
   "betForm": {
     "selectPrediction": "Selecciona Tu Predicción",

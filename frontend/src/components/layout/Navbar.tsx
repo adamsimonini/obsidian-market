@@ -3,12 +3,13 @@
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, Maximize2, Minimize2, Globe } from 'lucide-react';
+import { Sun, Moon, Maximize2, Minimize2, Globe, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { WalletButton } from '@/components/WalletButton';
@@ -75,33 +76,70 @@ export function Navbar() {
           >
             {wide ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label={t('changeLanguage')}>
-                <Globe className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {routing.locales.map((loc) => (
-                <DropdownMenuItem
-                  key={loc}
-                  onClick={() => switchLocale(loc)}
-                  className={cn(locale === loc && 'font-bold')}
-                >
-                  {LOCALE_LABELS[loc]}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="hidden sm:block">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label={t('changeLanguage')}>
+                  <Globe className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {routing.locales.map((loc) => (
+                  <DropdownMenuItem
+                    key={loc}
+                    onClick={() => switchLocale(loc)}
+                    className={cn(locale === loc && 'font-bold')}
+                  >
+                    {LOCALE_LABELS[loc]}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <Button
             variant="ghost"
             size="icon"
+            className="hidden sm:inline-flex"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             aria-label={t('toggleTheme')}
           >
             <Sun className="size-4 scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
             <Moon className="absolute size-4 scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0" />
           </Button>
+          {/* Mobile menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="sm:hidden" aria-label={t('menu')}>
+                <Settings2 className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {navLinks.map((link) => (
+                <DropdownMenuItem key={link.href} asChild>
+                  <Link
+                    href={link.href}
+                    className={cn('w-full', pathname === link.href && 'font-bold')}
+                  >
+                    {t(link.key)}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setTheme(theme === 'dark' ? 'light' : 'dark');
+                }}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="mr-2 size-4" />
+                ) : (
+                  <Moon className="mr-2 size-4" />
+                )}
+                {t('toggleTheme')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <WalletButton />
         </div>
       </div>

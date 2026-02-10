@@ -58,12 +58,12 @@ export default function HomePage() {
         </div>
 
         {categories.length > 0 && (
-          <div className="mb-6 flex flex-wrap gap-2">
-            <Button variant={!categoryId ? 'default' : 'outline'} size="sm" onClick={() => setCategoryId(undefined)}>
+          <div className="mb-6 flex gap-2 overflow-x-auto scrollbar-hide">
+            <Button variant={!categoryId ? 'default' : 'outline'} size="sm" className="shrink-0" onClick={() => setCategoryId(undefined)}>
               {tc('all')}
             </Button>
             {categories.map((cat) => (
-              <Button key={cat.id} variant={categoryId === cat.id ? 'default' : 'outline'} size="sm" onClick={() => setCategoryId(cat.id)}>
+              <Button key={cat.id} variant={categoryId === cat.id ? 'default' : 'outline'} size="sm" className="shrink-0" onClick={() => setCategoryId(cat.id)}>
                 {cat.name}
               </Button>
             ))}
