@@ -49,7 +49,7 @@ export function DoughnutCard({ market, className }: DoughnutCardProps) {
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-sm leading-snug">{market.title}</CardTitle>
-            <Badge variant="outline" className="shrink-0 text-[10px]">
+            <Badge variant="outline" className="shrink-0 text-[0.625rem]">
               {market.category}
             </Badge>
           </div>

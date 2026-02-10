@@ -44,7 +44,7 @@ export function LinearGaugeCard({ market, className }: LinearGaugeCardProps) {
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-sm leading-snug">{market.title}</CardTitle>
-            <Badge variant="outline" className="shrink-0 text-[10px]">
+            <Badge variant="outline" className="shrink-0 text-[0.625rem]">
               {market.category}
             </Badge>
           </div>
@@ -90,9 +90,9 @@ export function LinearGaugeCard({ market, className }: LinearGaugeCardProps) {
             <div className="absolute left-[25%] top-0 h-2 w-px bg-border" />
             <div className="absolute left-[50%] top-0 h-2 w-px bg-border" />
             <div className="absolute left-[75%] top-0 h-2 w-px bg-border" />
-            <div className="absolute left-[25%] top-2 -translate-x-1/2 text-[8px] text-muted-foreground/50">25</div>
-            <div className="absolute left-[50%] top-2 -translate-x-1/2 text-[8px] text-muted-foreground/50">50</div>
-            <div className="absolute left-[75%] top-2 -translate-x-1/2 text-[8px] text-muted-foreground/50">75</div>
+            <div className="absolute left-[25%] top-2 -translate-x-1/2 text-[0.5rem] text-muted-foreground/50">25</div>
+            <div className="absolute left-[50%] top-2 -translate-x-1/2 text-[0.5rem] text-muted-foreground/50">50</div>
+            <div className="absolute left-[75%] top-2 -translate-x-1/2 text-[0.5rem] text-muted-foreground/50">75</div>
           </div>
 
           {/* Stats Row */}

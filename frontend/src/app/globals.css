@@ -47,9 +47,13 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+html {
+  font-size: 16px;
+}
+
 /* Light mode - Obsidian Market theme */
 :root {
-  --radius: 0.625rem;
+  --font-size: 16px;
   --background: oklch(0.98 0.002 247); /* rgb(249,250,251) */
   --foreground: oklch(0.16 0.02 265); /* rgb(17,24,39) */
   --card: oklch(1 0 0); /* rgb(255,255,255) */
@@ -93,17 +97,17 @@
   --popover-foreground: oklch(0.94 0.005 285);
   --primary: oklch(0.44 0.29 286); /* #682BFF - vivid purple */
   --primary-foreground: oklch(1 0 0); /* white */
-  --secondary: oklch(0.30 0.02 285); /* muted purple-grey */
+  --secondary: oklch(0.3 0.02 285); /* muted purple-grey */
   --secondary-foreground: oklch(0.94 0.005 285);
-  --muted: oklch(0.30 0.02 285);
+  --muted: oklch(0.3 0.02 285);
   --muted-foreground: oklch(0.67 0.02 285);
   --accent: oklch(0.55 0.29 326); /* #D91EFF - magenta */
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.58 0.23 25); /* red */
-  --border: oklch(0.30 0.02 285);
+  --border: oklch(0.3 0.02 285);
   --input: oklch(0.21 0.015 285);
   --ring: oklch(0.44 0.29 286); /* match primary */
-  --chart-1: oklch(0.50 0.265 264); /* #1E55FF */
+  --chart-1: oklch(0.5 0.265 264); /* #1E55FF */
   --chart-2: oklch(0.44 0.29 286); /* #682BFF */
   --chart-3: oklch(0.46 0.285 302); /* #8E1BE8 */
   --chart-4: oklch(0.55 0.29 326); /* #D91EFF */
@@ -112,10 +116,14 @@
   --sidebar-foreground: oklch(0.94 0.005 285);
   --sidebar-primary: oklch(0.44 0.29 286);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.30 0.02 285);
+  --sidebar-accent: oklch(0.3 0.02 285);
   --sidebar-accent-foreground: oklch(0.94 0.005 285);
-  --sidebar-border: oklch(0.30 0.02 285);
+  --sidebar-border: oklch(0.3 0.02 285);
   --sidebar-ring: oklch(0.44 0.29 286);
+}
+
+html {
+  font-size: var(--font-size);
 }
 
 @layer base {

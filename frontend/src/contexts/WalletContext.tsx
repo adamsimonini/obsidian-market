@@ -30,17 +30,18 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
   const provable = useProvableWallet();
 
   const connect = useCallback(async () => {
+    // Already connected (e.g. autoConnect finished) — nothing to do
+    if (provable.connected) return;
+
     try {
-      // Try connecting directly first (works when wallet is already selected or autoConnect ran)
-      try {
+      // If a wallet is already selected, connect directly
+      if (provable.wallet) {
         await provable.connect(Network.TESTNET);
         return;
-      } catch {
-        // If direct connect fails, select the wallet and retry
       }
 
+      // No wallet selected — pick Leo Wallet, wait for adapter, then connect
       provable.selectWallet('Leo Wallet' as never);
-      // Give the adapter time to register the selection
       await new Promise((resolve) => setTimeout(resolve, 300));
       await provable.connect(Network.TESTNET);
     } catch (error) {

@@ -33,7 +33,7 @@ export function SplitCard({ market, className }: SplitCardProps) {
         <div className="px-6 pt-6 pb-3">
           <div className="flex items-start justify-between gap-2">
             <p className="text-sm font-semibold leading-snug">{market.title}</p>
-            <Badge variant="outline" className="shrink-0 text-[10px]">
+            <Badge variant="outline" className="shrink-0 text-[0.625rem]">
               {market.category}
             </Badge>
           </div>

@@ -3,13 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { MarketDetailPanel } from '@/components/MarketDetailPanel';
 import { cn } from '@/lib/utils';
 import type { Market } from '@/types/supabase';
@@ -22,6 +16,14 @@ interface MarketCardCompactProps {
   market: Market;
   categoryName?: string;
   onSelect?: (market: Market) => void;
+}
+
+function formatDeadline(deadline: string) {
+  return new Date(deadline).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
 function formatVolume(volume: number): string {
@@ -47,47 +49,31 @@ export function MarketCardCompact({ market, categoryName, onSelect }: MarketCard
 
   return (
     <>
-      <Card
-        className={cn(
-          'cursor-pointer transition-all duration-300 hover:border-primary/50',
-        )}
-        onClick={handleClick}
-      >
-        <CardContent className="space-y-3 p-4">
+      <Card className={cn('cursor-pointer transition-all duration-300 hover:border-primary/50')} onClick={handleClick}>
+        <CardContent className="space-y-3 px-6">
           {/* Title — fixed 2-line height so cards stay aligned side-by-side */}
           <p className="line-clamp-2 min-h-10 text-sm font-semibold leading-snug">{market.title}</p>
 
           {/* Labels */}
           <div className="flex items-baseline justify-between">
             <div className="flex items-baseline gap-1">
-              <span className={cn('font-mono text-lg font-bold', yesPercent >= 50 ? 'text-primary' : 'text-muted-foreground')}>
-                {yesPercent}%
-              </span>
+              <span className={cn('font-mono text-lg font-bold', yesPercent >= 50 ? 'text-primary' : 'text-muted-foreground')}>{yesPercent}%</span>
               <span className="text-xs text-muted-foreground">Yes</span>
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-xs text-muted-foreground">No</span>
-              <span className={cn('font-mono text-lg font-bold', noPercent > 50 ? 'text-destructive' : 'text-muted-foreground')}>
-                {noPercent}%
-              </span>
+              <span className={cn('font-mono text-lg font-bold', noPercent > 50 ? 'text-destructive' : 'text-muted-foreground')}>{noPercent}%</span>
             </div>
           </div>
 
           {/* Linear gauge: solid yes + striped no */}
           <div className="relative h-3 w-full overflow-hidden rounded-full">
-            <div
-              className="absolute inset-y-0 left-0 rounded-l-full bg-primary transition-all duration-700"
-              style={{ width: `${yesPercent}%` }}
-            />
-            <div
-              className="absolute inset-y-0 right-0 overflow-hidden rounded-r-full"
-              style={{ width: `${noPercent}%` }}
-            >
+            <div className="absolute inset-y-0 left-0 rounded-l-full bg-primary transition-all duration-700" style={{ width: `${yesPercent}%` }} />
+            <div className="absolute inset-y-0 right-0 overflow-hidden rounded-r-full" style={{ width: `${noPercent}%` }}>
               <div
                 className="h-full w-full bg-destructive/80"
                 style={{
-                  backgroundImage:
-                    'repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 6px)',
+                  backgroundImage: 'repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 6px)',
                 }}
               />
             </div>
@@ -97,24 +83,24 @@ export function MarketCardCompact({ market, categoryName, onSelect }: MarketCard
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>{formatVolume(market.total_volume)} vol</span>
             <span className="text-border">|</span>
-            <span>{market.trade_count} trade{market.trade_count !== 1 ? 's' : ''}</span>
+            <span>
+              {market.trade_count} trade{market.trade_count !== 1 ? 's' : ''}
+            </span>
             {categoryName && (
               <>
                 <span className="flex-1" />
-                <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                <Badge variant="outline" className="h-5 px-1.5 text-[0.625rem]">
                   {categoryName}
                 </Badge>
               </>
             )}
           </div>
 
+          {/* End date */}
+          <p className="text-xs text-muted-foreground">Ends {formatDeadline(market.resolution_deadline)}</p>
+
           {/* Inline expanded details */}
-          <div
-            className={cn(
-              'grid overflow-hidden transition-all duration-300',
-              expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-            )}
-          >
+          <div className={cn('grid overflow-hidden transition-all duration-300', expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
             <div className="overflow-hidden">
               <div className="border-t pt-4">
                 <MarketDetailPanel market={market} onTrade={onSelect} />

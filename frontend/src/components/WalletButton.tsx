@@ -49,7 +49,7 @@ export function WalletButton() {
       )}
       <div className="flex items-center gap-2">
         {connected && (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[0.625rem] font-medium text-muted-foreground">
             {network}
           </span>
         )}

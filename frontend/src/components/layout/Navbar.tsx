@@ -29,7 +29,7 @@ export function Navbar() {
             <Image src="/obsidian-logo.png" alt="Obsidian Market" width={32} height={32} style={{ width: 32, height: 'auto' }} />
             <div>
               <span className="text-xl font-bold leading-tight">Obsidian Market</span>
-              <span className="block text-[10px] leading-tight text-muted-foreground">powered by aleo</span>
+              <span className="block text-[0.625rem] leading-tight text-muted-foreground">powered by aleo</span>
             </div>
           </Link>
           <nav className="hidden items-center gap-1 sm:flex">

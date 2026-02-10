@@ -79,11 +79,11 @@ export function DetailPanel({ market }: { market: SampleMarket }) {
         <p className="text-xs font-medium text-muted-foreground">Potential ROI</p>
         <div className="flex gap-3">
           <div className="flex-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-center">
-            <p className="text-[10px] text-muted-foreground">Buy Yes</p>
+            <p className="text-[0.625rem] text-muted-foreground">Buy Yes</p>
             <p className="font-mono text-sm font-bold text-primary">+{roiYes.toFixed(0)}%</p>
           </div>
           <div className="flex-1 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-center">
-            <p className="text-[10px] text-muted-foreground">Buy No</p>
+            <p className="text-[0.625rem] text-muted-foreground">Buy No</p>
             <p className="font-mono text-sm font-bold text-destructive">+{roiNo.toFixed(0)}%</p>
           </div>
         </div>
@@ -95,7 +95,7 @@ export function DetailPanel({ market }: { market: SampleMarket }) {
 function StatCell({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="rounded-md bg-muted/50 px-3 py-2">
-      <p className="text-[10px] text-muted-foreground">{label}</p>
+      <p className="text-[0.625rem] text-muted-foreground">{label}</p>
       <p className={`font-mono text-sm font-semibold ${accent ? 'text-primary' : ''}`}>{value}</p>
     </div>
   );
@@ -105,7 +105,7 @@ function StatCell({ label, value, accent }: { label: string; value: string; acce
 
 export function CardLabel({ label }: { label: string }) {
   return (
-    <Badge variant="outline" className="absolute -top-2.5 left-4 bg-background text-[10px] font-mono uppercase tracking-wider">
+    <Badge variant="outline" className="absolute -top-2.5 left-4 bg-background text-[0.625rem] font-mono uppercase tracking-wider">
       {label}
     </Badge>
   );
