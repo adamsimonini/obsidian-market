@@ -30,7 +30,8 @@
     "failedToConnect": "Failed to connect wallet"
   },
   "home": {
-    "title": "Fully Private Markets",
+    "title": "Maximum privacy markets",
+    "description": "The world's most private prediction market",
     "createMarket": "Create Market",
     "backToMarkets": "Back to Markets",
     "loadingMarkets": "Loading markets...",

@@ -3,31 +3,30 @@
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronRight, Loader2 } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import { useMarkets } from '@/hooks/useMarkets';
 import { MarketCardCompact } from './MarketCardCompact';
 import type { LocalizedMarket, MarketStatus } from '@/types/supabase';
 
 interface MarketListProps {
-  onCategorySelect?: (categoryId: string) => void;
   statusFilter?: MarketStatus;
-  categoryId?: string;
   excludeIds?: string[];
   categoryMap?: Map<string, string>;
+  categorySlugMap?: Map<string, string>;
 }
 
-export function MarketList({ onCategorySelect, statusFilter, categoryId, excludeIds, categoryMap }: MarketListProps) {
+export function MarketList({ statusFilter, excludeIds, categoryMap, categorySlugMap }: MarketListProps) {
   const t = useTranslations('home');
   const tc = useTranslations('common');
   const { markets, loading, error } = useMarkets({
     status: statusFilter,
-    categoryId,
   });
 
   const filtered = excludeIds?.length ? markets.filter((m) => !excludeIds.includes(m.id)) : markets;
 
   // Group by category when showing all markets
   const groups = useMemo(() => {
-    if (categoryId || !categoryMap?.size) return null;
+    if (!categoryMap?.size) return null;
 
     const map = new Map<string, LocalizedMarket[]>();
     const uncategorized: LocalizedMarket[] = [];
@@ -42,19 +41,19 @@ export function MarketList({ onCategorySelect, statusFilter, categoryId, exclude
       }
     }
 
-    const result: { id: string | null; name: string; markets: LocalizedMarket[] }[] = [];
+    const result: { id: string | null; name: string; slug: string | null; markets: LocalizedMarket[] }[] = [];
     for (const [id, list] of map) {
-      result.push({ id, name: categoryMap.get(id) ?? tc('other'), markets: list });
+      result.push({ id, name: categoryMap.get(id) ?? tc('other'), slug: categorySlugMap?.get(id) ?? null, markets: list });
     }
     // Sort groups alphabetically
     result.sort((a, b) => a.name.localeCompare(b.name));
 
     if (uncategorized.length > 0) {
-      result.push({ id: null, name: tc('other'), markets: uncategorized });
+      result.push({ id: null, name: tc('other'), slug: null, markets: uncategorized });
     }
 
     return result;
-  }, [filtered, categoryId, categoryMap]);
+  }, [filtered, categoryMap, categorySlugMap, tc]);
 
   if (loading) {
     return (
@@ -87,14 +86,19 @@ export function MarketList({ onCategorySelect, statusFilter, categoryId, exclude
       <div className="space-y-8">
         {groups.map((group) => (
           <section key={group.id ?? 'other'}>
-            <button
-              className="mb-3 flex items-center gap-1 text-lg font-bold text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => group.id && onCategorySelect?.(group.id)}
-              disabled={!group.id}
-            >
-              {group.name}
-              {group.id && <ChevronRight className="size-3.5" />}
-            </button>
+            {group.slug ? (
+              <Link
+                href={`/categories/${group.slug}`}
+                className="mb-3 flex items-center gap-1 text-lg font-bold text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {group.name}
+                <ChevronRight className="size-3.5" />
+              </Link>
+            ) : (
+              <span className="mb-3 block text-lg font-bold text-muted-foreground">
+                {group.name}
+              </span>
+            )}
             <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
               {group.markets.map((market) => (
                 <MarketCardCompact key={market.id} market={market} />
@@ -106,11 +110,11 @@ export function MarketList({ onCategorySelect, statusFilter, categoryId, exclude
     );
   }
 
-  // Flat grid when a specific category is selected
+  // Flat grid fallback (no category map provided)
   return (
     <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
       {filtered.map((market) => (
-        <MarketCardCompact key={market.id} market={market} categoryName={market.category_id ? categoryMap?.get(market.category_id) : undefined} />
+        <MarketCardCompact key={market.id} market={market} />
       ))}
     </div>
   );

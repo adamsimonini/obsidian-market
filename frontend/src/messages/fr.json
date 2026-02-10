@@ -31,6 +31,7 @@
   },
   "home": {
     "title": "Marchés Entièrement Privés",
+    "description": "Le marché de prédiction le plus privé au monde.",
     "createMarket": "Créer un Marché",
     "backToMarkets": "Retour aux Marchés",
     "loadingMarkets": "Chargement des marchés...",
