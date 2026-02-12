@@ -14,9 +14,16 @@ import {
   useWallet as useProvableWallet,
 } from '@provablehq/aleo-wallet-adaptor-react';
 import { LeoWalletAdapter } from '@provablehq/aleo-wallet-adaptor-leo';
+import { ShieldWalletAdapter } from '@provablehq/aleo-wallet-adaptor-shield';
+import { PuzzleWalletAdapter } from '@provablehq/aleo-wallet-adaptor-puzzle';
 import { DecryptPermission } from '@provablehq/aleo-wallet-adaptor-core';
 import { Network } from '@provablehq/aleo-types';
 import type { TransactionOptions, TransactionStatusResponse } from '@provablehq/aleo-types';
+
+/** Wallet option exposed to the UI */
+export interface WalletOption {
+  name: string;
+}
 
 interface WalletContextType {
   address: string | null;
@@ -24,10 +31,13 @@ interface WalletContextType {
   connecting: boolean;
   disconnecting: boolean;
   network: 'testnet' | 'mainnet';
-  connect: () => void;
+  /** Available wallet adapters the user can choose from */
+  availableWallets: WalletOption[];
+  /** Connect to a specific wallet by name */
+  connect: (walletName: string) => void;
   disconnect: () => Promise<void>;
   signMessage: (message: string) => Promise<string | null>;
-  /** Execute a program transition via the wallet (Leo Wallet generates proof + broadcasts) */
+  /** Execute a program transition via the wallet (wallet generates proof + broadcasts) */
   executeTransaction: (options: TransactionOptions) => Promise<string>;
   /** Check the status of a submitted transaction */
   transactionStatus: (transactionId: string) => Promise<TransactionStatusResponse>;
@@ -39,12 +49,21 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
   const provable = useProvableWallet();
   const [pendingConnect, setPendingConnect] = useState(false);
 
-  // Step 1: User clicks "Connect" → select wallet name + flag pending
-  const connect = useCallback(() => {
-    if (provable.connected || provable.connecting || provable.disconnecting) return;
-    provable.selectWallet('Leo Wallet' as never);
-    setPendingConnect(true);
-  }, [provable]);
+  const availableWallets: WalletOption[] = useMemo(
+    () => (provable.wallets ?? []).map((w) => ({ name: w.adapter.name })),
+    [provable.wallets],
+  );
+
+  // Step 1: User picks a wallet → select by name + flag pending
+  const connect = useCallback(
+    (walletName: string) => {
+      if (provable.connected || provable.connecting || provable.disconnecting) return;
+      // @ts-expect-error - WalletName type is derived from registered wallets
+      provable.selectWallet(walletName);
+      setPendingConnect(true);
+    },
+    [provable],
+  );
 
   // Step 2: Once the adapter picks up the wallet (next render), call connect
   useEffect(() => {
@@ -56,6 +75,8 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
     }
 
     setPendingConnect(false);
+    // Network arg satisfies TS types but the provider internally uses its own
+    // initialNetwork, decryptPermission, and programs props for the actual call
     provable.connect(Network.TESTNET).catch((err) => {
       console.error('Wallet connection error:', err);
     });
@@ -110,6 +131,7 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
         connecting: provable.connecting || pendingConnect,
         disconnecting: provable.disconnecting,
         network: 'testnet',
+        availableWallets,
         connect,
         disconnect,
         signMessage,
@@ -126,12 +148,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const wallets = useMemo(() => {
     try {
       return [
-        new LeoWalletAdapter({
-          appName: 'Obsidian Market',
-        }),
+        new LeoWalletAdapter({ appName: 'Obsidian Market' }),
+        new ShieldWalletAdapter(),
+        // new PuzzleWalletAdapter({
+        //   appName: 'Obsidian Market',
+        //   appDescription: 'Privacy-focused prediction market built on Aleo',
+        //   appIconUrl: '',
+        // }),
       ];
     } catch (error) {
-      console.warn('Failed to create wallet adapter:', error);
+      console.warn('Failed to create wallet adapters:', error);
       return [];
     }
   }, []);
@@ -141,6 +167,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       wallets={wallets}
       decryptPermission={DecryptPermission.UponRequest}
       network={Network.TESTNET}
+      programs={['obsidian_market.aleo', 'credits.aleo']}
     >
       <WalletProviderInner>{children}</WalletProviderInner>
     </AleoWalletProvider>

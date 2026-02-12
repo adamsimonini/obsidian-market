@@ -26,7 +26,7 @@
     "menu": "Menu"
   },
   "wallet": {
-    "connect": "Connect Leo Wallet",
+    "connect": "Connect Wallet",
     "connected": "Connected {address}",
     "disconnect": "Disconnect ({address})",
     "connectFirst": "Please connect your wallet first",
