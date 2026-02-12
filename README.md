@@ -3,6 +3,11 @@
 [GitHub Repo](https://github.com/adamsimonini/obsidian-market)
 [Vercel Deployment](https://obsidian-market.vercel.app/)
 [Supabase](https://supabase.com/dashboard/project/giarcxkfqogumngtygmt)
+[](https://developer.aleo.org/sdk/overview/)
+
+[Wallet Adapter](https://github.com/ProvableHQ/aleo-wallet-adapter)
+
+Use Aleo Wallet Adapter (with pre-build wallet multi-button)
 
 A privacy-focused prediction market built on [Aleo](https://aleo.org/). Users can create and bet on binary (Yes/No) markets with private bet positions powered by zero-knowledge proofs.
 

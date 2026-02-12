@@ -11,7 +11,8 @@
     "ends": "Cierra {date}",
     "other": "Otros",
     "poweredByAleo": "impulsado por aleo",
-    "back": "Volver"
+    "back": "Volver",
+    "done": "Hecho"
   },
   "nav": {
     "home": "Inicio",
@@ -76,6 +77,12 @@
     "notAcceptingBets": "Este mercado no acepta apuestas",
     "marketStatus": "Este mercado está {status} y no acepta apuestas",
     "failedToPlace": "Error al realizar la apuesta",
+    "signingInWallet": "Aprueba en Leo Wallet...",
+    "confirmingOnChain": "Confirmando en la cadena...",
+    "syncingTrade": "Sincronizando datos de la operación...",
+    "betPlaced": "¡Apuesta realizada con éxito!",
+    "viewOnExplorer": "Ver en Explorer",
+    "networkFee": "Tarifa de Red",
     "volumeLabel": "Volumen: {value}",
     "tradesLabel": "Operaciones: {value}",
     "feeLabel": "Comisión: {value}"

@@ -11,7 +11,8 @@
     "ends": "Fin {date}",
     "other": "Autres",
     "poweredByAleo": "propulsé par aleo",
-    "back": "Retour"
+    "back": "Retour",
+    "done": "Terminé"
   },
   "nav": {
     "home": "Accueil",
@@ -76,6 +77,12 @@
     "notAcceptingBets": "Ce marché n'accepte pas les paris",
     "marketStatus": "Ce marché est {status} et n'accepte pas les paris",
     "failedToPlace": "Échec du placement du pari",
+    "signingInWallet": "Approuver dans Leo Wallet...",
+    "confirmingOnChain": "Confirmation sur la chaîne...",
+    "syncingTrade": "Synchronisation des données...",
+    "betPlaced": "Pari placé avec succès !",
+    "viewOnExplorer": "Voir sur l'Explorer",
+    "networkFee": "Frais de Réseau",
     "volumeLabel": "Volume : {value}",
     "tradesLabel": "Transactions : {value}",
     "feeLabel": "Frais : {value}"
