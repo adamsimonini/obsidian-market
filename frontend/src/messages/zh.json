@@ -16,6 +16,7 @@
   },
   "nav": {
     "home": "首页",
+    "about": "关于",
     "account": "账户",
     "settings": "设置",
     "standardView": "标准视图",
@@ -66,6 +67,8 @@
     "layoutDescription": "调整大屏幕的内容宽度。",
     "showTorIndicator": "导航栏 Tor 指示器",
     "showTorIndicatorDescription": "在页头显示或隐藏 Tor 连接状态。",
+    "learnAboutTor": "了解 Tor →",
+    "torProjectUrl": "https://www.torproject.org/zh-CN/",
     "on": "开",
     "off": "关"
   },
@@ -167,6 +170,34 @@
     "notConnected": "未通过 Tor 连接",
     "labelTor": "Tor",
     "labelNotTor": "非 Tor"
+  },
+  "about": {
+    "metaTitle": "关于 — 预测市场中的隐私",
+    "metaDescription": "了解为什么隐私在预测市场中很重要，以及 Obsidian Market 如何通过 Aleo 上的零知识证明提供最大隐私保护。",
+    "title": "隐私优先的预测市场",
+    "subtitle": "在传统预测市场中，您的投注会暴露您的信念、策略和财务状况。Obsidian Market 改变了这一切。",
+    "whyPrivacyTitle": "为什么隐私很重要",
+    "whyPrivacyIntro": "预测市场是聚合信息和预测结果的强大工具。但如果没有隐私保护，它们会使参与者面临严重风险，从而削弱其有效性。",
+    "frontRunningTitle": "防止抢先交易",
+    "frontRunningDesc": "当您的交易可见时，其他人可以在您的投注结算前看到它并抢先交易，窃取您的优势并推动价格对您不利。",
+    "retaliationTitle": "免受报复",
+    "retaliationDesc": "在有争议的结果上投注——政治事件、社会问题、企业决策——如果您的仓位公开，可能会使您面临评判、骚扰甚至更糟的后果。",
+    "financialPrivacyTitle": "财务隐私",
+    "financialPrivacyDesc": "您的投注历史会暴露您的净资产、风险承受能力和财务成熟度。这些信息可能被用于对您不利的谈判、被雇主或不法分子利用。",
+    "priceDiscoveryTitle": "真实价格发现",
+    "priceDiscoveryDesc": "当投注是私密的时，价格反映的是真实信念而非表演性信号。隐私使人们能够在没有社会压力的情况下诚实参与。",
+    "howWeProtectTitle": "Obsidian Market 如何保护您",
+    "howWeProtectIntro": "Obsidian Market 从头开始构建，旨在实现最大隐私，利用 Aleo 区块链上的尖端密码学技术。",
+    "zkProofsTitle": "零知识证明",
+    "zkProofsDesc": "基于 Aleo 构建，每笔投注都使用零知识证明。网络验证您的交易有效，而无需知道您投注的任何细节。",
+    "privateBetsTitle": "私密投注记录",
+    "privateBetsDesc": "您的仓位存储为只有您能看到的私密记录。没有人——甚至市场运营者——知道您投注了什么或投注了多少。",
+    "torSupportTitle": "Tor 网络支持",
+    "torSupportDesc": "通过 Tor 连接以隐藏您的 IP 地址并防止网络级监控。我们提供指示器，让您始终了解您的连接状态。",
+    "noKycTitle": "无需 KYC",
+    "noKycDesc": "无需创建账户、无需身份验证、无需电子邮件。只需连接您的钱包，即可以完全匿名的方式开始交易。",
+    "ctaTitle": "私密地押注未来",
+    "ctaDescription": "您的预测是您自己的事。Obsidian Market 让它们保持私密。"
   },
   "meta": {
     "description": "基于Aleo构建的注重隐私的预测市场"

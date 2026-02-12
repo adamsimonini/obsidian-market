@@ -16,6 +16,7 @@
   },
   "nav": {
     "home": "Accueil",
+    "about": "À propos",
     "account": "Compte",
     "settings": "Paramètres",
     "standardView": "Vue standard",
@@ -66,6 +67,8 @@
     "layoutDescription": "Ajustez la largeur du contenu pour les grands écrans.",
     "showTorIndicator": "Indicateur Tor dans la barre",
     "showTorIndicatorDescription": "Afficher ou masquer le statut de connexion Tor dans l'en-tête.",
+    "learnAboutTor": "En savoir plus sur Tor →",
+    "torProjectUrl": "https://www.torproject.org/fr/",
     "on": "Oui",
     "off": "Non"
   },
@@ -167,6 +170,34 @@
     "notConnected": "Non connecté via Tor",
     "labelTor": "Tor",
     "labelNotTor": "Pas Tor"
+  },
+  "about": {
+    "metaTitle": "À propos — Confidentialité dans les Marchés de Prédiction",
+    "metaDescription": "Découvrez pourquoi la confidentialité est importante dans les marchés de prédiction et comment Obsidian Market offre une confidentialité maximale grâce aux preuves à connaissance nulle sur Aleo.",
+    "title": "Marchés de Prédiction Axés sur la Confidentialité",
+    "subtitle": "Dans les marchés de prédiction traditionnels, vos paris révèlent vos croyances, votre stratégie et votre situation financière. Obsidian Market change cela.",
+    "whyPrivacyTitle": "Pourquoi la Confidentialité Compte",
+    "whyPrivacyIntro": "Les marchés de prédiction sont des outils puissants pour agréger l'information et prévoir les résultats. Mais sans confidentialité, ils exposent les participants à des risques sérieux qui minent leur efficacité.",
+    "frontRunningTitle": "Prévention du Front-Running",
+    "frontRunningDesc": "Quand vos transactions sont visibles, d'autres peuvent voir votre pari avant qu'il ne soit exécuté et trader avant vous, volant votre avantage et déplaçant les prix contre vous.",
+    "retaliationTitle": "Protection contre les Représailles",
+    "retaliationDesc": "Parier sur des résultats controversés—événements politiques, questions sociales, décisions d'entreprise—peut vous exposer au jugement, au harcèlement ou pire si vos positions sont publiques.",
+    "financialPrivacyTitle": "Confidentialité Financière",
+    "financialPrivacyDesc": "Votre historique de paris révèle votre patrimoine net, votre tolérance au risque et votre sophistication financière. Ces informations peuvent être utilisées contre vous dans les négociations, par les employeurs ou par des acteurs malveillants.",
+    "priceDiscoveryTitle": "Vraie Découverte des Prix",
+    "priceDiscoveryDesc": "Quand les paris sont privés, les prix reflètent des croyances sincères plutôt que des signaux performatifs. La confidentialité permet une participation honnête sans pression sociale.",
+    "howWeProtectTitle": "Comment Obsidian Market Vous Protège",
+    "howWeProtectIntro": "Obsidian Market est conçu dès le départ pour une confidentialité maximale, exploitant une cryptographie de pointe sur la blockchain Aleo.",
+    "zkProofsTitle": "Preuves à Connaissance Nulle",
+    "zkProofsDesc": "Construit sur Aleo, chaque pari utilise des preuves à connaissance nulle. Le réseau vérifie que votre transaction est valide sans jamais connaître les détails de votre pari.",
+    "privateBetsTitle": "Enregistrements de Paris Privés",
+    "privateBetsDesc": "Vos positions sont stockées comme des enregistrements privés que vous seul pouvez voir. Personne—même pas les opérateurs du marché—ne sait sur quoi vous avez parié ou combien.",
+    "torSupportTitle": "Support du Réseau Tor",
+    "torSupportDesc": "Connectez-vous via Tor pour cacher votre adresse IP et empêcher la surveillance au niveau du réseau. Nous fournissons un indicateur pour que vous connaissiez toujours votre statut de connexion.",
+    "noKycTitle": "Pas de KYC Requis",
+    "noKycDesc": "Pas de création de compte, pas de vérification d'identité, pas d'email. Connectez simplement votre portefeuille et commencez à trader avec un pseudonymat complet.",
+    "ctaTitle": "Pariez sur l'Avenir, en Privé",
+    "ctaDescription": "Vos prédictions vous appartiennent. Obsidian Market les garde ainsi."
   },
   "meta": {
     "description": "Marché de prédiction axé sur la confidentialité construit sur Aleo"

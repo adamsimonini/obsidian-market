@@ -6,7 +6,6 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import { Providers } from '@/components/layout/Providers';
 import { Navbar } from '@/components/layout/Navbar';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { MainLayout } from '@/components/layout/MainLayout';
 import '../globals.css';
 
@@ -69,7 +68,6 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
             <Navbar />
-            <PageHeader />
             <MainLayout>
               <main>{children}</main>
             </MainLayout>
