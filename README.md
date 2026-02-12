@@ -4,7 +4,6 @@
 [Vercel Deployment](https://obsidian-market.vercel.app/)
 [Supabase](https://supabase.com/dashboard/project/giarcxkfqogumngtygmt)
 [](https://developer.aleo.org/sdk/overview/)
-
 [Wallet Adapter](https://github.com/ProvableHQ/aleo-wallet-adapter)
 
 Use Aleo Wallet Adapter (with pre-build wallet multi-button)

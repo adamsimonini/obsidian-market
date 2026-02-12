@@ -61,7 +61,13 @@
     "theme": "主题",
     "themeDescription": "在浅色和深色模式之间切换。",
     "light": "浅色",
-    "dark": "深色"
+    "dark": "深色",
+    "layout": "布局",
+    "layoutDescription": "调整大屏幕的内容宽度。",
+    "showTorIndicator": "导航栏 Tor 指示器",
+    "showTorIndicatorDescription": "在页头显示或隐藏 Tor 连接状态。",
+    "on": "开",
+    "off": "关"
   },
   "betForm": {
     "selectPrediction": "选择您的预测",
@@ -155,6 +161,12 @@
     "title": "页面未找到",
     "description": "您要查找的页面不存在。",
     "backHome": "返回首页"
+  },
+  "tor": {
+    "connected": "已通过 Tor 连接 — 您的 IP 已隐藏",
+    "notConnected": "未通过 Tor 连接",
+    "labelTor": "Tor",
+    "labelNotTor": "非 Tor"
   },
   "meta": {
     "description": "基于Aleo构建的注重隐私的预测市场"

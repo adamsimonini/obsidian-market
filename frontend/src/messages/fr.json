@@ -61,7 +61,13 @@
     "theme": "Thème",
     "themeDescription": "Basculer entre le mode clair et sombre.",
     "light": "Clair",
-    "dark": "Sombre"
+    "dark": "Sombre",
+    "layout": "Disposition",
+    "layoutDescription": "Ajustez la largeur du contenu pour les grands écrans.",
+    "showTorIndicator": "Indicateur Tor dans la barre",
+    "showTorIndicatorDescription": "Afficher ou masquer le statut de connexion Tor dans l'en-tête.",
+    "on": "Oui",
+    "off": "Non"
   },
   "betForm": {
     "selectPrediction": "Sélectionnez Votre Prédiction",
@@ -155,6 +161,12 @@
     "title": "Page Non Trouvée",
     "description": "La page que vous cherchez n'existe pas.",
     "backHome": "Retour à l'Accueil"
+  },
+  "tor": {
+    "connected": "Connecté via Tor — votre IP est masquée",
+    "notConnected": "Non connecté via Tor",
+    "labelTor": "Tor",
+    "labelNotTor": "Pas Tor"
   },
   "meta": {
     "description": "Marché de prédiction axé sur la confidentialité construit sur Aleo"
