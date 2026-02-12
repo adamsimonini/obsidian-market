@@ -8,6 +8,8 @@ import { AdminPanel } from '@/components/AdminPanel';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useWallet } from '@/hooks/useWallet';
 import { useFontSize, type FontSize } from '@/hooks/useFontSize';
+import { useWideMode } from '@/hooks/useWideMode';
+import { useShowTorIndicator } from '@/hooks/useShowTorIndicator';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
@@ -24,7 +26,10 @@ export default function SettingsPage() {
   const { isAdmin, role } = useAdmin(address);
   const { size, setSize } = useFontSize();
   const { theme, setTheme } = useTheme();
+  const { wide, setWide } = useWideMode();
+  const { show: showTorIndicator, setShow: setShowTorIndicator } = useShowTorIndicator();
   const t = useTranslations('settings');
+  const tn = useTranslations('nav');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -102,6 +107,56 @@ export default function SettingsPage() {
               </div>
               <p className="text-xs text-muted-foreground">
                 {t('themeDescription')}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">{t('layout')}</p>
+              <div className="flex gap-2">
+                <Button
+                  variant={!wide ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setWide(false)}
+                  className={cn('min-w-28', !wide && 'pointer-events-none')}
+                >
+                  {tn('standardView')}
+                </Button>
+                <Button
+                  variant={wide ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setWide(true)}
+                  className={cn('min-w-28', wide && 'pointer-events-none')}
+                >
+                  {tn('wideView')}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t('layoutDescription')}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">{t('showTorIndicator')}</p>
+              <div className="flex gap-2">
+                <Button
+                  variant={showTorIndicator ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setShowTorIndicator(true)}
+                  className={cn('min-w-16', showTorIndicator && 'pointer-events-none')}
+                >
+                  {t('on')}
+                </Button>
+                <Button
+                  variant={!showTorIndicator ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setShowTorIndicator(false)}
+                  className={cn('min-w-16', !showTorIndicator && 'pointer-events-none')}
+                >
+                  {t('off')}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t('showTorIndicatorDescription')}
               </p>
             </div>
           </CardContent>

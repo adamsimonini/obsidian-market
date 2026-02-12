@@ -32,5 +32,12 @@ export function useWideMode() {
     listeners.forEach((cb) => cb());
   }, [wide]);
 
-  return { wide, toggleWide } as const;
+  const setWide = useCallback((value: boolean) => {
+    if (value !== wide) {
+      applyWide(value);
+      listeners.forEach((cb) => cb());
+    }
+  }, [wide]);
+
+  return { wide, toggleWide, setWide } as const;
 }

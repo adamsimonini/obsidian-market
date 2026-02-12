@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, Maximize2, Minimize2, Globe, Settings2 } from 'lucide-react';
+import { Sun, Moon, Globe, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { WalletButton } from '@/components/WalletButton';
-import { useWideMode } from '@/hooks/useWideMode';
+import { TorIndicator } from '@/components/TorIndicator';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
@@ -32,7 +32,6 @@ export function Navbar() {
   const t = useTranslations('nav');
   const tc = useTranslations('common');
   const { theme, setTheme } = useTheme();
-  const { wide, toggleWide } = useWideMode();
 
   function switchLocale(newLocale: string) {
     router.replace(pathname, { locale: newLocale });
@@ -67,15 +66,9 @@ export function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hidden xl:inline-flex"
-            onClick={toggleWide}
-            title={wide ? t('standardView') : t('wideView')}
-          >
-            {wide ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
-          </Button>
+          <div className="hidden sm:flex">
+            <TorIndicator />
+          </div>
           <div className="hidden sm:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

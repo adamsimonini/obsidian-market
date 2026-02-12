@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/hooks/useWallet';
+import { buildPlaceBetTransaction, waitForTransaction } from '@/lib/aleo';
 import { cn } from '@/lib/utils';
 import type { LocalizedMarket } from '@/types/supabase';
 
@@ -20,16 +21,21 @@ function formatPercent(price: number): string {
   return `${Math.round(price * 100)}%`;
 }
 
+type BetStep = 'idle' | 'signing' | 'confirming' | 'syncing' | 'done';
+
 export function BetForm({ market, onClose }: BetFormProps) {
   const t = useTranslations('betForm');
   const tc = useTranslations('common');
   const tw = useTranslations('wallet');
   const format = useFormatter();
-  const { address, connected } = useWallet();
-  const [loading, setLoading] = useState(false);
+  const { address, connected, executeTransaction, transactionStatus } = useWallet();
+  const [step, setStep] = useState<BetStep>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [txId, setTxId] = useState<string | null>(null);
   const [selectedSide, setSelectedSide] = useState<'yes' | 'no' | null>(null);
   const [betAmount, setBetAmount] = useState('1');
+
+  const loading = step !== 'idle' && step !== 'done';
 
   // CPMM price impact calculation
   const priceImpact = useMemo(() => {
@@ -46,11 +52,9 @@ export function BetForm({ market, onClose }: BetFormProps) {
     const k = yesR * noR;
 
     if (selectedSide === 'yes') {
-      // Buying yes: add to no pool, remove from yes pool
       noR += amountMicro;
       yesR = k / noR;
     } else {
-      // Buying no: add to yes pool, remove from no pool
       yesR += amountMicro;
       noR = k / yesR;
     }
@@ -64,8 +68,10 @@ export function BetForm({ market, onClose }: BetFormProps) {
     return {
       newYesPrice,
       newNoPrice,
+      newYesReserves: Math.round(yesR),
+      newNoReserves: Math.round(noR),
       shares,
-      estimatedPayout: shares / 1_000_000, // convert back from microcredits
+      estimatedPayout: shares / 1_000_000,
     };
   }, [betAmount, selectedSide, market.yes_reserves, market.no_reserves]);
 
@@ -91,20 +97,69 @@ export function BetForm({ market, onClose }: BetFormProps) {
       return;
     }
 
+    if (!priceImpact) {
+      setError('Unable to calculate price impact');
+      return;
+    }
+
+    const amountMicrocredits = Math.floor(amount * 1_000_000);
+
     try {
-      setLoading(true);
       setError(null);
 
-      // TODO: Call Aleo place_bet transition
-      // const amountMicrocredits = BigInt(Math.floor(amount * 1_000_000));
+      // Step 1: Send to Leo Wallet for signing + proof generation
+      setStep('signing');
 
-      onClose();
+      const transaction = buildPlaceBetTransaction({
+        marketId: parseInt(market.market_id_onchain || '0'),
+        currentYesReserves: market.yes_reserves,
+        currentNoReserves: market.no_reserves,
+        amount: amountMicrocredits,
+        side: selectedSide === 'yes',
+      });
+
+      const transactionId = await executeTransaction(transaction);
+      setTxId(transactionId);
+
+      // Step 2: Wait for on-chain confirmation
+      setStep('confirming');
+      await waitForTransaction(transactionStatus, transactionId);
+
+      // Step 3: Sync trade to Supabase
+      setStep('syncing');
+      await fetch('/api/trades', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          market_id: market.id,
+          side: selectedSide,
+          shares: Math.round(priceImpact.shares),
+          amount: amountMicrocredits,
+          price_before: selectedSide === 'yes' ? market.yes_price : market.no_price,
+          price_after: selectedSide === 'yes' ? priceImpact.newYesPrice : priceImpact.newNoPrice,
+          yes_reserves_after: priceImpact.newYesReserves,
+          no_reserves_after: priceImpact.newNoReserves,
+          tx_hash: transactionId,
+        }),
+      });
+
+      setStep('done');
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('failedToPlace'));
-    } finally {
-      setLoading(false);
+      const message = err instanceof Error ? err.message : t('failedToPlace');
+      setError(message);
+      setStep('idle');
     }
-  }, [connected, address, selectedSide, betAmount, market, onClose]);
+  }, [connected, address, selectedSide, betAmount, market, priceImpact, executeTransaction, transactionStatus, onClose, t, tw]);
+
+  const stepMessage = useMemo(() => {
+    switch (step) {
+      case 'signing': return t('signingInWallet');
+      case 'confirming': return t('confirmingOnChain');
+      case 'syncing': return t('syncingTrade');
+      case 'done': return t('betPlaced');
+      default: return null;
+    }
+  }, [step, t]);
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6">
@@ -130,6 +185,28 @@ export function BetForm({ market, onClose }: BetFormProps) {
         </div>
       )}
 
+      {/* Status Message */}
+      {stepMessage && (
+        <div className={cn(
+          'flex items-center gap-2 rounded-md p-3',
+          step === 'done' ? 'bg-primary/10 text-primary' : 'bg-accent text-accent-foreground',
+        )}>
+          {loading && <Loader2 className="size-4 animate-spin" />}
+          <p className="text-sm font-medium">{stepMessage}</p>
+          {txId && step !== 'signing' && (
+            <a
+              href={`https://testnet.explorer.provable.com/transaction/${txId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto text-xs underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {t('viewOnExplorer')}
+            </a>
+          )}
+        </div>
+      )}
+
       {/* Warning Message */}
       {market.status !== 'open' && (
         <div className="rounded-md bg-accent p-3">
@@ -146,11 +223,13 @@ export function BetForm({ market, onClose }: BetFormProps) {
           <button
             type="button"
             onClick={() => setSelectedSide('yes')}
+            disabled={loading}
             className={cn(
               'flex flex-col items-center rounded-lg border p-4 transition-colors',
               selectedSide === 'yes'
                 ? 'border-green-500 bg-green-500/10 text-foreground'
                 : 'border-border bg-card text-card-foreground hover:border-green-500/50',
+              loading && 'pointer-events-none opacity-50',
             )}
           >
             <span className="mb-1 text-lg font-semibold">{tc('yes')}</span>
@@ -166,11 +245,13 @@ export function BetForm({ market, onClose }: BetFormProps) {
           <button
             type="button"
             onClick={() => setSelectedSide('no')}
+            disabled={loading}
             className={cn(
               'flex flex-col items-center rounded-lg border p-4 transition-colors',
               selectedSide === 'no'
                 ? 'border-red-500 bg-red-500/10 text-foreground'
                 : 'border-border bg-card text-card-foreground hover:border-red-500/50',
+              loading && 'pointer-events-none opacity-50',
             )}
           >
             <span className="mb-1 text-lg font-semibold">{tc('no')}</span>
@@ -197,6 +278,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
           onChange={(e) => setBetAmount(e.target.value)}
           placeholder="1"
           className="mb-2"
+          disabled={loading}
         />
         <p className="text-xs text-muted-foreground">{t('minimum')}</p>
       </div>
@@ -225,23 +307,35 @@ export function BetForm({ market, onClose }: BetFormProps) {
                 {priceImpact.estimatedPayout.toFixed(2)} ALEO
               </span>
             </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{t('networkFee')}</span>
+              <span className="font-semibold">~0.5 ALEO</span>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {/* Action Buttons */}
       <div className="flex gap-3">
-        <Button
-          className="flex-1"
-          onClick={handlePlaceBet}
-          disabled={loading || selectedSide === null || market.status !== 'open'}
-        >
-          {loading && <Loader2 className="size-4 animate-spin" />}
-          {t('placeBet')}
-        </Button>
-        <Button variant="secondary" className="flex-1" onClick={onClose}>
-          {tc('cancel')}
-        </Button>
+        {step === 'done' ? (
+          <Button className="flex-1" onClick={onClose}>
+            {tc('done')}
+          </Button>
+        ) : (
+          <>
+            <Button
+              className="flex-1"
+              onClick={handlePlaceBet}
+              disabled={loading || selectedSide === null || market.status !== 'open'}
+            >
+              {loading && <Loader2 className="size-4 animate-spin" />}
+              {t('placeBet')}
+            </Button>
+            <Button variant="secondary" className="flex-1" onClick={onClose} disabled={loading}>
+              {tc('cancel')}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

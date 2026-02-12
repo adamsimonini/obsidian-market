@@ -4,7 +4,9 @@ import {
   createContext,
   useContext,
   useCallback,
+  useEffect,
   useMemo,
+  useState,
   type ReactNode,
 } from 'react';
 import {
@@ -14,6 +16,7 @@ import {
 import { LeoWalletAdapter } from '@provablehq/aleo-wallet-adaptor-leo';
 import { DecryptPermission } from '@provablehq/aleo-wallet-adaptor-core';
 import { Network } from '@provablehq/aleo-types';
+import type { TransactionOptions, TransactionStatusResponse } from '@provablehq/aleo-types';
 
 interface WalletContextType {
   address: string | null;
@@ -21,40 +24,42 @@ interface WalletContextType {
   connecting: boolean;
   disconnecting: boolean;
   network: 'testnet' | 'mainnet';
-  connect: () => Promise<void>;
+  connect: () => void;
   disconnect: () => Promise<void>;
   signMessage: (message: string) => Promise<string | null>;
+  /** Execute a program transition via the wallet (Leo Wallet generates proof + broadcasts) */
+  executeTransaction: (options: TransactionOptions) => Promise<string>;
+  /** Check the status of a submitted transaction */
+  transactionStatus: (transactionId: string) => Promise<TransactionStatusResponse>;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 function WalletProviderInner({ children }: { children: ReactNode }) {
   const provable = useProvableWallet();
+  const [pendingConnect, setPendingConnect] = useState(false);
 
-  const connect = useCallback(async () => {
+  // Step 1: User clicks "Connect" → select wallet name + flag pending
+  const connect = useCallback(() => {
     if (provable.connected || provable.connecting || provable.disconnecting) return;
-
-    try {
-      // Always select the wallet to ensure it's ready
-      provable.selectWallet('Leo Wallet' as never);
-
-      // Wait for wallet to be selected (poll with timeout)
-      let retries = 30;
-      while (!provable.wallet && retries > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        retries--;
-      }
-
-      if (!provable.wallet) {
-        throw new Error('Wallet selection failed - Leo Wallet not found');
-      }
-
-      await provable.connect(Network.TESTNET);
-    } catch (error) {
-      console.error('Wallet connection error:', error);
-      throw error;
-    }
+    provable.selectWallet('Leo Wallet' as never);
+    setPendingConnect(true);
   }, [provable]);
+
+  // Step 2: Once the adapter picks up the wallet (next render), call connect
+  useEffect(() => {
+    if (!pendingConnect) return;
+    if (!provable.wallet) return; // adapter hasn't resolved yet, wait for next render
+    if (provable.connected || provable.connecting) {
+      setPendingConnect(false);
+      return;
+    }
+
+    setPendingConnect(false);
+    provable.connect(Network.TESTNET).catch((err) => {
+      console.error('Wallet connection error:', err);
+    });
+  }, [pendingConnect, provable]);
 
   const disconnect = useCallback(async () => {
     await provable.disconnect();
@@ -73,17 +78,43 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
     [provable],
   );
 
+  const executeTransaction = useCallback(
+    async (options: TransactionOptions): Promise<string> => {
+      if (!provable.connected || !provable.address) {
+        throw new Error('Wallet not connected');
+      }
+      const result = await provable.executeTransaction(options);
+      if (!result?.transactionId) {
+        throw new Error('Transaction rejected or failed');
+      }
+      return result.transactionId;
+    },
+    [provable],
+  );
+
+  const transactionStatus = useCallback(
+    async (transactionId: string): Promise<TransactionStatusResponse> => {
+      if (!provable.connected) {
+        throw new Error('Wallet not connected');
+      }
+      return await provable.transactionStatus(transactionId);
+    },
+    [provable],
+  );
+
   return (
     <WalletContext.Provider
       value={{
         address: provable.address,
         connected: provable.connected,
-        connecting: provable.connecting,
+        connecting: provable.connecting || pendingConnect,
         disconnecting: provable.disconnecting,
         network: 'testnet',
         connect,
         disconnect,
         signMessage,
+        executeTransaction,
+        transactionStatus,
       }}
     >
       {children}
