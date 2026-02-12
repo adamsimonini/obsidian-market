@@ -16,7 +16,7 @@ export function CategoriesBar({ categories, activeSlug }: CategoriesBarProps) {
   if (categories.length === 0) return null;
 
   return (
-    <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+    <div className="flex gap-2 overflow-x-auto scrollbar-hide ml-4">
       <Button variant={!activeSlug ? 'default' : 'outline'} size="sm" className="shrink-0" asChild>
         <Link href="/">{tc('all')}</Link>
       </Button>

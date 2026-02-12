@@ -16,6 +16,7 @@
   },
   "nav": {
     "home": "Home",
+    "about": "About",
     "account": "Account",
     "settings": "Settings",
     "standardView": "Standard view",
@@ -66,6 +67,8 @@
     "layoutDescription": "Adjust content width for larger screens.",
     "showTorIndicator": "Tor indicator in navbar",
     "showTorIndicatorDescription": "Show or hide the Tor connection status in the header.",
+    "learnAboutTor": "Learn about Tor →",
+    "torProjectUrl": "https://www.torproject.org/?noredirect=1",
     "on": "On",
     "off": "Off"
   },
@@ -167,6 +170,34 @@
     "notConnected": "Not connected via Tor",
     "labelTor": "Tor",
     "labelNotTor": "Not Tor"
+  },
+  "about": {
+    "metaTitle": "About — Privacy in Prediction Markets",
+    "metaDescription": "Learn why privacy matters in prediction markets and how Obsidian Market offers maximum privacy through zero-knowledge proofs on Aleo.",
+    "title": "Privacy-First Prediction Markets",
+    "subtitle": "In traditional prediction markets, your bets reveal your beliefs, your strategy, and your financial situation. Obsidian Market changes that.",
+    "whyPrivacyTitle": "Why Privacy Matters",
+    "whyPrivacyIntro": "Prediction markets are powerful tools for aggregating information and forecasting outcomes. But without privacy, they expose participants to serious risks that undermine their effectiveness.",
+    "frontRunningTitle": "Prevent Front-Running",
+    "frontRunningDesc": "When your trades are visible, others can see your bet before it settles and trade ahead of you, stealing your edge and moving prices against you.",
+    "retaliationTitle": "Protection from Retaliation",
+    "retaliationDesc": "Betting on controversial outcomes—political events, social issues, corporate decisions—can expose you to judgment, harassment, or worse if your positions are public.",
+    "financialPrivacyTitle": "Financial Privacy",
+    "financialPrivacyDesc": "Your betting history reveals your net worth, risk tolerance, and financial sophistication. This information can be used against you in negotiations, by employers, or by bad actors.",
+    "priceDiscoveryTitle": "True Price Discovery",
+    "priceDiscoveryDesc": "When bets are private, prices reflect genuine beliefs rather than performative signaling. Privacy enables honest participation without social pressure.",
+    "howWeProtectTitle": "How Obsidian Market Protects You",
+    "howWeProtectIntro": "Obsidian Market is built from the ground up for maximum privacy, leveraging cutting-edge cryptography on the Aleo blockchain.",
+    "zkProofsTitle": "Zero-Knowledge Proofs",
+    "zkProofsDesc": "Built on Aleo, every bet uses zero-knowledge proofs. The network verifies your transaction is valid without ever learning the details of your bet.",
+    "privateBetsTitle": "Private Bet Records",
+    "privateBetsDesc": "Your positions are stored as private records that only you can see. No one—not even the market operators—knows what you bet on or how much.",
+    "torSupportTitle": "Tor Network Support",
+    "torSupportDesc": "Connect via Tor to hide your IP address and prevent network-level surveillance. We provide an indicator so you always know your connection status.",
+    "noKycTitle": "No KYC Required",
+    "noKycDesc": "No account creation, no identity verification, no email. Just connect your wallet and start trading with complete pseudonymity.",
+    "ctaTitle": "Bet on the Future, Privately",
+    "ctaDescription": "Your predictions are your business. Obsidian Market keeps them that way."
   },
   "meta": {
     "description": "Privacy-focused prediction market built on Aleo"

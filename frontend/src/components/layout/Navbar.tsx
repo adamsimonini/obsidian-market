@@ -21,6 +21,7 @@ import { LOCALE_LABELS } from '@/lib/locale-utils';
 
 const navLinks = [
   { href: '/' as const, key: 'home' as const },
+  { href: '/about' as const, key: 'about' as const },
   { href: '/account' as const, key: 'account' as const },
   { href: '/settings' as const, key: 'settings' as const },
 ];
@@ -38,7 +39,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="border-b border-border bg-background px-4 py-4 md:px-8">
+    <header className="sticky top-0 z-50 border-b border-border bg-background px-4 py-4 md:px-8">
       <div className="container-main mx-auto flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 text-foreground">

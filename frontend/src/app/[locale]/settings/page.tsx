@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,6 +23,7 @@ const FONT_OPTIONS: { value: FontSize; key: 'small' | 'medium' | 'large' }[] = [
 ];
 
 export default function SettingsPage() {
+  const [mounted, setMounted] = useState(false);
   const { address } = useWallet();
   const { isAdmin, role } = useAdmin(address);
   const { size, setSize } = useFontSize();
@@ -34,7 +36,15 @@ export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Avoid hydration mismatch - client-only values (theme, localStorage) differ from SSR
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const isSuperAdmin = isAdmin && role === 'super_admin';
+
+  // Helper to avoid hydration mismatch: only show "selected" state after mount
+  const isSelected = (condition: boolean) => mounted && condition;
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,10 +61,10 @@ export default function SettingsPage() {
                 {FONT_OPTIONS.map((opt) => (
                   <Button
                     key={opt.value}
-                    variant={size === opt.value ? 'default' : 'outline'}
+                    variant={isSelected(size === opt.value) ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSize(opt.value)}
-                    className={cn('min-w-20', size === opt.value && 'pointer-events-none')}
+                    className={cn('min-w-20', isSelected(size === opt.value) && 'pointer-events-none')}
                   >
                     {t(opt.key)}
                   </Button>
@@ -89,18 +99,18 @@ export default function SettingsPage() {
               <p className="text-sm font-medium">{t('theme')}</p>
               <div className="flex gap-2">
                 <Button
-                  variant={theme === 'light' ? 'default' : 'outline'}
+                  variant={isSelected(theme === 'light') ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setTheme('light')}
-                  className={cn('min-w-20', theme === 'light' && 'pointer-events-none')}
+                  className={cn('min-w-20', isSelected(theme === 'light') && 'pointer-events-none')}
                 >
                   {t('light')}
                 </Button>
                 <Button
-                  variant={theme === 'dark' ? 'default' : 'outline'}
+                  variant={isSelected(theme === 'dark') ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setTheme('dark')}
-                  className={cn('min-w-20', theme === 'dark' && 'pointer-events-none')}
+                  className={cn('min-w-20', isSelected(theme === 'dark') && 'pointer-events-none')}
                 >
                   {t('dark')}
                 </Button>
@@ -114,18 +124,18 @@ export default function SettingsPage() {
               <p className="text-sm font-medium">{t('layout')}</p>
               <div className="flex gap-2">
                 <Button
-                  variant={!wide ? 'default' : 'outline'}
+                  variant={isSelected(!wide) ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setWide(false)}
-                  className={cn('min-w-28', !wide && 'pointer-events-none')}
+                  className={cn('min-w-28', isSelected(!wide) && 'pointer-events-none')}
                 >
                   {tn('standardView')}
                 </Button>
                 <Button
-                  variant={wide ? 'default' : 'outline'}
+                  variant={isSelected(wide) ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setWide(true)}
-                  className={cn('min-w-28', wide && 'pointer-events-none')}
+                  className={cn('min-w-28', isSelected(wide) && 'pointer-events-none')}
                 >
                   {tn('wideView')}
                 </Button>
@@ -139,24 +149,32 @@ export default function SettingsPage() {
               <p className="text-sm font-medium">{t('showTorIndicator')}</p>
               <div className="flex gap-2">
                 <Button
-                  variant={showTorIndicator ? 'default' : 'outline'}
+                  variant={isSelected(showTorIndicator) ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setShowTorIndicator(true)}
-                  className={cn('min-w-16', showTorIndicator && 'pointer-events-none')}
+                  className={cn('min-w-16', isSelected(showTorIndicator) && 'pointer-events-none')}
                 >
                   {t('on')}
                 </Button>
                 <Button
-                  variant={!showTorIndicator ? 'default' : 'outline'}
+                  variant={isSelected(!showTorIndicator) ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setShowTorIndicator(false)}
-                  className={cn('min-w-16', !showTorIndicator && 'pointer-events-none')}
+                  className={cn('min-w-16', isSelected(!showTorIndicator) && 'pointer-events-none')}
                 >
                   {t('off')}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                {t('showTorIndicatorDescription')}
+                {t('showTorIndicatorDescription')}{' '}
+                <a
+                  href={t('torProjectUrl')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-accent hover:underline"
+                >
+                  {t('learnAboutTor')}
+                </a>
               </p>
             </div>
           </CardContent>
