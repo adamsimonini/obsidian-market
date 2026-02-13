@@ -36,6 +36,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
   const [betAmount, setBetAmount] = useState('1');
 
   const loading = step !== 'idle' && step !== 'done';
+  const hasOnchainMarket = Boolean(market.market_id_onchain);
 
   // CPMM price impact calculation
   const priceImpact = useMemo(() => {
@@ -76,6 +77,11 @@ export function BetForm({ market, onClose }: BetFormProps) {
   }, [betAmount, selectedSide, market.yes_reserves, market.no_reserves]);
 
   const handlePlaceBet = useCallback(async () => {
+    if (!hasOnchainMarket) {
+      setError('This market is not linked to an on-chain contract yet.');
+      return;
+    }
+
     if (!connected || !address) {
       setError(tw('connectFirst'));
       return;
@@ -207,7 +213,14 @@ export function BetForm({ market, onClose }: BetFormProps) {
         </div>
       )}
 
-      {/* Warning Message */}
+      {/* Warning Messages */}
+      {!hasOnchainMarket && (
+        <div className="rounded-md bg-amber-500/10 border border-amber-500/30 p-3">
+          <p className="text-sm text-amber-600 dark:text-amber-400">
+            This market is not yet linked to the on-chain contract. Betting is disabled.
+          </p>
+        </div>
+      )}
       {market.status !== 'open' && (
         <div className="rounded-md bg-accent p-3">
           <p className="text-sm text-accent-foreground">
@@ -326,7 +339,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
             <Button
               className="flex-1"
               onClick={handlePlaceBet}
-              disabled={loading || selectedSide === null || market.status !== 'open'}
+              disabled={loading || selectedSide === null || market.status !== 'open' || !hasOnchainMarket}
             >
               {loading && <Loader2 className="size-4 animate-spin" />}
               {t('placeBet')}

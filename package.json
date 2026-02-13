@@ -1,0 +1,17 @@
+{
+    "name": "obsidian-market",
+    "private": true,
+    "scripts": {
+      "backend": "cd backend && supabase start",
+      "app": "cd frontend && npm run dev",
+      "chain": "amareleo-chain start",
+      "dev": "run-p backend web",
+      "db:push": "cd backend && supabase db push",
+      "db:seed": "cd backend && supabase db reset --linked",
+      "seed": "cd backend && supabase db reset && cd .. && ./scripts/seed-markets.sh",
+      "seed:testnet": "NETWORK=testnet ./scripts/seed-markets.sh"
+    },
+    "devDependencies": {
+      "npm-run-all": "^4.1.5"
+    }
+}

@@ -66,7 +66,10 @@ ON CONFLICT (category_id, language_code) DO NOTHING;
 
 -- ---------------------------------------------------------------------------
 -- MARKETS  (20 markets across 6 categories)
--- Reserves determine CPMM price via trigger: price_yes = no_reserves / (yes + no)
+-- Reserves are in microcredits (1 ALEO = 1,000,000 microcredits).
+-- Each market has a 100 ALEO total pool. Ratio determines CPMM price via trigger.
+-- market_id_onchain is NULL here; the post-seed script (scripts/seed-markets.sh)
+-- creates on-chain markets and writes the IDs back.
 -- ---------------------------------------------------------------------------
 
 INSERT INTO public.markets (
@@ -79,126 +82,126 @@ INSERT INTO public.markets (
  (SELECT id FROM categories WHERE slug='crypto'), 'binary',
  '2026-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 3500, 6500, 2.0, 2.0, 200, true),
+ 35000000, 65000000, 2.0, 2.0, 200, true),
 
 ('eth-10k-2026',
  (SELECT id FROM categories WHERE slug='crypto'), 'binary',
  '2026-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 6000, 4000, 2.0, 2.0, 200, false),
+ 60000000, 40000000, 2.0, 2.0, 200, false),
 
 ('stablecoin-depeg-2026',
  (SELECT id FROM categories WHERE slug='crypto'), 'binary',
  '2026-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 7500, 2500, 2.0, 2.0, 200, false),
+ 75000000, 25000000, 2.0, 2.0, 200, false),
 
 ('aleo-tvl-500m-2027',
  (SELECT id FROM categories WHERE slug='crypto'), 'binary',
  '2027-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 7000, 3000, 2.0, 2.0, 200, true),
+ 70000000, 30000000, 2.0, 2.0, 200, true),
 
 -- POLITICS (4)
 ('us-crypto-regulation-2027',
  (SELECT id FROM categories WHERE slug='politics'), 'binary',
  '2027-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 4500, 5500, 2.0, 2.0, 200, false),
+ 45000000, 55000000, 2.0, 2.0, 200, false),
 
 ('third-party-5pct-2028',
  (SELECT id FROM categories WHERE slug='politics'), 'binary',
  '2029-01-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 7500, 2500, 2.0, 2.0, 200, false),
+ 75000000, 25000000, 2.0, 2.0, 200, false),
 
 ('eu-digital-euro-2027',
  (SELECT id FROM categories WHERE slug='politics'), 'binary',
  '2027-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 7000, 3000, 2.0, 2.0, 200, false),
+ 70000000, 30000000, 2.0, 2.0, 200, false),
 
 ('fed-rate-cut-2026',
  (SELECT id FROM categories WHERE slug='politics'), 'binary',
  '2026-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 4000, 6000, 2.0, 2.0, 200, true),
+ 40000000, 60000000, 2.0, 2.0, 200, true),
 
 -- TECHNOLOGY (4)
 ('apple-ar-glasses-2026',
  (SELECT id FROM categories WHERE slug='technology'), 'binary',
  '2026-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 8000, 2000, 2.0, 2.0, 200, false),
+ 80000000, 20000000, 2.0, 2.0, 200, false),
 
 ('openai-gpt5-2026',
  (SELECT id FROM categories WHERE slug='technology'), 'binary',
  '2026-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 4000, 6000, 2.0, 2.0, 200, false),
+ 40000000, 60000000, 2.0, 2.0, 200, false),
 
 ('robotaxi-10-cities-2026',
  (SELECT id FROM categories WHERE slug='technology'), 'binary',
  '2026-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 6500, 3500, 2.0, 2.0, 200, false),
+ 65000000, 35000000, 2.0, 2.0, 200, false),
 
 ('ai-chip-revenue-200b-2026',
  (SELECT id FROM categories WHERE slug='technology'), 'binary',
  '2027-06-30T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 3000, 7000, 2.0, 2.0, 200, true),
+ 30000000, 70000000, 2.0, 2.0, 200, true),
 
 -- SPORTS (3)
 ('real-madrid-ucl-2026',
  (SELECT id FROM categories WHERE slug='sports'), 'binary',
  '2026-06-30T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 7500, 2500, 2.0, 2.0, 200, false),
+ 75000000, 25000000, 2.0, 2.0, 200, false),
 
 ('usa-most-golds-2028',
  (SELECT id FROM categories WHERE slug='sports'), 'binary',
  '2028-08-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 4000, 6000, 2.0, 2.0, 200, false),
+ 40000000, 60000000, 2.0, 2.0, 200, false),
 
 ('sub-2hr-marathon-2028',
  (SELECT id FROM categories WHERE slug='sports'), 'binary',
  '2027-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 8500, 1500, 2.0, 2.0, 200, false),
+ 85000000, 15000000, 2.0, 2.0, 200, false),
 
 -- SCIENCE (3)
 ('room-temp-superconductor-2027',
  (SELECT id FROM categories WHERE slug='science'), 'binary',
  '2027-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 9000, 1000, 2.0, 2.0, 200, false),
+ 90000000, 10000000, 2.0, 2.0, 200, false),
 
 ('starship-orbital-2026',
  (SELECT id FROM categories WHERE slug='science'), 'binary',
  '2026-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 2500, 7500, 2.0, 2.0, 200, false),
+ 25000000, 75000000, 2.0, 2.0, 200, false),
 
 ('crispr-common-disease-2027',
  (SELECT id FROM categories WHERE slug='science'), 'binary',
  '2027-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 6000, 4000, 2.0, 2.0, 200, false),
+ 60000000, 40000000, 2.0, 2.0, 200, false),
 
 -- CULTURE (2)
 ('ai-film-festival-2027',
  (SELECT id FROM categories WHERE slug='culture'), 'binary',
  '2027-12-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 6500, 3500, 2.0, 2.0, 200, false),
+ 65000000, 35000000, 2.0, 2.0, 200, false),
 
 ('box-office-50b-2026',
  (SELECT id FROM categories WHERE slug='culture'), 'binary',
  '2027-03-31T23:59:59Z', 'open',
  'aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv',
- 5000, 5000, 2.0, 2.0, 200, false)
+ 50000000, 50000000, 2.0, 2.0, 200, false)
 
 ON CONFLICT DO NOTHING;
 

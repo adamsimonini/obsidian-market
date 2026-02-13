@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, Globe, Settings2 } from 'lucide-react';
+import { Sun, Moon, Globe, Settings2, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -26,6 +26,15 @@ const navLinks = [
   { href: '/settings' as const, key: 'settings' as const },
 ];
 
+const devLinks = [
+  { href: '/dev/onchain' as const, label: 'On-Chain Markets' },
+  { href: '/prototypes' as const, label: 'Card Prototypes' },
+];
+
+// Toggle to restrict the Dev tab to localhost only.
+// Set to true to hide on deployed environments.
+const DEV_TAB_LOCALHOST_ONLY = false;
+
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -33,6 +42,10 @@ export function Navbar() {
   const t = useTranslations('nav');
   const tc = useTranslations('common');
   const { theme, setTheme } = useTheme();
+
+  const showDev = DEV_TAB_LOCALHOST_ONLY
+    ? typeof window !== 'undefined' && window.location.hostname === 'localhost'
+    : true;
 
   function switchLocale(newLocale: string) {
     router.replace(pathname, { locale: newLocale });
@@ -64,6 +77,38 @@ export function Navbar() {
                 {t(link.key)}
               </Link>
             ))}
+            {showDev && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      'ml-4 flex items-center gap-1 border-l-2 border-l-muted-foreground/30 pl-4 pr-3 py-2 rounded-r-md text-sm font-medium transition-colors',
+                      pathname.startsWith('/dev') || pathname === '/prototypes'
+                        ? 'border-l-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                        : 'text-muted-foreground hover:border-l-amber-500/50 hover:text-amber-600 dark:hover:text-amber-400',
+                    )}
+                  >
+                    <Wrench className="size-3.5" />
+                    Dev
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {devLinks.map((link) => (
+                    <DropdownMenuItem key={link.href} asChild>
+                      <Link
+                        href={link.href}
+                        className={cn(
+                          'w-full',
+                          pathname === link.href && 'font-bold',
+                        )}
+                      >
+                        {link.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </nav>
         </div>
         <div className="flex items-center gap-3">
@@ -118,6 +163,25 @@ export function Navbar() {
                   </Link>
                 </DropdownMenuItem>
               ))}
+              {showDev && (
+                <>
+                  <DropdownMenuSeparator />
+                  {devLinks.map((link) => (
+                    <DropdownMenuItem key={link.href} asChild>
+                      <Link
+                        href={link.href}
+                        className={cn(
+                          'w-full text-amber-600 dark:text-amber-400',
+                          pathname === link.href && 'font-bold',
+                        )}
+                      >
+                        <Wrench className="mr-2 size-4" />
+                        {link.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </>
+              )}
               <DropdownMenuSeparator />
               {routing.locales.map((loc) => (
                 <DropdownMenuItem

@@ -104,11 +104,18 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
       if (!provable.connected || !provable.address) {
         throw new Error('Wallet not connected');
       }
-      const result = await provable.executeTransaction(options);
-      if (!result?.transactionId) {
-        throw new Error('Transaction rejected or failed');
+      console.debug('[WalletContext] executeTransaction payload:', JSON.stringify(options, null, 2));
+      console.debug('[WalletContext] wallet adapter:', provable.wallet?.adapter.name);
+      try {
+        const result = await provable.executeTransaction(options);
+        if (!result?.transactionId) {
+          throw new Error('Transaction rejected or failed');
+        }
+        return result.transactionId;
+      } catch (err) {
+        console.error('[WalletContext] executeTransaction FAILED. Payload was:', options);
+        throw err;
       }
-      return result.transactionId;
     },
     [provable],
   );

@@ -6,6 +6,13 @@
 [](https://developer.aleo.org/sdk/overview/)
 [Wallet Adapter](https://github.com/ProvableHQ/aleo-wallet-adapter)
 
+### Dev Endpoints
+
+**`/dev/onchain`** — Sanity-check page that queries the Aleo testnet `markets` mapping (IDs 1–20) and displays them alongside Supabase rows. Shows on-chain reserves, status, creator, and whether each market is linked to a DB slug. Not linked in the UI — access directly.
+
+- Local: http://localhost:3000/en/dev/onchain
+- Prod: https://obsidian-market.vercel.app/en/dev/onchain
+
 Use Aleo Wallet Adapter (with pre-build wallet multi-button)
 
 A privacy-focused prediction market built on [Aleo](https://aleo.org/). Users can create and bet on binary (Yes/No) markets with private bet positions powered by zero-knowledge proofs.
