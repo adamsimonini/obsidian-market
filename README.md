@@ -246,3 +246,14 @@ Studio UI: [http://127.0.0.1:54323](http://127.0.0.1:54323)
 ## License
 
 See [LICENSE.txt](./LICENSE.txt) for details.
+
+## Privacy Considerations
+
+If an aleo wallet is comrpomised, the view key can be used to see the full details of that wallet's interaciton with a smart contract - hence the entire betting history on obsidian market.
+
+A compromised Aleo view key exposes the full transaction history—including program interactions, market_ids, bet timings, shares, and sides—for all private records owned by that account.
+
+Commit-then-reveal for market_id: Commit blinded market_id privately, reveal post-proof to prevent selective frontrunning.
+Batch/zk-mixer integration: Users batch bets across markets into one ZK proof/transfer, obscuring per-market links natively.
+View-key silos: Generate app-specific sub-addresses/view keys per market category, limiting compromise scope.
+Circuit blinding: Add ZK commitments inside records (e.g., blinded market_id), decrypt only via selective view keys.
