@@ -10,8 +10,9 @@ import type { TransactionOptions } from '@provablehq/aleo-types';
 // Program constants
 export const PROGRAM_ID = 'obsidian_market.aleo';
 
-// Default fee in credits (user pays this via wallet)
-const DEFAULT_FEE = 0.5; // 0.5 ALEO — covers base execution fee
+// Default fee in microcredits (user pays this via wallet)
+// 1 ALEO = 1,000,000 microcredits
+const DEFAULT_FEE = 500_000; // 0.5 ALEO in microcredits
 
 /**
  * Build TransactionOptions for place_bet_cpmm.
@@ -36,7 +37,7 @@ export function buildPlaceBetTransaction(params: {
   amount: number;
   /** true = Yes, false = No */
   side: boolean;
-  /** Priority fee in credits (optional, default 0.5) */
+  /** Priority fee in microcredits (optional, default 500_000 = 0.5 ALEO) */
   fee?: number;
 }): TransactionOptions {
   const {
@@ -90,6 +91,21 @@ export function buildCreateMarketTransaction(params: {
       `${noReserves}u64`,
     ],
     fee,
+    privateFee: false,
+  };
+}
+
+/**
+ * Build a minimal test transaction using credits.aleo transfer_public.
+ * Use this to verify the wallet adapter pipeline works independently
+ * of obsidian_market.aleo. Pass a recipient address.
+ */
+export function buildTestTransaction(recipientAddress: string): TransactionOptions {
+  return {
+    program: 'credits.aleo',
+    function: 'transfer_public',
+    inputs: [recipientAddress, '100u64'],
+    fee: 100_000,
     privateFee: false,
   };
 }

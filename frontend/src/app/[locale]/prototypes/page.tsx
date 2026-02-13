@@ -7,6 +7,7 @@ import { LinearGaugeCard } from '@/components/prototypes/LinearGaugeCard';
 import { RadialGaugeCard } from '@/components/prototypes/RadialGaugeCard';
 import { SplitCard } from '@/components/prototypes/SplitCard';
 import { SAMPLE_MARKET } from '@/components/prototypes/shared';
+import { DevBanner } from '@/components/DevBanner';
 
 const cards = [
   { Component: DualBarsCard, label: 'Dual Bars — side-by-side vertical bars totaling 100%' },
@@ -19,6 +20,8 @@ const cards = [
 
 export default function PrototypesPage() {
   return (
+    <>
+    <DevBanner />
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Header */}
@@ -56,5 +59,6 @@ export default function PrototypesPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
