@@ -11,12 +11,8 @@ export function TorIndicator() {
   const status = useTorStatus();
   const t = useTranslations('tor');
 
-  if (!show) return null;
-
-  // Don't render anything while checking or on error
-  if (status === 'unknown' || status === 'checking' || status === 'error') {
-    return null;
-  }
+  // Keep the space reserved even when hidden to prevent navbar jitter
+  const shouldHide = !show || status === 'unknown' || status === 'checking' || status === 'error';
 
   const isTor = status === 'tor';
 
@@ -26,6 +22,7 @@ export function TorIndicator() {
       className={cn(
         'flex items-center gap-1.5 rounded-md p-2 transition-colors',
         isTor ? 'text-green-500' : 'text-red-500',
+        shouldHide && 'invisible',
       )}
     >
       {isTor ? (

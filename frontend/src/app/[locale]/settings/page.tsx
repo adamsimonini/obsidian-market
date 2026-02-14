@@ -57,7 +57,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <p className="text-sm font-medium">{t('fontSize')}</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {FONT_OPTIONS.map((opt) => (
                   <Button
                     key={opt.value}
@@ -77,7 +77,7 @@ export default function SettingsPage() {
 
             <div className="space-y-2">
               <p className="text-sm font-medium">{t('language')}</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {routing.locales.map((loc) => (
                   <Button
                     key={loc}
@@ -97,7 +97,7 @@ export default function SettingsPage() {
 
             <div className="space-y-2">
               <p className="text-sm font-medium">{t('theme')}</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant={isSelected(theme === 'light') ? 'default' : 'outline'}
                   size="sm"
@@ -122,7 +122,7 @@ export default function SettingsPage() {
 
             <div className="space-y-2">
               <p className="text-sm font-medium">{t('layout')}</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant={isSelected(!wide) ? 'default' : 'outline'}
                   size="sm"
@@ -147,7 +147,7 @@ export default function SettingsPage() {
 
             <div className="space-y-2">
               <p className="text-sm font-medium">{t('showTorIndicator')}</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant={isSelected(showTorIndicator) ? 'default' : 'outline'}
                   size="sm"
@@ -165,17 +165,24 @@ export default function SettingsPage() {
                   {t('off')}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {t('showTorIndicatorDescription')}{' '}
-                <a
-                  href={t('torProjectUrl')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-accent hover:underline"
-                >
-                  {t('learnAboutTor')}
-                </a>
-              </p>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <p>
+                  {t('showTorIndicatorDescription')}{' '}
+                  <a
+                    href={t('torProjectUrl')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent hover:underline"
+                  >
+                    {t('learnAboutTor')}
+                  </a>
+                </p>
+                {isSelected(showTorIndicator) && (
+                  <p className="rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-amber-700 dark:text-amber-300">
+                    <strong>Note:</strong> {t('torResponsibility')}
+                  </p>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -5,7 +5,6 @@ program obsidian_market.aleo {
     async constructor() {}
 
     // Market status: 0 = open, 1 = closed, 2 = resolved, 3 = cancelled
-    // Market struct structure (structs can be stored in mappings)
     struct Market {
         id: u64,
         creator: address,
@@ -15,8 +14,7 @@ program obsidian_market.aleo {
         status: u8,
     }
 
-    // Private record for bet positions (users hold these privately)
-    // No public bet tracking - maximum privacy
+    // Private record for bet positions
     record BetRecord {
         owner: address,
         market_id: u64,

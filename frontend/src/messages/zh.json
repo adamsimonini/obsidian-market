@@ -81,14 +81,17 @@
     "showTorIndicatorDescription": "在页头显示或隐藏 Tor 连接状态。",
     "learnAboutTor": "了解 Tor →",
     "torProjectUrl": "https://www.torproject.org/zh-CN/",
+    "torResponsibility": "Tor 指示器仅显示您的浏览器是否可能正在使用 Tor。如果匿名性对您很重要，您有责任确保在使用此应用程序之前正确连接到 Tor 网络。",
     "on": "开",
     "off": "关"
   },
   "betForm": {
     "selectPrediction": "选择您的预测",
     "betAmount": "投注金额 (ALEO)",
-    "minimum": "最低：1 ALEO",
+    "minimum": "仅限标准面额 (1, 5, 10, 50, 100, 500, 1000)",
     "minimumBet": "最低投注额为 1 ALEO",
+    "invalidDenomination": "请使用标准面额：1, 5, 10, 50, 100, 500, 或 1000 ALEO",
+    "quickAmounts": "快速金额",
     "position": "仓位",
     "cost": "成本",
     "estShares": "预计份额",

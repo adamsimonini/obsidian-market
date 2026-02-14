@@ -81,14 +81,17 @@
     "showTorIndicatorDescription": "Afficher ou masquer le statut de connexion Tor dans l'en-tête.",
     "learnAboutTor": "En savoir plus sur Tor →",
     "torProjectUrl": "https://www.torproject.org/fr/",
+    "torResponsibility": "L'indicateur Tor montre uniquement si votre navigateur utilise probablement Tor. Il est de votre responsabilité de vous assurer que vous êtes correctement connecté au réseau Tor avant d'utiliser cette application si l'anonymat est important pour vous.",
     "on": "Oui",
     "off": "Non"
   },
   "betForm": {
     "selectPrediction": "Sélectionnez Votre Prédiction",
     "betAmount": "Montant du Pari (ALEO)",
-    "minimum": "Minimum : 1 ALEO",
+    "minimum": "Dénominations standard uniquement (1, 5, 10, 50, 100, 500, 1000)",
     "minimumBet": "Le pari minimum est de 1 ALEO",
+    "invalidDenomination": "Utilisez les dénominations standard : 1, 5, 10, 50, 100, 500, ou 1000 ALEO",
+    "quickAmounts": "Montants rapides",
     "position": "Position",
     "cost": "Coût",
     "estShares": "Parts Est.",
