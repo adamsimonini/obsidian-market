@@ -46,7 +46,19 @@
     "title": "Mi Cuenta",
     "connectedAs": "Conectado: {address}",
     "connectPrompt": "Conecta tu billetera para ver los detalles de la cuenta.",
-    "walletDetails": "Los detalles de la billetera y perfil aparecerán aquí."
+    "walletDetails": "Los detalles de la billetera y perfil aparecerán aquí.",
+    "balances": "Saldos",
+    "aleoBalance": "ALEO",
+    "usdcxBalance": "USDCx",
+    "loadingBalance": "Cargando...",
+    "betHistory": "Historial de Apuestas",
+    "noBetsYet": "Aún no has realizado ninguna apuesta.",
+    "market": "Mercado",
+    "side": "Lado",
+    "amount": "Monto",
+    "shares": "Acciones",
+    "date": "Fecha",
+    "transaction": "Transacción"
   },
   "settings": {
     "title": "Ajustes",

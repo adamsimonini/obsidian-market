@@ -46,7 +46,19 @@
     "title": "Mon Compte",
     "connectedAs": "Connecté : {address}",
     "connectPrompt": "Connectez votre portefeuille pour voir les détails du compte.",
-    "walletDetails": "Les détails du portefeuille et du profil apparaîtront ici."
+    "walletDetails": "Les détails du portefeuille et du profil apparaîtront ici.",
+    "balances": "Soldes",
+    "aleoBalance": "ALEO",
+    "usdcxBalance": "USDCx",
+    "loadingBalance": "Chargement...",
+    "betHistory": "Historique des Paris",
+    "noBetsYet": "Vous n'avez pas encore placé de paris.",
+    "market": "Marché",
+    "side": "Côté",
+    "amount": "Montant",
+    "shares": "Actions",
+    "date": "Date",
+    "transaction": "Transaction"
   },
   "settings": {
     "title": "Paramètres",

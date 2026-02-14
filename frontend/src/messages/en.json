@@ -46,7 +46,19 @@
     "title": "My Account",
     "connectedAs": "Connected: {address}",
     "connectPrompt": "Connect your wallet to view account details.",
-    "walletDetails": "Wallet & profile details will appear here."
+    "walletDetails": "Wallet & profile details will appear here.",
+    "balances": "Balances",
+    "aleoBalance": "ALEO",
+    "usdcxBalance": "USDCx",
+    "loadingBalance": "Loading...",
+    "betHistory": "Bet History",
+    "noBetsYet": "You haven't placed any bets yet.",
+    "market": "Market",
+    "side": "Side",
+    "amount": "Amount",
+    "shares": "Shares",
+    "date": "Date",
+    "transaction": "Transaction"
   },
   "settings": {
     "title": "Settings",

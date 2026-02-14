@@ -46,7 +46,19 @@
     "title": "我的账户",
     "connectedAs": "已连接：{address}",
     "connectPrompt": "连接钱包以查看账户详情。",
-    "walletDetails": "钱包和个人资料详情将显示在此处。"
+    "walletDetails": "钱包和个人资料详情将显示在此处。",
+    "balances": "余额",
+    "aleoBalance": "ALEO",
+    "usdcxBalance": "USDCx",
+    "loadingBalance": "加载中...",
+    "betHistory": "投注历史",
+    "noBetsYet": "您还没有进行任何投注。",
+    "market": "市场",
+    "side": "方向",
+    "amount": "金额",
+    "shares": "份额",
+    "date": "日期",
+    "transaction": "交易"
   },
   "settings": {
     "title": "设置",
