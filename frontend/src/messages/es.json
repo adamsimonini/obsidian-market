@@ -81,7 +81,7 @@
     "cost": "Costo",
     "estShares": "Acciones Est.",
     "maxPayout": "Pago Máx. (si es correcto)",
-    "placeBet": "Realizar Apuesta",
+    "placeBet": "Realizar Apuesta Privada",
     "selectYesOrNo": "Por favor selecciona Sí o No",
     "notAcceptingBets": "Este mercado no acepta apuestas",
     "marketStatus": "Este mercado está {status} y no acepta apuestas",

@@ -2,13 +2,13 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useTranslations, useFormatter } from 'next-intl';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/hooks/useWallet';
-import { buildPlaceBetTransaction, waitForTransaction } from '@/lib/aleo';
+import { buildPlaceBetTransaction, waitForTransaction, fetchOnchainReserves } from '@/lib/aleo';
 import { cn } from '@/lib/utils';
 import type { LocalizedMarket } from '@/types/supabase';
 
@@ -23,6 +23,12 @@ function formatPercent(price: number): string {
 
 type BetStep = 'idle' | 'signing' | 'confirming' | 'syncing' | 'done';
 
+interface ErrorDetails {
+  userMessage: string;
+  technicalDetails?: string;
+  suggestion?: string;
+}
+
 export function BetForm({ market, onClose }: BetFormProps) {
   const t = useTranslations('betForm');
   const tc = useTranslations('common');
@@ -30,7 +36,8 @@ export function BetForm({ market, onClose }: BetFormProps) {
   const format = useFormatter();
   const { address, connected, executeTransaction, transactionStatus } = useWallet();
   const [step, setStep] = useState<BetStep>('idle');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ErrorDetails | null>(null);
+  const [showErrorDetails, setShowErrorDetails] = useState(false);
   const [txId, setTxId] = useState<string | null>(null);
   const [selectedSide, setSelectedSide] = useState<'yes' | 'no' | null>(null);
   const [betAmount, setBetAmount] = useState('1');
@@ -76,35 +83,111 @@ export function BetForm({ market, onClose }: BetFormProps) {
     };
   }, [betAmount, selectedSide, market.yes_reserves, market.no_reserves]);
 
+  const parseErrorMessage = useCallback((err: unknown): ErrorDetails => {
+    if (!(err instanceof Error)) {
+      return { userMessage: t('failedToPlace') };
+    }
+
+    const errorMsg = err.message.toLowerCase();
+
+    // User rejected transaction
+    if (errorMsg.includes('user rejected') || errorMsg.includes('user denied')) {
+      return {
+        userMessage: 'Transaction cancelled',
+        suggestion: 'You rejected the transaction in your wallet. Click "Place Private Bet" to try again.',
+      };
+    }
+
+    // Insufficient funds
+    if (errorMsg.includes('insufficient') || errorMsg.includes('not enough')) {
+      return {
+        userMessage: 'Insufficient funds',
+        technicalDetails: err.message,
+        suggestion: 'Make sure your wallet has enough ALEO credits to cover the bet amount plus network fees (~0.5 ALEO).',
+      };
+    }
+
+    // Network/RPC errors
+    if (errorMsg.includes('network') || errorMsg.includes('timeout') || errorMsg.includes('rpc')) {
+      return {
+        userMessage: 'Network error',
+        technicalDetails: err.message,
+        suggestion: 'The Aleo network may be experiencing issues. Please try again in a few moments.',
+      };
+    }
+
+    // Transaction rejected by network
+    if (errorMsg.includes('rejected') || errorMsg.includes('failed')) {
+      return {
+        userMessage: 'Transaction rejected by network',
+        technicalDetails: err.message,
+        suggestion: 'The transaction was rejected. This could be due to: outdated market reserves (someone placed a bet right before you), insufficient credits, or network congestion. Try refreshing the page and placing your bet again.',
+      };
+    }
+
+    // Wallet not connected
+    if (errorMsg.includes('wallet not connected')) {
+      return {
+        userMessage: 'Wallet not connected',
+        suggestion: 'Please connect your wallet first.',
+      };
+    }
+
+    // Generic error with full details
+    return {
+      userMessage: 'Transaction failed',
+      technicalDetails: err.message,
+      suggestion: 'An unexpected error occurred. Please try again or contact support if the issue persists.',
+    };
+  }, [t]);
+
   const handlePlaceBet = useCallback(async () => {
     if (!hasOnchainMarket) {
-      setError('This market is not linked to an on-chain contract yet.');
+      setError({
+        userMessage: 'Market not available',
+        suggestion: 'This market is not linked to an on-chain contract yet. Betting is disabled.',
+      });
       return;
     }
 
     if (!connected || !address) {
-      setError(tw('connectFirst'));
+      setError({
+        userMessage: tw('connectFirst'),
+        suggestion: 'Connect your Aleo wallet to place bets.',
+      });
       return;
     }
 
     if (selectedSide === null) {
-      setError(t('selectYesOrNo'));
+      setError({
+        userMessage: t('selectYesOrNo'),
+        suggestion: 'Choose "Yes" or "No" before placing your bet.',
+      });
       return;
     }
 
     if (market.status !== 'open') {
-      setError(t('notAcceptingBets'));
+      setError({
+        userMessage: t('notAcceptingBets'),
+        suggestion: `This market is ${market.status} and no longer accepts new bets.`,
+      });
       return;
     }
 
     const amount = parseFloat(betAmount);
     if (isNaN(amount) || amount < 1) {
-      setError(t('minimumBet'));
+      setError({
+        userMessage: t('minimumBet'),
+        suggestion: 'The minimum bet amount is 1 ALEO.',
+      });
       return;
     }
 
     if (!priceImpact) {
-      setError('Unable to calculate price impact');
+      setError({
+        userMessage: 'Unable to calculate price impact',
+        suggestion: 'Market reserves may be invalid. Try refreshing the page.',
+      });
       return;
     }
 
@@ -112,27 +195,50 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
     try {
       setError(null);
+      setShowErrorDetails(false);
 
-      // Step 1: Send to Leo Wallet for signing + proof generation
+      // Step 1: Fetch fresh reserves from on-chain (source of truth)
       setStep('signing');
 
+      const onchainMarketId = parseInt(market.market_id_onchain || '0');
+      const onchainReserves = await fetchOnchainReserves(onchainMarketId);
+
+      if (!onchainReserves) {
+        setError({
+          userMessage: 'Could not fetch on-chain market data',
+          suggestion: 'The Aleo network may be temporarily unavailable. Please try again in a moment.',
+        });
+        setStep('idle');
+        return;
+      }
+
       const transaction = buildPlaceBetTransaction({
-        marketId: parseInt(market.market_id_onchain || '0'),
-        currentYesReserves: market.yes_reserves,
-        currentNoReserves: market.no_reserves,
+        marketId: onchainMarketId,
+        currentYesReserves: onchainReserves.yesReserves,
+        currentNoReserves: onchainReserves.noReserves,
         amount: amountMicrocredits,
         side: selectedSide === 'yes',
       });
 
       const transactionId = await executeTransaction(transaction);
+      console.log('[BetForm] Transaction ID received:', transactionId);
       setTxId(transactionId);
 
       // Step 2: Wait for on-chain confirmation
       setStep('confirming');
       await waitForTransaction(transactionStatus, transactionId);
 
-      // Step 3: Sync trade to Supabase
+      // Step 3: Sync trade to Supabase using actual on-chain reserves
       setStep('syncing');
+
+      // Fetch the real post-trade reserves from chain (source of truth)
+      const postTradeReserves = await fetchOnchainReserves(onchainMarketId);
+      const finalYesReserves = postTradeReserves?.yesReserves ?? priceImpact.newYesReserves;
+      const finalNoReserves = postTradeReserves?.noReserves ?? priceImpact.newNoReserves;
+      const totalReserves = finalYesReserves + finalNoReserves;
+      const finalYesPrice = totalReserves > 0 ? finalNoReserves / totalReserves : priceImpact.newYesPrice;
+      const finalNoPrice = totalReserves > 0 ? finalYesReserves / totalReserves : priceImpact.newNoPrice;
+
       await fetch('/api/trades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -142,20 +248,20 @@ export function BetForm({ market, onClose }: BetFormProps) {
           shares: Math.round(priceImpact.shares),
           amount: amountMicrocredits,
           price_before: selectedSide === 'yes' ? market.yes_price : market.no_price,
-          price_after: selectedSide === 'yes' ? priceImpact.newYesPrice : priceImpact.newNoPrice,
-          yes_reserves_after: priceImpact.newYesReserves,
-          no_reserves_after: priceImpact.newNoReserves,
+          price_after: selectedSide === 'yes' ? finalYesPrice : finalNoPrice,
+          yes_reserves_after: finalYesReserves,
+          no_reserves_after: finalNoReserves,
           tx_hash: transactionId,
         }),
       });
 
       setStep('done');
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('failedToPlace');
-      setError(message);
+      const errorDetails = parseErrorMessage(err);
+      setError(errorDetails);
       setStep('idle');
     }
-  }, [connected, address, selectedSide, betAmount, market, priceImpact, executeTransaction, transactionStatus, onClose, t, tw]);
+  }, [connected, address, selectedSide, betAmount, market, priceImpact, executeTransaction, transactionStatus, parseErrorMessage, t, tw, hasOnchainMarket]);
 
   const stepMessage = useMemo(() => {
     switch (step) {
@@ -186,8 +292,41 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-md bg-destructive p-3">
-          <p className="text-sm text-white">{error}</p>
+        <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/50">
+          <div className="flex items-start gap-3 p-4">
+            <AlertCircle className="mt-0.5 size-5 shrink-0 text-red-600 dark:text-red-400" />
+            <div className="flex-1 space-y-2">
+              <p className="font-semibold text-red-900 dark:text-red-100">{error.userMessage}</p>
+              {error.suggestion && (
+                <p className="text-sm text-red-800 dark:text-red-200">{error.suggestion}</p>
+              )}
+              {error.technicalDetails && (
+                <button
+                  onClick={() => setShowErrorDetails(!showErrorDetails)}
+                  className="flex items-center gap-1 text-xs text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-100 transition-colors"
+                >
+                  {showErrorDetails ? (
+                    <>
+                      <ChevronUp className="size-3" />
+                      Hide technical details
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="size-3" />
+                      Show technical details
+                    </>
+                  )}
+                </button>
+              )}
+              {showErrorDetails && error.technicalDetails && (
+                <div className="mt-2 rounded border border-red-200 bg-white dark:border-red-800 dark:bg-red-900/30 p-3">
+                  <pre className="whitespace-pre-wrap wrap-break-word text-xs font-mono text-red-800 dark:text-red-200">
+                    {error.technicalDetails}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -199,7 +338,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
         )}>
           {loading && <Loader2 className="size-4 animate-spin" />}
           <p className="text-sm font-medium">{stepMessage}</p>
-          {txId && step !== 'signing' && (
+          {txId && (step === 'syncing' || step === 'done') && (
             <a
               href={`https://testnet.explorer.provable.com/transaction/${txId}`}
               target="_blank"

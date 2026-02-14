@@ -81,7 +81,7 @@
     "cost": "Cost",
     "estShares": "Est. Shares",
     "maxPayout": "Max Payout (if correct)",
-    "placeBet": "Place Bet",
+    "placeBet": "Place Private Bet",
     "selectYesOrNo": "Please select Yes or No",
     "notAcceptingBets": "This market is not accepting bets",
     "marketStatus": "This market is {status} and not accepting bets",

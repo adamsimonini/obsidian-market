@@ -40,13 +40,39 @@ PROGRAM="obsidian_market.aleo"
 # ── Markets to seed on-chain ───────────────────────────────────────────────
 # Format: market_id|slug|yes_reserves|no_reserves
 #
-# Only these markets are created on-chain. The remaining 17 in seed.sql stay
-# as DB-only (market_id_onchain = NULL) and betting is disabled for them.
-# Add more entries here to expand the on-chain set.
+# All 20 markets from seed.sql are created on-chain.
 SEED_MARKETS=(
-  "1|aleo-tvl-500m-2027|70000000|30000000"
-  "2|fed-rate-cut-2026|40000000|60000000"
-  "3|openai-gpt5-2026|40000000|60000000"
+  # CRYPTO (4)
+  "1|btc-150k-2026|35000000|65000000"
+  "2|eth-10k-2026|60000000|40000000"
+  "3|stablecoin-depeg-2026|75000000|25000000"
+  "4|aleo-tvl-500m-2027|70000000|30000000"
+
+  # POLITICS (4)
+  "5|us-crypto-regulation-2027|45000000|55000000"
+  "6|third-party-5pct-2028|75000000|25000000"
+  "7|eu-digital-euro-2027|70000000|30000000"
+  "8|fed-rate-cut-2026|40000000|60000000"
+
+  # TECHNOLOGY (4)
+  "9|apple-ar-glasses-2026|80000000|20000000"
+  "10|openai-gpt5-2026|40000000|60000000"
+  "11|robotaxi-10-cities-2026|65000000|35000000"
+  "12|ai-chip-revenue-200b-2026|30000000|70000000"
+
+  # SPORTS (3)
+  "13|real-madrid-ucl-2026|75000000|25000000"
+  "14|usa-most-golds-2028|40000000|60000000"
+  "15|sub-2hr-marathon-2028|85000000|15000000"
+
+  # SCIENCE (3)
+  "16|room-temp-superconductor-2027|90000000|10000000"
+  "17|starship-orbital-2026|25000000|75000000"
+  "18|crispr-common-disease-2027|60000000|40000000"
+
+  # CULTURE (2)
+  "19|ai-film-festival-2027|65000000|35000000"
+  "20|box-office-50b-2026|50000000|50000000"
 )
 
 # ── Helper functions ───────────────────────────────────────────────────────
@@ -85,6 +111,31 @@ check_supabase_linked() {
     return 0  # already linked
   else
     return 1  # not found or error
+  fi
+}
+
+# Fetch actual on-chain reserves for a market.
+# Sets ONCHAIN_YES and ONCHAIN_NO global variables.
+# Returns 0 on success, 1 on failure.
+fetch_onchain_reserves() {
+  local market_id="$1"
+  local url="${ALEO_ENDPOINT}/${ALEO_NETWORK}/program/${PROGRAM}/mapping/markets/${market_id}u64"
+  local body
+  body=$(curl -sf "$url" 2>/dev/null) || return 1
+
+  if [[ -z "$body" || "$body" == "null" ]]; then
+    return 1
+  fi
+
+  # Parse yes_reserves and no_reserves from the response
+  # Format: "{\n  ...\n  yes_reserves: 40000000u64,\n  no_reserves: 60000000u64,\n  ...\n}"
+  ONCHAIN_YES=$(echo "$body" | grep -o 'yes_reserves: [0-9]*' | grep -o '[0-9]*')
+  ONCHAIN_NO=$(echo "$body" | grep -o 'no_reserves: [0-9]*' | grep -o '[0-9]*')
+
+  if [[ -n "$ONCHAIN_YES" && -n "$ONCHAIN_NO" ]]; then
+    return 0
+  else
+    return 1
   fi
 }
 
@@ -167,12 +218,20 @@ for entry in "${SEED_MARKETS[@]}"; do
   # 2. Check if market exists on-chain
   if check_market_exists "$market_id"; then
     echo "  Already exists on-chain — linking to Supabase only."
+    # Fetch actual on-chain reserves (they may differ from seed values after bets)
+    if fetch_onchain_reserves "$market_id"; then
+      echo "  On-chain reserves: YES=${ONCHAIN_YES} NO=${ONCHAIN_NO}"
+      yes_reserves="$ONCHAIN_YES"
+      no_reserves="$ONCHAIN_NO"
+    else
+      echo "  WARNING: Could not fetch on-chain reserves, using seed values."
+    fi
   else
     create_market_onchain "$market_id" "$yes_reserves" "$no_reserves"
     CREATED=$((CREATED + 1))
   fi
 
-  # 3. Link in Supabase
+  # 3. Link in Supabase (uses actual on-chain reserves if fetched above)
   link_supabase "$slug" "$market_id" "$yes_reserves" "$no_reserves"
   LINKED=$((LINKED + 1))
 

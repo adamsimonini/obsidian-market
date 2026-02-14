@@ -10,9 +10,48 @@ import type { TransactionOptions } from '@provablehq/aleo-types';
 // Program constants
 export const PROGRAM_ID = 'obsidian_market.aleo';
 
+// Aleo explorer API endpoint for querying on-chain state
+const ALEO_API = 'https://api.explorer.provable.com/v1';
+const ALEO_NETWORK = 'testnet';
+
 // Default fee in microcredits (user pays this via wallet)
 // 1 ALEO = 1,000,000 microcredits
 const DEFAULT_FEE = 500_000; // 0.5 ALEO in microcredits
+
+/**
+ * On-chain market reserves fetched directly from the Aleo mapping.
+ */
+export interface OnchainReserves {
+  yesReserves: number;
+  noReserves: number;
+}
+
+/**
+ * Fetch the current reserves for a market directly from the on-chain mapping.
+ * This is the source of truth — always use these values for transaction inputs.
+ *
+ * @param marketId - The on-chain market ID (u64)
+ * @returns The current reserves, or null if the market doesn't exist on-chain
+ */
+export async function fetchOnchainReserves(marketId: number): Promise<OnchainReserves | null> {
+  const url = `${ALEO_API}/${ALEO_NETWORK}/program/${PROGRAM_ID}/mapping/markets/${marketId}u64`;
+
+  const res = await fetch(url);
+  if (!res.ok) return null;
+
+  const body = await res.text();
+  if (!body || body === 'null') return null;
+
+  const yesMatch = body.match(/yes_reserves:\s*(\d+)u64/);
+  const noMatch = body.match(/no_reserves:\s*(\d+)u64/);
+
+  if (!yesMatch || !noMatch) return null;
+
+  return {
+    yesReserves: parseInt(yesMatch[1], 10),
+    noReserves: parseInt(noMatch[1], 10),
+  };
+}
 
 /**
  * Build TransactionOptions for place_bet_cpmm.

@@ -81,7 +81,7 @@
     "cost": "Coût",
     "estShares": "Parts Est.",
     "maxPayout": "Gain Max. (si correct)",
-    "placeBet": "Placer le Pari",
+    "placeBet": "Placer un Pari Privé",
     "selectYesOrNo": "Veuillez sélectionner Oui ou Non",
     "notAcceptingBets": "Ce marché n'accepte pas les paris",
     "marketStatus": "Ce marché est {status} et n'accepte pas les paris",
