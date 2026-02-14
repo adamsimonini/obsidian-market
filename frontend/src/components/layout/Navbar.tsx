@@ -112,10 +112,11 @@ export function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex">
+          {/* Desktop: Show individual controls above lg breakpoint */}
+          <div className="hidden lg:flex">
             <TorIndicator />
           </div>
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" aria-label={t('changeLanguage')} className="font-semibold">
@@ -138,51 +139,60 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden sm:inline-flex"
+            className="hidden lg:inline-flex"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             aria-label={t('toggleTheme')}
           >
             <Sun className="size-4 scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
             <Moon className="absolute size-4 scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0" />
           </Button>
-          {/* Mobile menu */}
+          {/* Settings menu: Show below lg breakpoint */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="sm:hidden" aria-label={t('menu')}>
+              <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t('menu')}>
                 <Settings2 className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {navLinks.map((link) => (
-                <DropdownMenuItem key={link.href} asChild>
-                  <Link
-                    href={link.href}
-                    className={cn('w-full', pathname === link.href && 'font-bold')}
-                  >
-                    {t(link.key)}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-              {showDev && (
-                <>
-                  <DropdownMenuSeparator />
-                  {devLinks.map((link) => (
-                    <DropdownMenuItem key={link.href} asChild>
-                      <Link
-                        href={link.href}
-                        className={cn(
-                          'w-full text-amber-600 dark:text-amber-400',
-                          pathname === link.href && 'font-bold',
-                        )}
-                      >
-                        <Wrench className="mr-2 size-4" />
-                        {link.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </>
-              )}
-              <DropdownMenuSeparator />
+              {/* TRO Indicator (only on small/medium screens) */}
+              <div className="lg:hidden px-2 py-1.5">
+                <TorIndicator />
+              </div>
+              <DropdownMenuSeparator className="lg:hidden" />
+              {/* Navigation links (only on small screens) */}
+              <div className="sm:hidden">
+                {navLinks.map((link) => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link
+                      href={link.href}
+                      className={cn('w-full', pathname === link.href && 'font-bold')}
+                    >
+                      {t(link.key)}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+                {showDev && (
+                  <>
+                    <DropdownMenuSeparator />
+                    {devLinks.map((link) => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link
+                          href={link.href}
+                          className={cn(
+                            'w-full text-amber-600 dark:text-amber-400',
+                            pathname === link.href && 'font-bold',
+                          )}
+                        >
+                          <Wrench className="mr-2 size-4" />
+                          {link.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
+                <DropdownMenuSeparator />
+              </div>
+              {/* Language selector */}
               {routing.locales.map((loc) => (
                 <DropdownMenuItem
                   key={loc}
@@ -194,6 +204,7 @@ export function Navbar() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
+              {/* Theme toggle */}
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
