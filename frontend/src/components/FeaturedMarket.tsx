@@ -96,8 +96,8 @@ export function FeaturedMarket({ market, categoryName }: FeaturedMarketProps) {
   const noPercent = 100 - yesPercent;
 
   return (
-    <Link href={`/markets/${market.slug}`} className="block">
-      <Card className={cn('cursor-pointer border-primary/30 transition-all duration-300 hover:border-primary/60')}>
+    <Link href={`/markets/${market.slug}`} className="block h-full">
+      <Card className={cn('flex h-full lg:max-h-100 flex-col cursor-pointer border-primary/30 transition-all duration-300 hover:border-primary/60')}>
         {/* Title + Badge (full width) */}
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
@@ -110,7 +110,7 @@ export function FeaturedMarket({ market, categoryName }: FeaturedMarketProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="flex-1 space-y-4">
           {/* Equal 50/50 split: info left, gauge right */}
           <div className="mb-0 grid grid-cols-1 gap-6 md:grid-cols-2 md:items-stretch">
             {/* Left: description + stats */}
@@ -136,7 +136,7 @@ export function FeaturedMarket({ market, categoryName }: FeaturedMarketProps) {
             </div>
 
             {/* Right: radial gauge (with Yes/No labels baked in) */}
-            <div className="order-1 md:order-2">
+            <div className="order-1 md:order-2 max-w-md mx-auto md:mx-0">
               <SemiGauge yesPercent={yesPercent} noPercent={noPercent} yesLabel={tc('yes')} noLabel={tc('no')} />
             </div>
           </div>

@@ -4,7 +4,7 @@
 
 ## 1. What the Smart Contract Can Do
 
-**Blinded market IDs** — Store a hiding commitment instead of plaintext `market_id`. An AVK leak reveals shares but not *which* market without the salt.
+**Blinded market IDs** — Store a hiding commitment instead of plaintext `market_id`. An AVK leak reveals shares but not _which_ market without the salt.
 
 ```leo
 let salt: scalar = ChaCha::rand_scalar();
@@ -41,11 +41,11 @@ record BetRecord {
 
 ## 5. Prioritized Roadmap
 
-| Timeframe | Action | Impact |
-|-----------|--------|--------|
-| Month 1 | Private fee payment + local-only proving | Eliminates address and IP linkage |
-| Month 2 | Blinded `market_id` via `commit.bhp256`; ephemeral account UX | AVK leak hides which market |
-| Month 3 | Fee sponsorship relayer; batched settlement | Full metadata isolation |
+| Timeframe | Action                                                        | Impact                            |
+| --------- | ------------------------------------------------------------- | --------------------------------- |
+| Month 1   | Private fee payment + local-only proving                      | Eliminates address and IP linkage |
+| Month 2   | Blinded `market_id` via `commit.bhp256`; ephemeral account UX | AVK leak hides which market       |
+| Month 3   | Fee sponsorship relayer; batched settlement                   | Full metadata isolation           |
 
 ---
 
@@ -54,6 +54,7 @@ record BetRecord {
 ### What is AVK Leak?
 
 **AVK = Account View Key**. Every Aleo account has:
+
 - **Private key** (signs transactions)
 - **Account View Key (AVK)** (decrypts ALL private records owned by that account)
 - **Transaction View Keys (TVKs)** (per-transaction, limited scope)
@@ -110,6 +111,7 @@ BHP256::commit_to_field(42, salt) == blinded_id? Yes! ✓
 ### Recommendation for MVP
 
 **Skip blinding initially**—marginal gain with few markets, complex UX. Focus on:
+
 1. **Ephemeral accounts** (one address per market category)
 2. **Private fee payment** (biggest metadata leak elimination)
 
@@ -118,3 +120,5 @@ Revisit blinding with salt-in-client-storage if you scale to millions of users w
 ---
 
 **Sources**: [Transaction Fees](https://developer.aleo.org/concepts/fundamentals/transaction_fees) · [Transitions](https://developer.aleo.org/concepts/fundamentals/transitions) · [Records](https://developer.aleo.org/concepts/fundamentals/records) · [Opcodes](https://developer.aleo.org/guides/aleo/opcodes/) · [Puzzle Wallet AVK leak](https://www.leo.app/blog/attention-puzzle-aleo-wallet-on-chrome-compromises-user-privacy-new-private-keys-needed-to-preserve-privacy) · [View Key Compliance](https://aleo.org/post/aleo-view-key-compliance/) · [zPass hiding program](https://zpass.docs.aleo.org/zpass-programs/zpass-hiding-program) · [Tornado Cash clustering](https://arxiv.org/html/2510.09433v2) · [Delegate Proving](https://developer.aleo.org/sdk/delegate-proving/delegate_proving/)
+
+Yes, randomly delaying half of a market’s payouts to the next soonest-closing market can modestly increase privacy by diluting timing-based linkage attacks, provided the randomness is cryptographically sound and batches are used. Beyond this, adding a 100 second randomization jitter for all payouts adds further dilution.

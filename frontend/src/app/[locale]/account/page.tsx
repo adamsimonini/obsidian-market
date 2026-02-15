@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/hooks/useWallet';
+import { fetchUsdcxBalance, USDCX_MICRO } from '@/lib/aleo';
 import { Loader2, ExternalLink } from 'lucide-react';
 
 interface Balance {
@@ -15,7 +15,6 @@ interface Balance {
 export default function AccountPage() {
   const { address, connected } = useWallet();
   const t = useTranslations('account');
-  const tc = useTranslations('common');
   const [balance, setBalance] = useState<Balance>({ aleo: null, usdcx: null });
   const [loadingBalance, setLoadingBalance] = useState(false);
 
@@ -25,36 +24,48 @@ export default function AccountPage() {
       return;
     }
 
-    // Fetch ALEO balance from the Aleo explorer API
-    async function fetchBalance() {
+    async function fetchBalances() {
       setLoadingBalance(true);
       try {
-        const res = await fetch(
+        // Fetch ALEO balance
+        const aleoRes = await fetch(
           `https://api.explorer.provable.com/v1/testnet/program/credits.aleo/mapping/account/${address}`
         );
 
-        if (res.ok) {
-          const text = await res.text();
-          // Response format: "1000000u64" (microcredits)
+        if (aleoRes.ok) {
+          const text = await aleoRes.text();
           const match = text.match(/(\d+)u64/);
           if (match) {
             const microcredits = parseInt(match[1], 10);
-            const aleoBalance = microcredits / 1_000_000;
-            setBalance((prev) => ({ ...prev, aleo: aleoBalance }));
+            setBalance((prev) => ({ ...prev, aleo: microcredits / 1_000_000 }));
           }
         } else {
           setBalance((prev) => ({ ...prev, aleo: 0 }));
         }
+
+        // Fetch USDCx public balance
+        const usdcxMicro = await fetchUsdcxBalance(address!);
+        setBalance((prev) => ({
+          ...prev,
+          usdcx: usdcxMicro !== null ? usdcxMicro / USDCX_MICRO : null,
+        }));
       } catch (err) {
-        console.error('Failed to fetch ALEO balance:', err);
-        setBalance((prev) => ({ ...prev, aleo: null }));
+        console.error('Failed to fetch balances:', err);
       } finally {
         setLoadingBalance(false);
       }
     }
 
-    fetchBalance();
+    fetchBalances();
   }, [connected, address]);
+
+  const formatBalance = (val: number | null, decimals = 2) => {
+    if (val === null) return '—';
+    return val.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: 6,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,10 +104,30 @@ export default function AccountPage() {
             <Card>
               <CardHeader>
                 <CardTitle>{t('balances')}</CardTitle>
+                <CardDescription>{t('publicBalanceNote')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {/* ALEO Balance */}
+                  {/* USDCx Balance */}
+                  <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{t('usdcxBalance')}</p>
+                      {loadingBalance ? (
+                        <div className="flex items-center gap-2 mt-1">
+                          <Loader2 className="size-4 animate-spin" />
+                          <span className="text-sm text-muted-foreground">
+                            {t('loadingBalance')}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="mt-1 text-2xl font-bold">
+                          ${formatBalance(balance.usdcx)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ALEO Balance (gas) */}
                   <div className="flex items-center justify-between rounded-lg border p-4">
                     <div>
                       <p className="text-sm text-muted-foreground">{t('aleoBalance')}</p>
@@ -109,23 +140,10 @@ export default function AccountPage() {
                         </div>
                       ) : (
                         <p className="mt-1 text-2xl font-bold">
-                          {balance.aleo !== null
-                            ? balance.aleo.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 6,
-                              })
-                            : '—'}
+                          {formatBalance(balance.aleo)}
                         </p>
                       )}
-                    </div>
-                  </div>
-
-                  {/* USDCx Balance */}
-                  <div className="flex items-center justify-between rounded-lg border p-4 opacity-50">
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t('usdcxBalance')}</p>
-                      <p className="mt-1 text-2xl font-bold">—</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Coming soon</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{t('aleoGasNote')}</p>
                     </div>
                   </div>
                 </div>
@@ -136,15 +154,12 @@ export default function AccountPage() {
             <Card>
               <CardHeader>
                 <CardTitle>{t('betHistory')}</CardTitle>
-                <CardDescription>
-                  Private bets are not shown. Only public positions appear here.
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <p className="text-muted-foreground">{t('noBetsYet')}</p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    All bets on Obsidian Market are private by default. Your positions are stored in your wallet as encrypted records.
+                    {t('privateBetsNote')}
                   </p>
                 </div>
               </CardContent>

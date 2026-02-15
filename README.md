@@ -5,6 +5,8 @@
 [Supabase](https://supabase.com/dashboard/project/giarcxkfqogumngtygmt)
 [](https://developer.aleo.org/sdk/overview/)
 [Wallet Adapter](https://github.com/ProvableHQ/aleo-wallet-adapter)
+[test_usdcx_bridge.aleo](https://testnet.explorer.provable.com/program/test_usdcx_bridge.aleo)
+[test_usdcx_stablecoin.aleo](https://testnet.explorer.provable.com/program/test_usdcx_stablecoin.aleo)
 
 ### Dev Endpoints
 

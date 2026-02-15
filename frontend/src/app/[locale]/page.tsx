@@ -11,6 +11,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useWallet } from '@/hooks/useWallet';
 import { useMarkets } from '@/hooks/useMarkets';
 import { useCategories } from '@/hooks/useCategories';
+import { ShieldUsdcx } from '@/components/ShieldUsdcx';
 
 export default function HomePage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -46,24 +47,45 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="py-8 pt-4">
-        {canCreate && (
-          <div className="mb-6 flex justify-end">
-            <Button onClick={() => setShowCreateForm(true)}>{t('createMarket')}</Button>
-          </div>
-        )}
+    <>
+      <div className="min-h-screen bg-background">
+        <div className="py-8 pt-4">
+          {canCreate && (
+            <div className="mb-6 flex justify-end">
+              <Button onClick={() => setShowCreateForm(true)}>{t('createMarket')}</Button>
+            </div>
+          )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_1fr]">
-          <div className="min-w-0 space-y-6">
-            {!loading && featuredMarket && <FeaturedMarket market={featuredMarket} categoryName={featuredMarket.category_id ? categoryMap.get(featuredMarket.category_id) : undefined} />}
-            <MarketList excludeIds={excludeIds} categoryMap={categoryMap} categorySlugMap={categorySlugMap} />
-          </div>
-          <div className="hidden lg:block">
-            <TrendingSidebar markets={markets} excludeId={featuredMarket?.id} categoryMap={categoryMap} />
+          <div className="space-y-6">
+            {/* Shield component (mobile only - shows at top) */}
+            <div className="lg:hidden">
+              <ShieldUsdcx />
+            </div>
+
+            {/* Featured market + Shield component row (equal height on desktop) */}
+            {!loading && featuredMarket && (
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_1fr]">
+                <div className="min-w-0">
+                  <FeaturedMarket market={featuredMarket} categoryName={featuredMarket.category_id ? categoryMap.get(featuredMarket.category_id) : undefined} />
+                </div>
+                <div className="hidden lg:block">
+                  <ShieldUsdcx />
+                </div>
+              </div>
+            )}
+
+            {/* Market list + Sidebar */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_1fr]">
+              <div className="min-w-0">
+                <MarketList excludeIds={excludeIds} categoryMap={categoryMap} categorySlugMap={categorySlugMap} />
+              </div>
+              <div className="hidden lg:block">
+                <TrendingSidebar markets={markets} excludeId={featuredMarket?.id} categoryMap={categoryMap} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/hooks/useWallet';
-import { buildPlaceBetTransaction, waitForTransaction, fetchOnchainReserves } from '@/lib/aleo';
+import { buildPlaceBetTransaction, waitForTransaction, fetchOnchainReserves, USDCX_MICRO } from '@/lib/aleo';
 import { cn } from '@/lib/utils';
 import type { LocalizedMarket } from '@/types/supabase';
 
@@ -103,7 +103,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
       return {
         userMessage: 'Insufficient funds',
         technicalDetails: err.message,
-        suggestion: 'Make sure your wallet has enough ALEO credits to cover the bet amount plus network fees (~0.5 ALEO).',
+        suggestion: 'Make sure you have enough public USDCx balance to cover the bet, plus ALEO credits for the network fee (~0.5 ALEO).',
       };
     }
 
@@ -121,7 +121,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
       return {
         userMessage: 'Transaction rejected by network',
         technicalDetails: err.message,
-        suggestion: 'The transaction was rejected. This could be due to: outdated market reserves (someone placed a bet right before you), insufficient credits, or network congestion. Try refreshing the page and placing your bet again.',
+        suggestion: 'The transaction was rejected. This could be due to: outdated market reserves (someone placed a bet right before you), insufficient USDCx balance, or network congestion. Try refreshing the page and placing your bet again.',
       };
     }
 
@@ -178,7 +178,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
     if (isNaN(amount) || amount < 1) {
       setError({
         userMessage: t('minimumBet'),
-        suggestion: 'The minimum bet amount is 1 ALEO.',
+        suggestion: 'The minimum bet amount is 1 USDCx.',
       });
       return;
     }
@@ -191,7 +191,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
       return;
     }
 
-    const amountMicrocredits = Math.floor(amount * 1_000_000);
+    const amountMicro = Math.floor(amount * USDCX_MICRO);
 
     try {
       setError(null);
@@ -216,7 +216,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
         marketId: onchainMarketId,
         currentYesReserves: onchainReserves.yesReserves,
         currentNoReserves: onchainReserves.noReserves,
-        amount: amountMicrocredits,
+        amount: amountMicro,
         side: selectedSide === 'yes',
       });
 
@@ -246,7 +246,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
           market_id: market.id,
           side: selectedSide,
           shares: Math.round(priceImpact.shares),
-          amount: amountMicrocredits,
+          amount: amountMicro,
           price_before: selectedSide === 'yes' ? market.yes_price : market.no_price,
           price_after: selectedSide === 'yes' ? finalYesPrice : finalNoPrice,
           yes_reserves_after: finalYesReserves,
@@ -447,7 +447,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('cost')}</span>
-              <span className="font-semibold">{betAmount || '0'} ALEO</span>
+              <span className="font-semibold">{betAmount || '0'} USDCx</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('estShares')}</span>
@@ -456,12 +456,12 @@ export function BetForm({ market, onClose }: BetFormProps) {
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('maxPayout')}</span>
               <span className="font-semibold text-green-500">
-                {priceImpact.estimatedPayout.toFixed(2)} ALEO
+                {priceImpact.estimatedPayout.toFixed(2)} USDCx
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('networkFee')}</span>
-              <span className="font-semibold">~0.5 ALEO</span>
+              <span className="font-semibold">~0.5 ALEO (gas)</span>
             </div>
           </CardContent>
         </Card>

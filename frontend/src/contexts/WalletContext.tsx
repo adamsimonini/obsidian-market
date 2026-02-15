@@ -174,7 +174,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       wallets={wallets}
       decryptPermission={DecryptPermission.UponRequest}
       network={Network.TESTNET}
-      programs={['obsidian_market.aleo', 'credits.aleo']}
+      programs={['obsidian_market.aleo', 'test_usdcx_stablecoin.aleo', 'credits.aleo']}
     >
       <WalletProviderInner>{children}</WalletProviderInner>
     </AleoWalletProvider>
