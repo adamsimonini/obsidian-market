@@ -14,17 +14,7 @@ export function CategoryPageClient({ category, markets }: CategoryPageClientProp
   const t = useTranslations('home');
 
   if (markets.length === 0) {
-    return (
-      <>
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">{category.name}</h1>
-          {category.description && (
-            <p className="mt-2 text-lg text-muted-foreground">{category.description}</p>
-          )}
-        </div>
-        <p className="text-muted-foreground">{t('noMarketsFound')}</p>
-      </>
-    );
+    return <p className="text-muted-foreground">{t('noMarketsFound')}</p>;
   }
 
   // First market is the hero (already sorted by volume in server component)
@@ -32,13 +22,6 @@ export function CategoryPageClient({ category, markets }: CategoryPageClientProp
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">{category.name}</h1>
-        {category.description && (
-          <p className="mt-2 text-lg text-muted-foreground">{category.description}</p>
-        )}
-      </div>
-
       {/* Hero Card */}
       <div className="mb-6">
         <FeaturedMarket market={heroMarket} categoryName={category.name} />

@@ -9,13 +9,17 @@ import type { TransactionOptions } from '@provablehq/aleo-types';
 
 // Program constants
 export const PROGRAM_ID = 'obsidian_market.aleo';
+export const USDCX_PROGRAM_ID = 'test_usdcx_stablecoin.aleo';
+
+// USDCx has 6 decimals (same as USDC)
+export const USDCX_DECIMALS = 6;
+export const USDCX_MICRO = 10 ** USDCX_DECIMALS; // 1_000_000
 
 // Aleo explorer API endpoint for querying on-chain state
 const ALEO_API = 'https://api.explorer.provable.com/v1';
 const ALEO_NETWORK = 'testnet';
 
-// Default fee in microcredits (user pays this via wallet)
-// 1 ALEO = 1,000,000 microcredits
+// Default fee in microcredits (user pays this via wallet for gas)
 const DEFAULT_FEE = 500_000; // 0.5 ALEO in microcredits
 
 /**
@@ -42,8 +46,9 @@ export async function fetchOnchainReserves(marketId: number): Promise<OnchainRes
   const body = await res.text();
   if (!body || body === 'null') return null;
 
-  const yesMatch = body.match(/yes_reserves:\s*(\d+)u64/);
-  const noMatch = body.match(/no_reserves:\s*(\d+)u64/);
+  // Reserves are now u128 in the updated contract
+  const yesMatch = body.match(/yes_reserves:\s*(\d+)u128/);
+  const noMatch = body.match(/no_reserves:\s*(\d+)u128/);
 
   if (!yesMatch || !noMatch) return null;
 
@@ -54,29 +59,50 @@ export async function fetchOnchainReserves(marketId: number): Promise<OnchainRes
 }
 
 /**
+ * Fetch the public USDCx balance for an address.
+ * Reads from test_usdcx_stablecoin.aleo/mapping/balances/{address}
+ *
+ * @returns Balance in micro-units, or null if not found
+ */
+export async function fetchUsdcxBalance(address: string): Promise<number | null> {
+  const url = `${ALEO_API}/${ALEO_NETWORK}/program/${USDCX_PROGRAM_ID}/mapping/balances/${address}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return 0;
+
+    const text = await res.text();
+    if (!text || text === 'null') return 0;
+
+    const match = text.match(/(\d+)u128/);
+    if (!match) return 0;
+
+    return parseInt(match[1], 10);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Build TransactionOptions for place_bet_cpmm.
  *
  * Smart contract signature:
  *   async transition place_bet_cpmm(
  *     public market_id: u64,
- *     public current_yes_reserves: u64,
- *     public current_no_reserves: u64,
- *     private amount: u64,    // bet amount in microcredits
- *     private side: bool,     // true = Yes, false = No
+ *     public current_yes_reserves: u128,
+ *     public current_no_reserves: u128,
+ *     public amount: u128,       // USDCx micro-units
+ *     private side: bool,        // true = Yes, false = No
  *   ) -> (BetRecord, Future)
  */
 export function buildPlaceBetTransaction(params: {
-  /** On-chain market ID (u64) */
   marketId: number;
-  /** Current YES reserves from the market (u64 microcredits) */
   currentYesReserves: number;
-  /** Current NO reserves from the market (u64 microcredits) */
   currentNoReserves: number;
-  /** Bet amount in microcredits (u64) */
+  /** Bet amount in USDCx micro-units (u128) */
   amount: number;
   /** true = Yes, false = No */
   side: boolean;
-  /** Priority fee in microcredits (optional, default 500_000 = 0.5 ALEO) */
   fee?: number;
 }): TransactionOptions {
   const {
@@ -93,9 +119,9 @@ export function buildPlaceBetTransaction(params: {
     function: 'place_bet_cpmm',
     inputs: [
       `${marketId}u64`,
-      `${currentYesReserves}u64`,
-      `${currentNoReserves}u64`,
-      `${amount}u64`,
+      `${currentYesReserves}u128`,
+      `${currentNoReserves}u128`,
+      `${amount}u128`,
       `${side}`,
     ],
     fee,
@@ -109,8 +135,8 @@ export function buildPlaceBetTransaction(params: {
  * Smart contract signature:
  *   async transition create_market(
  *     public market_id: u64,
- *     public yes_odds: u64,
- *     public no_odds: u64
+ *     public yes_reserves: u128,
+ *     public no_reserves: u128,
  *   ) -> Future
  */
 export function buildCreateMarketTransaction(params: {
@@ -126,8 +152,54 @@ export function buildCreateMarketTransaction(params: {
     function: 'create_market',
     inputs: [
       `${marketId}u64`,
-      `${yesReserves}u64`,
-      `${noReserves}u64`,
+      `${yesReserves}u128`,
+      `${noReserves}u128`,
+    ],
+    fee,
+    privateFee: false,
+  };
+}
+
+/**
+ * Build TransactionOptions for resolve_market (admin only).
+ */
+export function buildResolveMarketTransaction(params: {
+  marketId: number;
+  winningSide: boolean;
+  fee?: number;
+}): TransactionOptions {
+  const { marketId, winningSide, fee = DEFAULT_FEE } = params;
+
+  return {
+    program: PROGRAM_ID,
+    function: 'resolve_market',
+    inputs: [
+      `${marketId}u64`,
+      `${winningSide}`,
+    ],
+    fee,
+    privateFee: false,
+  };
+}
+
+/**
+ * Build TransactionOptions for USDCx transfer_public_to_private (shield).
+ * Converts public USDCx balance to a private Token record.
+ */
+export function buildShieldUsdcxTransaction(params: {
+  recipient: string;
+  /** Amount in USDCx micro-units */
+  amount: number;
+  fee?: number;
+}): TransactionOptions {
+  const { recipient, amount, fee = DEFAULT_FEE } = params;
+
+  return {
+    program: USDCX_PROGRAM_ID,
+    function: 'transfer_public_to_private',
+    inputs: [
+      recipient,
+      `${amount}u128`,
     ],
     fee,
     privateFee: false,
