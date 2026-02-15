@@ -7,6 +7,7 @@
 [Wallet Adapter](https://github.com/ProvableHQ/aleo-wallet-adapter)
 [test_usdcx_bridge.aleo](https://testnet.explorer.provable.com/program/test_usdcx_bridge.aleo)
 [test_usdcx_stablecoin.aleo](https://testnet.explorer.provable.com/program/test_usdcx_stablecoin.aleo)
+[Obsidian Market Testnet Deployment](https://testnet.explorer.provable.com/transaction/at1hl20gxvc2dawh8m2myrzmqmfksgg5ed57tdec549df35dhz5dcyqk7eelc)
 
 ### Dev Endpoints
 
@@ -14,6 +15,19 @@
 
 - Local: http://localhost:3000/en/dev/onchain
 - Prod: https://obsidian-market.vercel.app/en/dev/onchain
+
+### Important: Deployment & Migration
+
+**📖 [Read the Deployment Guide](docs/deployment-guide.md)** before deploying or updating the smart contract.
+
+**Critical order of operations:**
+1. ✅ Deploy smart contract (`leo deploy`)
+2. ✅ Reset database (`npm run db:reset:local` or `db:reset:remote`)
+3. ✅ Create on-chain markets & link (`npm run seed-aleo`)
+
+The seed script **updates** existing database rows with on-chain market IDs. It does not create new database records. See the full guide for migration instructions, troubleshooting, and why this order matters.
+
+---
 
 Use Aleo Wallet Adapter (with pre-build wallet multi-button)
 
@@ -87,6 +101,8 @@ obsidian-market/
 
 ## Getting Started
 
+> **⚠️ Important:** For production deployment or smart contract updates, see the **[Deployment Guide](docs/deployment-guide.md)** for the correct order of operations.
+
 ### Prerequisites
 
 - Node.js >= 18
@@ -142,7 +158,17 @@ obsidian-market/
    leo deploy --broadcast --yes
    ```
 
-6. **Run the frontend**
+6. **Seed the database and create on-chain markets**
+
+   ```bash
+   # From project root
+   npm run db:reset:local   # Creates Supabase rows
+   npm run seed-aleo        # Creates on-chain markets + links to DB
+   ```
+
+   **Important:** Always run `db:reset:local` before `seed-aleo`. See [Deployment Guide](docs/deployment-guide.md) for details.
+
+7. **Run the frontend**
 
    ```bash
    cd frontend
@@ -156,15 +182,30 @@ obsidian-market/
 From the project root:
 
 ```bash
-npm run app       # Start frontend dev server (Next.js on port 3000)
-npm run backend   # Start local Supabase
-npm run chain     # Start local Aleo chain (amareleo-chain)
-npm run dev       # Start backend + frontend together
+# Development
+npm run app              # Start frontend dev server (Next.js on port 3000)
+npm run backend          # Start local Supabase
+npm run chain            # Start local Aleo chain (amareleo-chain)
+npm run dev              # Start backend + frontend together
+
+# Database & Seeding
+npm run db:reset:local   # Reset local Supabase (runs migrations + seed.sql)
+npm run db:reset:remote  # Reset remote/production Supabase
+npm run seed-aleo        # Create on-chain markets & link to Supabase
+npm run db:push          # Push database schema changes to Supabase
 ```
+
+**Seeding workflow:**
+1. `npm run db:reset:local` → Creates 20 market rows in Supabase
+2. `npm run seed-aleo` → Creates 20 on-chain markets and links them
+
+See **[Deployment Guide](docs/deployment-guide.md)** for complete workflow.
 
 ## Smart Contract
 
-Program: [`obsidian_market.aleo`](https://testnet.explorer.provable.com/program/obsidian_market.aleo)
+**Current Version:** [`obsidian_market_v2.aleo`](https://testnet.explorer.provable.com/program/obsidian_market_v2.aleo)
+
+**Previous Version:** [`obsidian_market.aleo`](https://testnet.explorer.provable.com/program/obsidian_market.aleo) (deprecated)
 
 ### On-Chain Data Model
 

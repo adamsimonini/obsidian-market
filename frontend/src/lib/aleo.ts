@@ -8,7 +8,7 @@
 import type { TransactionOptions } from '@provablehq/aleo-types';
 
 // Program constants
-export const PROGRAM_ID = 'obsidian_market.aleo';
+export const PROGRAM_ID = 'obsidian_market_v2.aleo';
 export const USDCX_PROGRAM_ID = 'test_usdcx_stablecoin.aleo';
 
 // USDCx has 6 decimals (same as USDC)

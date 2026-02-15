@@ -9,10 +9,12 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { ExternalLink } from 'lucide-react';
+import Link from 'next/dist/client/link';
 
 const ALEO_API = 'https://api.explorer.provable.com/v1';
 const NETWORK = 'testnet';
-const PROGRAM = 'obsidian_market.aleo';
+const PROGRAM = 'obsidian_market_v2.aleo';
 const MAX_MARKET_ID = 20; // scan IDs 1..20
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -91,7 +93,7 @@ async function fetchOnchainMarkets(): Promise<{ id: number; market: AleoMarket }
     const id = i + 1;
     const url = `${ALEO_API}/${NETWORK}/program/${PROGRAM}/mapping/markets/${id}u64`;
     return fetch(url, { next: { revalidate: 0 } })
-      .then((r) => r.text())
+      .then((r) => r.json())
       .then((text) => ({ id, text }))
       .catch(() => ({ id, text: 'null' }));
   });
@@ -113,10 +115,7 @@ async function fetchSupabaseMarkets(): Promise<SupabaseRow[]> {
   if (!url || !key) return [];
 
   const supabase = createClient(url, key);
-  const { data } = await supabase
-    .from('markets')
-    .select('slug, market_id_onchain, yes_reserves, no_reserves, status, yes_price, no_price')
-    .order('slug');
+  const { data } = await supabase.from('markets').select('slug, market_id_onchain, yes_reserves, no_reserves, status, yes_price, no_price').order('slug');
 
   return (data ?? []) as SupabaseRow[];
 }
@@ -124,10 +123,7 @@ async function fetchSupabaseMarkets(): Promise<SupabaseRow[]> {
 // ── Page ─────────────────────────────────────────────────────────────────
 
 export default async function OnchainDevPage() {
-  const [onchain, supabase] = await Promise.all([
-    fetchOnchainMarkets(),
-    fetchSupabaseMarkets(),
-  ]);
+  const [onchain, supabase] = await Promise.all([fetchOnchainMarkets(), fetchSupabaseMarkets()]);
 
   // Build a lookup from market_id_onchain → supabase row
   const dbByOnchainId = new Map<string, SupabaseRow>();
@@ -141,13 +137,13 @@ export default async function OnchainDevPage() {
     <div className="mx-auto max-w-5xl space-y-10 px-4 py-8 font-mono text-sm">
       <div>
         <h1 className="mb-1 text-xl font-bold">On-Chain Markets (Dev)</h1>
+        <Link href="https://testnet.explorer.provable.com/program/obsidian_market_v2.aleo" target="_blank">
+          View Obisdian Market's smart contract on Aleo's Testnet <ExternalLink className="inline-block h-5 w-5 text-primary" />
+        </Link>
         <p className="text-xs text-muted-foreground">
-          Queried {MAX_MARKET_ID} IDs from{' '}
-          <code className="rounded bg-muted px-1">{PROGRAM}</code> on {NETWORK}.
-          Found <strong>{onchain.length}</strong> market(s).
+          Queried {MAX_MARKET_ID} IDs from <code className="rounded bg-muted px-1">{PROGRAM}</code> on {NETWORK}. Found <strong>{onchain.length}</strong> market(s).
         </p>
       </div>
-
       {/* ── On-chain markets ──────────────────────────────────────── */}
       <section>
         <h2 className="mb-3 text-lg font-semibold">Aleo Testnet State</h2>
@@ -174,15 +170,7 @@ export default async function OnchainDevPage() {
                     <tr key={id} className="border-b last:border-0 hover:bg-muted/30">
                       <td className="px-3 py-2 font-bold">{id}</td>
                       <td className="px-3 py-2">
-                        <span
-                          className={
-                            stripTypeSuffix(market.status) === '0'
-                              ? 'text-green-500'
-                              : 'text-amber-500'
-                          }
-                        >
-                          {statusLabel(market.status)}
-                        </span>
+                        <span className={stripTypeSuffix(market.status) === '0' ? 'text-green-500' : 'text-amber-500'}>{statusLabel(market.status)}</span>
                       </td>
                       <td className="px-3 py-2">{microToAleo(market.yes_reserves)}</td>
                       <td className="px-3 py-2">{microToAleo(market.no_reserves)}</td>
@@ -190,13 +178,7 @@ export default async function OnchainDevPage() {
                       <td className="px-3 py-2 text-xs">
                         {market.creator.slice(0, 12)}...{market.creator.slice(-6)}
                       </td>
-                      <td className="px-3 py-2">
-                        {dbRow ? (
-                          <span className="text-green-500">{dbRow.slug}</span>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </td>
+                      <td className="px-3 py-2">{dbRow ? <span className="text-green-500">{dbRow.slug}</span> : <span className="text-muted-foreground">—</span>}</td>
                     </tr>
                   );
                 })}
@@ -205,12 +187,9 @@ export default async function OnchainDevPage() {
           </div>
         )}
       </section>
-
       {/* ── Supabase markets ──────────────────────────────────────── */}
       <section>
-        <h2 className="mb-3 text-lg font-semibold">
-          Supabase Markets ({supabase.length})
-        </h2>
+        <h2 className="mb-3 text-lg font-semibold">Supabase Markets ({supabase.length})</h2>
         {supabase.length === 0 ? (
           <p className="text-muted-foreground">No Supabase rows found. Is Supabase running?</p>
         ) : (
@@ -231,21 +210,10 @@ export default async function OnchainDevPage() {
                 {supabase.map((row) => {
                   const linked = row.market_id_onchain !== null;
                   return (
-                    <tr
-                      key={row.slug}
-                      className={`border-b last:border-0 hover:bg-muted/30 ${
-                        !linked ? 'opacity-50' : ''
-                      }`}
-                    >
+                    <tr key={row.slug} className={`border-b last:border-0 hover:bg-muted/30 ${!linked ? 'opacity-50' : ''}`}>
                       <td className="px-3 py-2 font-semibold">{row.slug}</td>
                       <td className="px-3 py-2">
-                        {linked ? (
-                          <span className="rounded bg-green-500/10 px-1.5 py-0.5 text-green-500">
-                            {row.market_id_onchain}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">NULL</span>
-                        )}
+                        {linked ? <span className="rounded bg-green-500/10 px-1.5 py-0.5 text-green-500">{row.market_id_onchain}</span> : <span className="text-muted-foreground">NULL</span>}
                       </td>
                       <td className="px-3 py-2">{row.status}</td>
                       <td className="px-3 py-2">{microToAleo(row.yes_reserves)}</td>
@@ -260,15 +228,10 @@ export default async function OnchainDevPage() {
           </div>
         )}
       </section>
-
       {/* ── Raw JSON dump ─────────────────────────────────────────── */}
       <details className="rounded-lg border p-4">
-        <summary className="cursor-pointer text-xs font-semibold text-muted-foreground">
-          Raw On-Chain JSON
-        </summary>
-        <pre className="mt-3 overflow-x-auto text-xs">
-          {JSON.stringify(onchain, null, 2)}
-        </pre>
+        <summary className="cursor-pointer text-xs font-semibold text-muted-foreground">Raw On-Chain JSON</summary>
+        <pre className="mt-3 overflow-x-auto text-xs">{JSON.stringify(onchain, null, 2)}</pre>
       </details>
     </div>
   );

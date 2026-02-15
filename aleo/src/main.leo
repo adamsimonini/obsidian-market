@@ -1,203 +1,307 @@
-// The 'leo' program.
-program obsidian_market.aleo {
-    // For more information, please refer to the documentation: `https://docs.leo-lang.org/guides/upgradability`
+import test_usdcx_stablecoin.aleo;
+
+program obsidian_market_v2.aleo {
     @admin(address="aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv")
     async constructor() {}
 
-    // Market status: 0 = open, 1 = closed, 2 = resolved, 3 = cancelled
+    // --- Structs ---
+
+    // Market data (public on-chain state)
+    // Status: 0 = open, 1 = closed, 2 = resolved, 3 = cancelled
     struct Market {
         id: u64,
         creator: address,
-        market_type: u8,  // 1 = cpmm
-        yes_reserves: u64,  // PUBLIC - required for pricing
-        no_reserves: u64,   // PUBLIC - required for pricing
+        market_type: u8,        // 1 = CPMM
+        yes_reserves: u128,     // USDCx micro-units
+        no_reserves: u128,      // USDCx micro-units
         status: u8,
+        winning_side: bool,     // Set at resolution
     }
 
-    // Private record for bet positions
+    // Private record representing a user's bet position
     record BetRecord {
         owner: address,
         market_id: u64,
-        shares: u64,
-        side: bool,  // true = Yes, false = No
+        shares: u128,           // USDCx-denominated shares
+        side: bool,             // true = Yes, false = No
     }
 
-    // Mappings to store market data
+    // --- Mappings ---
+
     mapping markets: u64 => Market;
     mapping market_counter: u64 => u64;
 
-    // Constants
+    // --- Constants ---
+
     const MARKET_STATUS_OPEN: u8 = 0u8;
     const MARKET_STATUS_CLOSED: u8 = 1u8;
     const MARKET_STATUS_RESOLVED: u8 = 2u8;
     const MARKET_STATUS_CANCELLED: u8 = 3u8;
-    const MIN_BET_AMOUNT: u64 = 1000000u64; // 1 ALEO in microcredits
-    
+    const MIN_BET_AMOUNT: u128 = 1_000_000u128; // 1 USDCx (6 decimals)
 
-    // Create a new market (admin only)
-    // Must be async to write to mappings
-    async transition create_market(
-        public market_id: u64,
-        public yes_odds: u64,
-        public no_odds: u64
-    ) -> Future {
-        // Validate admin (caller must be admin)
-        // Note: In production, you'd check against an admin list
-        // For MVP, we'll use the program admin address
-        let caller: address = self.caller;
-        
-        // Create new market struct
-        // For CPMM: yes_odds and no_odds are initial reserves (liquidity)
-        let market: Market = Market {
-            id: market_id,
-            creator: caller,
-            market_type: 1u8,  // 1 = CPMM market type
-            yes_reserves: yes_odds,  // Initial YES reserve (liquidity)
-            no_reserves: no_odds,    // Initial NO reserve (liquidity)
-            status: MARKET_STATUS_OPEN,
-        };
+    // Treasury: admin wallet that holds the USDCx pool
+    const TREASURY: address = aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv;
 
-        // Store market in mapping (must use .set() in async function)
-        return create_market_onchain(market_id, market);
+    // --- Helper Functions ---
+
+    // CPMM swap for binary market (Yes/No)
+    // Formula: x * y = k (constant product)
+    // Returns: (new_yes_reserves, new_no_reserves, shares_out)
+    inline calculate_cpmm_swap(
+        current_yes: u128,
+        current_no: u128,
+        amount_in: u128,
+        side: bool,
+    ) -> (u128, u128, u128) {
+        let k: u128 = current_yes * current_no;
+
+        let new_yes: u128 = side ? (current_yes + amount_in) : (k / (current_no + amount_in));
+        let new_no: u128 = side ? (k / (current_yes + amount_in)) : (current_no + amount_in);
+
+        let shares_out: u128 = side
+            ? (amount_in * current_no) / (current_yes + amount_in)
+            : (amount_in * current_yes) / (current_no + amount_in);
+
+        return (new_yes, new_no, shares_out);
     }
 
-    // Async function to store market in mapping
-    async function create_market_onchain(
+    // Default market for get_or_use lookups
+    inline default_market() -> Market {
+        let default_creator: address = aleo12jwjgr6uvlydcgjlguyhlp6rfgntnyx7hk5g8k5dllqpjtdngcqqcrhmfj;
+        return Market {
+            id: 0u64,
+            creator: default_creator,
+            market_type: 0u8,
+            yes_reserves: 0u128,
+            no_reserves: 0u128,
+            status: 0u8,
+            winning_side: false,
+        };
+    }
+
+    // --- Transitions ---
+
+    // Create a new market (admin only)
+    async transition create_market(
         public market_id: u64,
-        public market: Market
+        public yes_reserves: u128,
+        public no_reserves: u128,
+    ) -> Future {
+        let market: Market = Market {
+            id: market_id,
+            creator: self.caller,
+            market_type: 1u8,
+            yes_reserves: yes_reserves,
+            no_reserves: no_reserves,
+            status: MARKET_STATUS_OPEN,
+            winning_side: false,
+        };
+
+        return finalize_create_market(market_id, market);
+    }
+
+    async function finalize_create_market(
+        public market_id: u64,
+        public market: Market,
     ) {
-        // Use .set() method for mappings, not array syntax
         markets.set(market_id, market);
     }
 
-    // Note: Reading from mappings requires async functions, but async functions can't return values
-    // For now, market data should be queried off-chain or passed as parameters
-    // If you need to read markets, consider making reserves public parameters in transitions
-
-    // Place a bet on a market
-    // Returns Future for async public state update
-    // Note: Market reserves are public (needed for AMM), so we pass them as public params
+    // Place a bet using USDCx
+    // amount is PUBLIC (needed for USDCx transfer)
+    // side is PRIVATE (user's bet direction stays hidden)
     async transition place_bet_cpmm(
-        public market_id: u64,           // Public (needed to identify market)
-        public current_yes_reserves: u64, // Public (market reserves are public for AMM)
-        public current_no_reserves: u64,  // Public (market reserves are public for AMM)
-        private amount: u64,             // PRIVATE - bet amount
-        private side: bool,              // PRIVATE - user's bet direction hidden
+        public market_id: u64,
+        public current_yes_reserves: u128,
+        public current_no_reserves: u128,
+        public amount: u128,
+        private side: bool,
     ) -> (BetRecord, Future) {
-        // 1. Validate minimum bet amount
+        // 1. Validate minimum bet
         assert(amount >= MIN_BET_AMOUNT);
-        
-        // 2. Calculate shares using CPMM formula (private computation)
-        let (new_yes_reserves, new_no_reserves, shares_out) = calculate_cpmm_swap(
+
+        // 2. Calculate CPMM swap
+        let (new_yes, new_no, shares_out): (u128, u128, u128) = calculate_cpmm_swap(
             current_yes_reserves,
             current_no_reserves,
             amount,
-            side
+            side,
         );
-        
-        // 3. Create a new bet record, which is a private record that represents the user's shares
-        // All records belong to a user and are associated with a market
-        let bet_record = BetRecord {
+
+        // 3. Create private bet record
+        let bet: BetRecord = BetRecord {
+            owner: self.signer,
             market_id: market_id,
-            owner: self.signer,  // Private - user's address (signer in private transitions)
-            shares: shares_out,  // Private - shares they receive (not what they put in)
-            side: side,          // Private - their bet direction
+            shares: shares_out,
+            side: side,
         };
-        
-        // 4. The async function will validate and update public reserves on-chain
-        let future = update_market_reserves(
-            market_id, 
-            new_yes_reserves, 
-            new_no_reserves,
-            current_yes_reserves,  // For validation (prevents race conditions)
-            current_no_reserves    // For validation (prevents race conditions)
+
+        // 4. Collect USDCx from user → treasury
+        let payment_future: Future = test_usdcx_stablecoin.aleo/transfer_public_as_signer(
+            TREASURY,
+            amount,
         );
-        
-        return (bet_record, future);
+
+        // 5. Update reserves on-chain
+        return (bet, finalize_place_bet(
+            market_id,
+            new_yes,
+            new_no,
+            current_yes_reserves,
+            current_no_reserves,
+            payment_future,
+        ));
     }
 
-    // Calculate CPMM swap for binary market (Yes/No)
-    // CPMM formula: x * y = k (constant product)
-    // Returns: (new_yes_reserves, new_no_reserves, shares_out)
-    function calculate_cpmm_swap(
-        current_yes: u64,
-        current_no: u64,
-        amount_in: u64,
-        side: bool  // true = betting Yes, false = betting No
-    ) -> (u64, u64, u64) {
-        // Calculate constant product k = x * y
-        let k: u64 = current_yes * current_no;
-        
-        if side {
-            // Betting on Yes: add amount to yes_reserves
-            let new_yes: u64 = current_yes + amount_in;
-            
-            // Maintain constant product: k = new_yes * new_no
-            // new_no = k / new_yes
-            let new_no: u64 = k / new_yes;
-            
-            // Calculate shares received using CPMM formula
-            // Shares = (amount_in * current_no) / new_yes
-            let shares_out: u64 = (amount_in * current_no) / new_yes;
-            
-            return (new_yes, new_no, shares_out);
-        } else {
-            // Betting on No: add amount to no_reserves
-            let new_no: u64 = current_no + amount_in;
-            
-            // Maintain constant product: k = new_yes * new_no
-            // new_yes = k / new_no
-            let new_yes: u64 = k / new_no;
-            
-            // Calculate shares received using CPMM formula
-            // Shares = (amount_in * current_yes) / new_no
-            let shares_out: u64 = (amount_in * current_yes) / new_no;
-            
-            return (new_yes, new_no, shares_out);
-        }
-    }
-
-    // Async function to update PUBLIC reserves on-chain
-    // Async functions don't return values - they execute side effects (mutations)
-    async function update_market_reserves(
+    async function finalize_place_bet(
         public market_id: u64,
-        public new_yes_reserves: u64,
-        public new_no_reserves: u64,
-        public expected_yes_reserves: u64,  // For validation (prevents race conditions)
-        public expected_no_reserves: u64   // For validation (prevents race conditions)
+        public new_yes_reserves: u128,
+        public new_no_reserves: u128,
+        public expected_yes_reserves: u128,
+        public expected_no_reserves: u128,
+        payment_future: Future,
     ) {
-        // This executes on-chain after private transition proof is verified
-        // Use .get_or_use() method for mappings, not .get()
-        // Default market with id=0 indicates not found (can't use self.caller in async functions)
-        // Use admin address as placeholder for default market
-        let default_creator: address = aleo12jwjgr6uvlydcgjlguyhlp6rfgntnyx7hk5g8k5dllqpjtdngcqqcrhmfj;
-        let default_market: Market = Market {
-            id: 0u64,
-            creator: default_creator,  // Placeholder (we check id != 0 to validate)
-            market_type: 0u8,
-            yes_reserves: 0u64,
-            no_reserves: 0u64,
-            status: 0u8,
-        };
-        let market: Market = markets.get_or_use(market_id, default_market);
-        
-        // Validate market exists and is open
-        assert(market.id != 0u64);  // Market must exist
-        assert(market.status == MARKET_STATUS_OPEN);  // Market must be open
-        
-        // Validate reserves match expected (prevents race conditions)
+        payment_future.await();
+
+        let market: Market = markets.get_or_use(market_id, default_market());
+        assert(market.id != 0u64);
+        assert(market.status == MARKET_STATUS_OPEN);
         assert(market.yes_reserves == expected_yes_reserves);
         assert(market.no_reserves == expected_no_reserves);
-        
-        // Update PUBLIC pool state with new reserves using .set() method
+
         markets.set(market_id, Market {
-            id: market.id,  
+            id: market.id,
             creator: market.creator,
             market_type: market.market_type,
-            yes_reserves: new_yes_reserves,  // PUBLIC update
-            no_reserves: new_no_reserves,    // PUBLIC update
+            yes_reserves: new_yes_reserves,
+            no_reserves: new_no_reserves,
             status: market.status,
+            winning_side: market.winning_side,
         });
     }
 
+    // Resolve a market — admin declares the winning side
+    async transition resolve_market(
+        public market_id: u64,
+        public winning_side: bool,
+    ) -> Future {
+        return finalize_resolve_market(market_id, winning_side, self.caller);
+    }
+
+    async function finalize_resolve_market(
+        public market_id: u64,
+        public winning_side: bool,
+        public caller: address,
+    ) {
+        assert(caller == TREASURY);
+
+        let market: Market = markets.get_or_use(market_id, default_market());
+        assert(market.id != 0u64);
+        assert(market.status == MARKET_STATUS_OPEN || market.status == MARKET_STATUS_CLOSED);
+
+        markets.set(market_id, Market {
+            id: market.id,
+            creator: market.creator,
+            market_type: market.market_type,
+            yes_reserves: market.yes_reserves,
+            no_reserves: market.no_reserves,
+            status: MARKET_STATUS_RESOLVED,
+            winning_side: winning_side,
+        });
+    }
+
+    // Claim winnings — consumes BetRecord and pays out USDCx
+    // BetRecord can only be spent once (no double claims)
+    // Payout = shares (1 winning share = 1 USDCx micro-unit)
+    async transition claim_winnings(
+        private bet: BetRecord,
+        public payout: u128,
+    ) -> Future {
+        assert(payout == bet.shares);
+
+        // Transfer USDCx from treasury to user
+        // Admin must have pre-approved this program as a spender
+        let payout_future: Future = test_usdcx_stablecoin.aleo/transfer_from_public(
+            TREASURY,
+            bet.owner,
+            payout,
+        );
+
+        return finalize_claim_winnings(
+            bet.market_id,
+            bet.side,
+            payout_future,
+        );
+    }
+
+    async function finalize_claim_winnings(
+        public market_id: u64,
+        public side: bool,
+        payout_future: Future,
+    ) {
+        let market: Market = markets.get_or_use(market_id, default_market());
+        assert(market.id != 0u64);
+        assert(market.status == MARKET_STATUS_RESOLVED);
+        assert(side == market.winning_side);
+
+        payout_future.await();
+    }
+
+    // Cancel a market — admin only
+    async transition cancel_market(
+        public market_id: u64,
+    ) -> Future {
+        return finalize_cancel_market(market_id, self.caller);
+    }
+
+    async function finalize_cancel_market(
+        public market_id: u64,
+        public caller: address,
+    ) {
+        assert(caller == TREASURY);
+
+        let market: Market = markets.get_or_use(market_id, default_market());
+        assert(market.id != 0u64);
+        assert(market.status != MARKET_STATUS_RESOLVED);
+
+        markets.set(market_id, Market {
+            id: market.id,
+            creator: market.creator,
+            market_type: market.market_type,
+            yes_reserves: market.yes_reserves,
+            no_reserves: market.no_reserves,
+            status: MARKET_STATUS_CANCELLED,
+            winning_side: market.winning_side,
+        });
+    }
+
+    // Claim refund for a cancelled market — consumes BetRecord
+    async transition claim_refund(
+        private bet: BetRecord,
+        public refund_amount: u128,
+    ) -> Future {
+        assert(refund_amount == bet.shares);
+
+        let refund_future: Future = test_usdcx_stablecoin.aleo/transfer_from_public(
+            TREASURY,
+            bet.owner,
+            refund_amount,
+        );
+
+        return finalize_claim_refund(
+            bet.market_id,
+            refund_future,
+        );
+    }
+
+    async function finalize_claim_refund(
+        public market_id: u64,
+        refund_future: Future,
+    ) {
+        let market: Market = markets.get_or_use(market_id, default_market());
+        assert(market.id != 0u64);
+        assert(market.status == MARKET_STATUS_CANCELLED);
+
+        refund_future.await();
+    }
 }

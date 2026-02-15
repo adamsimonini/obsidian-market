@@ -57,6 +57,13 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
   // Step 1: User picks a wallet → select by name + flag pending
   const connect = useCallback(
     (walletName: string) => {
+      console.debug('[WalletContext] connect requested:', walletName, {
+        connected: provable.connected,
+        connecting: provable.connecting,
+        disconnecting: provable.disconnecting,
+        wallet: provable.wallet?.adapter.name,
+        availableWallets: provable.wallets?.map((w) => w.adapter.name),
+      });
       if (provable.connected || provable.connecting || provable.disconnecting) return;
       // @ts-expect-error - WalletName type is derived from registered wallets
       provable.selectWallet(walletName);
@@ -74,6 +81,7 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
       return;
     }
 
+    console.debug('[WalletContext] triggering provable.connect for', provable.wallet?.adapter.name);
     setPendingConnect(false);
     // Network arg satisfies TS types but the provider internally uses its own
     // initialNetwork, decryptPermission, and programs props for the actual call
@@ -151,6 +159,8 @@ function WalletProviderInner({ children }: { children: ReactNode }) {
   );
 }
 
+const PROGRAMS = ['obsidian_market_v2.aleo', 'test_usdcx_stablecoin.aleo', 'credits.aleo'];
+
 export function WalletProvider({ children }: { children: ReactNode }) {
   const wallets = useMemo(() => {
     try {
@@ -174,7 +184,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       wallets={wallets}
       decryptPermission={DecryptPermission.UponRequest}
       network={Network.TESTNET}
-      programs={['obsidian_market.aleo', 'test_usdcx_stablecoin.aleo', 'credits.aleo']}
+      programs={PROGRAMS}
     >
       <WalletProviderInner>{children}</WalletProviderInner>
     </AleoWalletProvider>
