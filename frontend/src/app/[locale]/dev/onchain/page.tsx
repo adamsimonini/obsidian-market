@@ -63,7 +63,7 @@ function parseAleoMarket(raw: string): AleoMarket | null {
 }
 
 function stripTypeSuffix(val: string): string {
-  return val.replace(/u\d+$/, '');
+  return val.replace(/u\d+\s*$/, '').trim();
 }
 
 function statusLabel(raw: string): string {

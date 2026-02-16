@@ -207,17 +207,8 @@ for entry in "${SEED_MARKETS[@]}"; do
 
   echo "--- ${slug} (on-chain ID: ${market_id}) ---"
 
-  # 1. Check if already linked in Supabase
-  if check_supabase_linked "$slug"; then
-    echo "  Already linked in Supabase — skipping."
-    SKIPPED=$((SKIPPED + 1))
-    echo ""
-    continue
-  fi
-
-  # 2. Check if market exists on-chain
+  # 1. Check if market exists on-chain
   if check_market_exists "$market_id"; then
-    echo "  Already exists on-chain — linking to Supabase only."
     # Fetch actual on-chain reserves (they may differ from seed values after bets)
     if fetch_onchain_reserves "$market_id"; then
       echo "  On-chain reserves: YES=${ONCHAIN_YES} NO=${ONCHAIN_NO}"
@@ -226,12 +217,24 @@ for entry in "${SEED_MARKETS[@]}"; do
     else
       echo "  WARNING: Could not fetch on-chain reserves, using seed values."
     fi
+
+    # 2. Check if already linked in Supabase
+    if check_supabase_linked "$slug"; then
+      echo "  Already linked in Supabase — syncing reserves only."
+      link_supabase "$slug" "$market_id" "$yes_reserves" "$no_reserves"
+      SKIPPED=$((SKIPPED + 1))
+      echo ""
+      continue
+    else
+      echo "  Already exists on-chain — linking to Supabase."
+    fi
   else
+    # 3. Create on-chain if doesn't exist
     create_market_onchain "$market_id" "$yes_reserves" "$no_reserves"
     CREATED=$((CREATED + 1))
   fi
 
-  # 3. Link in Supabase (uses actual on-chain reserves if fetched above)
+  # 4. Link in Supabase (uses actual on-chain reserves if fetched above)
   link_supabase "$slug" "$market_id" "$yes_reserves" "$no_reserves"
   LINKED=$((LINKED + 1))
 
