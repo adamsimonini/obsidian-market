@@ -35,7 +35,7 @@ ALEO_NETWORK="${NETWORK:?NETWORK not set in aleo/.env}"
 SUPABASE_URL="${SUPABASE_URL:-http://127.0.0.1:54321}"
 SUPABASE_SERVICE_KEY="${SUPABASE_SERVICE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}"
 
-PROGRAM="obsidian_market.aleo"
+PROGRAM="obsidian_market_v2.aleo"
 
 # ── Markets to seed on-chain ───────────────────────────────────────────────
 # Format: market_id|slug|yes_reserves|no_reserves
@@ -151,8 +151,8 @@ create_market_onchain() {
     cd "$ALEO_DIR"
     leo execute create_market \
       "${market_id}u64" \
-      "${yes_reserves}u64" \
-      "${no_reserves}u64" \
+      "${yes_reserves}u128" \
+      "${no_reserves}u128" \
       --broadcast --yes
   )
   echo "  On-chain transaction submitted."
@@ -207,17 +207,8 @@ for entry in "${SEED_MARKETS[@]}"; do
 
   echo "--- ${slug} (on-chain ID: ${market_id}) ---"
 
-  # 1. Check if already linked in Supabase
-  if check_supabase_linked "$slug"; then
-    echo "  Already linked in Supabase — skipping."
-    SKIPPED=$((SKIPPED + 1))
-    echo ""
-    continue
-  fi
-
-  # 2. Check if market exists on-chain
+  # 1. Check if market exists on-chain
   if check_market_exists "$market_id"; then
-    echo "  Already exists on-chain — linking to Supabase only."
     # Fetch actual on-chain reserves (they may differ from seed values after bets)
     if fetch_onchain_reserves "$market_id"; then
       echo "  On-chain reserves: YES=${ONCHAIN_YES} NO=${ONCHAIN_NO}"
@@ -226,12 +217,24 @@ for entry in "${SEED_MARKETS[@]}"; do
     else
       echo "  WARNING: Could not fetch on-chain reserves, using seed values."
     fi
+
+    # 2. Check if already linked in Supabase
+    if check_supabase_linked "$slug"; then
+      echo "  Already linked in Supabase — syncing reserves only."
+      link_supabase "$slug" "$market_id" "$yes_reserves" "$no_reserves"
+      SKIPPED=$((SKIPPED + 1))
+      echo ""
+      continue
+    else
+      echo "  Already exists on-chain — linking to Supabase."
+    fi
   else
+    # 3. Create on-chain if doesn't exist
     create_market_onchain "$market_id" "$yes_reserves" "$no_reserves"
     CREATED=$((CREATED + 1))
   fi
 
-  # 3. Link in Supabase (uses actual on-chain reserves if fetched above)
+  # 4. Link in Supabase (uses actual on-chain reserves if fetched above)
   link_supabase "$slug" "$market_id" "$yes_reserves" "$no_reserves"
   LINKED=$((LINKED + 1))
 

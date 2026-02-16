@@ -5,8 +5,8 @@ program test_leo.aleo {
     @test
     async transition test_create_market() -> Future {
         let market_id: u64 = 1u64;
-        let yes_reserves: u64 = 50000000u64;
-        let no_reserves: u64 = 50000000u64;
+        let yes_reserves: u128 = 50_000_000u128;
+        let no_reserves: u128 = 50_000_000u128;
 
         let f: Future = obsidian_market.aleo/create_market(market_id, yes_reserves, no_reserves);
         return finalize_test_create_market(f);
@@ -16,50 +16,45 @@ program test_leo.aleo {
         f.await();
     }
 
-    // Test placing a bet and verify the returned BetRecord
+    // Test market resolution
     @test
-    async transition test_place_bet() -> Future {
-        let market_id: u64 = 1u64;
-        let yes_reserves: u64 = 50000000u64;
-        let no_reserves: u64 = 50000000u64;
+    async transition test_resolve_market() -> Future {
+        let market_id: u64 = 2u64;
+        let yes_reserves: u128 = 50_000_000u128;
+        let no_reserves: u128 = 50_000_000u128;
 
-        // Create market first
         let create_future: Future = obsidian_market.aleo/create_market(market_id, yes_reserves, no_reserves);
+        let resolve_future: Future = obsidian_market.aleo/resolve_market(market_id, true);
 
-        // Place a Yes bet
-        let amount: u64 = 1000000u64; // 1 ALEO
-        let side: bool = true;
-        let (bet_record, bet_future): (obsidian_market.aleo/BetRecord, Future) = obsidian_market.aleo/place_bet_cpmm(
-            market_id, yes_reserves, no_reserves, amount, side
-        );
-
-        // Verify bet record fields
-        assert_eq(bet_record.market_id, market_id);
-        assert_eq(bet_record.side, true);
-
-        return finalize_test_place_bet(create_future, bet_future);
+        return finalize_test_resolve_market(create_future, resolve_future);
     }
 
-    async function finalize_test_place_bet(create_future: Future, bet_future: Future) {
+    async function finalize_test_resolve_market(create_future: Future, resolve_future: Future) {
         create_future.await();
-        bet_future.await();
+        resolve_future.await();
     }
 
-    // Test minimum bet validation - should fail with amount below MIN_BET_AMOUNT
+    // Test market cancellation
     @test
-    @should_fail
-    transition test_minimum_bet() {
-        let market_id: u64 = 1u64;
-        let yes_reserves: u64 = 50000000u64;
-        let no_reserves: u64 = 50000000u64;
+    async transition test_cancel_market() -> Future {
+        let market_id: u64 = 3u64;
+        let yes_reserves: u128 = 50_000_000u128;
+        let no_reserves: u128 = 50_000_000u128;
 
-        // Try to bet less than minimum (1 ALEO = 1000000 microcredits)
-        let amount: u64 = 500000u64; // 0.5 ALEO - should fail at assert
-        let side: bool = true;
-        let (bet_record, bet_future): (obsidian_market.aleo/BetRecord, Future) = obsidian_market.aleo/place_bet_cpmm(
-            market_id, yes_reserves, no_reserves, amount, side
-        );
+        let create_future: Future = obsidian_market.aleo/create_market(market_id, yes_reserves, no_reserves);
+        let cancel_future: Future = obsidian_market.aleo/cancel_market(market_id);
+
+        return finalize_test_cancel_market(create_future, cancel_future);
     }
+
+    async function finalize_test_cancel_market(create_future: Future, cancel_future: Future) {
+        create_future.await();
+        cancel_future.await();
+    }
+
+    // Note: place_bet_cpmm, claim_winnings, claim_refund tests require
+    // test_usdcx_stablecoin.aleo deployed to ledger (only works on testnet,
+    // not locally — merkle_tree.aleo lacks constructor for ConsensusVersion V9)
 
     @admin(address="aleo1awc7l4v56ahsjyj29g4fe3f8ps4w3akzy305vymlzm3exawgvypqk78elv")
     async constructor() {}

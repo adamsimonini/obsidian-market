@@ -1,9 +1,14 @@
 {
-  "program": "obsidian_market.aleo",
+  "program": "obsidian_market_v2.aleo",
   "version": "0.1.0",
-  "description": "",
+  "description": "Privacy-focused prediction market on Aleo",
   "license": "Proprietary License",
-  "leo": "3.3.1",
-  "dependencies": null,
-  "dev_dependencies": null
+  "leo": "3.4.0",
+  "dependencies": [
+    {
+      "name": "test_usdcx_stablecoin.aleo",
+      "location": "network",
+      "network": "testnet"
+    }
+  ]
 }
