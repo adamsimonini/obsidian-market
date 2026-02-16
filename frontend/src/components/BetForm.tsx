@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { useTranslations, useFormatter } from 'next-intl';
-import { Loader2, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Loader2, ChevronDown, ChevronUp, AlertCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,7 +33,6 @@ export function BetForm({ market, onClose }: BetFormProps) {
   const t = useTranslations('betForm');
   const tc = useTranslations('common');
   const tw = useTranslations('wallet');
-  const format = useFormatter();
   const { address, connected, executeTransaction, transactionStatus } = useWallet();
   const [step, setStep] = useState<BetStep>('idle');
   const [error, setError] = useState<ErrorDetails | null>(null);
@@ -44,6 +43,10 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
   const loading = step !== 'idle' && step !== 'done';
   const hasOnchainMarket = Boolean(market.market_id_onchain);
+
+  // Calculate ROI for each side
+  const roiYes = market.yes_price > 0 ? ((1 / market.yes_price) - 1) * 100 : 0;
+  const roiNo = market.no_price > 0 ? ((1 / market.no_price) - 1) * 100 : 0;
 
   // CPMM price impact calculation
   const priceImpact = useMemo(() => {
@@ -69,9 +72,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
     const newYesPrice = noR / (yesR + noR);
     const newNoPrice = yesR / (yesR + noR);
-    const shares = selectedSide === 'yes'
-      ? market.yes_reserves - yesR
-      : market.no_reserves - noR;
+    const shares = selectedSide === 'yes' ? market.yes_reserves - yesR : market.no_reserves - noR;
 
     return {
       newYesPrice,
@@ -83,63 +84,67 @@ export function BetForm({ market, onClose }: BetFormProps) {
     };
   }, [betAmount, selectedSide, market.yes_reserves, market.no_reserves]);
 
-  const parseErrorMessage = useCallback((err: unknown): ErrorDetails => {
-    if (!(err instanceof Error)) {
-      return { userMessage: t('failedToPlace') };
-    }
+  const parseErrorMessage = useCallback(
+    (err: unknown): ErrorDetails => {
+      if (!(err instanceof Error)) {
+        return { userMessage: t('failedToPlace') };
+      }
 
-    const errorMsg = err.message.toLowerCase();
+      const errorMsg = err.message.toLowerCase();
 
-    // User rejected transaction
-    if (errorMsg.includes('user rejected') || errorMsg.includes('user denied')) {
+      // User rejected transaction
+      if (errorMsg.includes('user rejected') || errorMsg.includes('user denied')) {
+        return {
+          userMessage: 'Transaction cancelled',
+          suggestion: 'You rejected the transaction in your wallet. Click "Place Private Bet" to try again.',
+        };
+      }
+
+      // Insufficient funds
+      if (errorMsg.includes('insufficient') || errorMsg.includes('not enough')) {
+        return {
+          userMessage: 'Insufficient funds',
+          technicalDetails: err.message,
+          suggestion: 'Make sure you have enough public USDCx balance to cover the bet, plus ALEO credits for the network fee (~0.5 ALEO).',
+        };
+      }
+
+      // Network/RPC errors
+      if (errorMsg.includes('network') || errorMsg.includes('timeout') || errorMsg.includes('rpc')) {
+        return {
+          userMessage: 'Network error',
+          technicalDetails: err.message,
+          suggestion: 'The Aleo network may be experiencing issues. Please try again in a few moments.',
+        };
+      }
+
+      // Transaction rejected by network
+      if (errorMsg.includes('rejected') || errorMsg.includes('failed')) {
+        return {
+          userMessage: 'Transaction rejected by network',
+          technicalDetails: err.message,
+          suggestion:
+            'The transaction was rejected. This could be due to: outdated market reserves (someone placed a bet right before you), insufficient USDCx balance, or network congestion. Try refreshing the page and placing your bet again.',
+        };
+      }
+
+      // Wallet not connected
+      if (errorMsg.includes('wallet not connected')) {
+        return {
+          userMessage: 'Wallet not connected',
+          suggestion: 'Please connect your wallet first.',
+        };
+      }
+
+      // Generic error with full details
       return {
-        userMessage: 'Transaction cancelled',
-        suggestion: 'You rejected the transaction in your wallet. Click "Place Private Bet" to try again.',
-      };
-    }
-
-    // Insufficient funds
-    if (errorMsg.includes('insufficient') || errorMsg.includes('not enough')) {
-      return {
-        userMessage: 'Insufficient funds',
+        userMessage: 'Transaction failed',
         technicalDetails: err.message,
-        suggestion: 'Make sure you have enough public USDCx balance to cover the bet, plus ALEO credits for the network fee (~0.5 ALEO).',
+        suggestion: 'An unexpected error occurred. Please try again or contact support if the issue persists.',
       };
-    }
-
-    // Network/RPC errors
-    if (errorMsg.includes('network') || errorMsg.includes('timeout') || errorMsg.includes('rpc')) {
-      return {
-        userMessage: 'Network error',
-        technicalDetails: err.message,
-        suggestion: 'The Aleo network may be experiencing issues. Please try again in a few moments.',
-      };
-    }
-
-    // Transaction rejected by network
-    if (errorMsg.includes('rejected') || errorMsg.includes('failed')) {
-      return {
-        userMessage: 'Transaction rejected by network',
-        technicalDetails: err.message,
-        suggestion: 'The transaction was rejected. This could be due to: outdated market reserves (someone placed a bet right before you), insufficient USDCx balance, or network congestion. Try refreshing the page and placing your bet again.',
-      };
-    }
-
-    // Wallet not connected
-    if (errorMsg.includes('wallet not connected')) {
-      return {
-        userMessage: 'Wallet not connected',
-        suggestion: 'Please connect your wallet first.',
-      };
-    }
-
-    // Generic error with full details
-    return {
-      userMessage: 'Transaction failed',
-      technicalDetails: err.message,
-      suggestion: 'An unexpected error occurred. Please try again or contact support if the issue persists.',
-    };
-  }, [t]);
+    },
+    [t],
+  );
 
   const handlePlaceBet = useCallback(async () => {
     if (!hasOnchainMarket) {
@@ -226,7 +231,13 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
       // Step 2: Wait for on-chain confirmation
       setStep('confirming');
-      await waitForTransaction(transactionStatus, transactionId);
+      const { transactionId: finalTxId } = await waitForTransaction(transactionStatus, transactionId);
+
+      // Update with the actual on-chain transaction ID
+      if (finalTxId && finalTxId !== transactionId) {
+        console.log('[BetForm] Updated to on-chain transaction ID:', finalTxId);
+        setTxId(finalTxId);
+      }
 
       // Step 3: Sync trade to Supabase using actual on-chain reserves
       setStep('syncing');
@@ -265,31 +276,21 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
   const stepMessage = useMemo(() => {
     switch (step) {
-      case 'signing': return t('signingInWallet');
-      case 'confirming': return t('confirmingOnChain');
-      case 'syncing': return t('syncingTrade');
-      case 'done': return t('betPlaced');
-      default: return null;
+      case 'signing':
+        return t('signingInWallet');
+      case 'confirming':
+        return t('confirmingOnChain');
+      case 'syncing':
+        return t('syncingTrade');
+      case 'done':
+        return t('betPlaced');
+      default:
+        return null;
     }
   }, [step, t]);
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6">
-      {/* Title and Description */}
-      <div>
-        <h1 className="mb-3 text-2xl font-bold">{market.title}</h1>
-        {market.description && (
-          <p className="leading-relaxed text-muted-foreground">
-            {market.description}
-          </p>
-        )}
-        <div className="mt-3 flex gap-3 text-sm text-muted-foreground">
-          <span>{t('volumeLabel', { value: format.number(market.total_volume) })}</span>
-          <span>{t('tradesLabel', { value: market.trade_count })}</span>
-          <span>{t('feeLabel', { value: `${market.fee_bps / 100}%` })}</span>
-        </div>
-      </div>
-
+    <div className="w-full space-y-6">
       {/* Error Message */}
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/50">
@@ -297,9 +298,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
             <AlertCircle className="mt-0.5 size-5 shrink-0 text-red-600 dark:text-red-400" />
             <div className="flex-1 space-y-2">
               <p className="font-semibold text-red-900 dark:text-red-100">{error.userMessage}</p>
-              {error.suggestion && (
-                <p className="text-sm text-red-800 dark:text-red-200">{error.suggestion}</p>
-              )}
+              {error.suggestion && <p className="text-sm text-red-800 dark:text-red-200">{error.suggestion}</p>}
               {error.technicalDetails && (
                 <button
                   onClick={() => setShowErrorDetails(!showErrorDetails)}
@@ -320,9 +319,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
               )}
               {showErrorDetails && error.technicalDetails && (
                 <div className="mt-2 rounded border border-red-200 bg-white dark:border-red-800 dark:bg-red-900/30 p-3">
-                  <pre className="whitespace-pre-wrap wrap-break-word text-xs font-mono text-red-800 dark:text-red-200">
-                    {error.technicalDetails}
-                  </pre>
+                  <pre className="whitespace-pre-wrap wrap-break-word text-xs font-mono text-red-800 dark:text-red-200">{error.technicalDetails}</pre>
                 </div>
               )}
             </div>
@@ -332,21 +329,12 @@ export function BetForm({ market, onClose }: BetFormProps) {
 
       {/* Status Message */}
       {stepMessage && (
-        <div className={cn(
-          'flex items-center gap-2 rounded-md p-3',
-          step === 'done' ? 'bg-primary/10 text-primary' : 'bg-accent text-accent-foreground',
-        )}>
+        <div className={cn('flex items-center gap-2 rounded-md p-3', step === 'done' ? 'text-accent' : 'bg-accent text-accent-foreground')}>
           {loading && <Loader2 className="size-4 animate-spin" />}
           <p className="text-sm font-medium">{stepMessage}</p>
-          {txId && (step === 'syncing' || step === 'done') && (
-            <a
-              href={`https://testnet.explorer.provable.com/transaction/${txId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-auto text-xs underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {t('viewOnExplorer')}
+          {txId && txId.startsWith('at1') && (step === 'syncing' || step === 'done') && (
+            <a href={`https://testnet.explorer.provable.com/transaction/${txId}`} target="_blank" rel="noopener noreferrer" className="ml-auto text-xs" onClick={(e) => e.stopPropagation()}>
+              {t('viewOnExplorer')} <ExternalLink className="size-3 inline" />
             </a>
           )}
         </div>
@@ -355,16 +343,12 @@ export function BetForm({ market, onClose }: BetFormProps) {
       {/* Warning Messages */}
       {!hasOnchainMarket && (
         <div className="rounded-md bg-amber-500/10 border border-amber-500/30 p-3">
-          <p className="text-sm text-amber-600 dark:text-amber-400">
-            This market is not yet linked to the on-chain contract. Betting is disabled.
-          </p>
+          <p className="text-sm text-amber-600 dark:text-amber-400">This market is not yet linked to the on-chain contract. Betting is disabled.</p>
         </div>
       )}
       {market.status !== 'open' && (
         <div className="rounded-md bg-accent p-3">
-          <p className="text-sm text-accent-foreground">
-            {t('marketStatus', { status: market.status })}
-          </p>
+          <p className="text-sm text-accent-foreground">{t('marketStatus', { status: market.status })}</p>
         </div>
       )}
 
@@ -377,44 +361,30 @@ export function BetForm({ market, onClose }: BetFormProps) {
             onClick={() => setSelectedSide('yes')}
             disabled={loading}
             className={cn(
-              'flex flex-col items-center rounded-lg border p-4 transition-colors',
-              selectedSide === 'yes'
-                ? 'border-green-500 bg-green-500/10 text-foreground'
-                : 'border-border bg-card text-card-foreground hover:border-green-500/50',
+              'flex flex-col items-center rounded-lg border p-6 transition-colors',
+              selectedSide === 'yes' ? 'border-green-500 bg-green-500/10 text-foreground' : 'border-border bg-card text-card-foreground hover:border-green-500/50',
               loading && 'pointer-events-none opacity-50',
             )}
           >
-            <span className="mb-1 text-lg font-semibold">{tc('yes')}</span>
-            <span className="text-2xl font-bold text-green-500">
-              {formatPercent(market.yes_price)}
-            </span>
-            {selectedSide === 'yes' && priceImpact && (
-              <span className="mt-1 text-xs text-muted-foreground">
-                → {formatPercent(priceImpact.newYesPrice)}
-              </span>
-            )}
+            <span className="mb-2 text-lg font-semibold">{tc('yes')}</span>
+            <span className="text-3xl font-bold text-green-500">{formatPercent(market.yes_price)}</span>
+            <span className="mt-2 text-sm font-semibold text-green-600 dark:text-green-400">+{roiYes.toFixed(0)}% ROI</span>
+            {selectedSide === 'yes' && priceImpact && <span className="mt-1 text-xs text-muted-foreground">→ {formatPercent(priceImpact.newYesPrice)}</span>}
           </button>
           <button
             type="button"
             onClick={() => setSelectedSide('no')}
             disabled={loading}
             className={cn(
-              'flex flex-col items-center rounded-lg border p-4 transition-colors',
-              selectedSide === 'no'
-                ? 'border-red-500 bg-red-500/10 text-foreground'
-                : 'border-border bg-card text-card-foreground hover:border-red-500/50',
+              'flex flex-col items-center rounded-lg border p-6 transition-colors',
+              selectedSide === 'no' ? 'border-red-500 bg-red-500/10 text-foreground' : 'border-border bg-card text-card-foreground hover:border-red-500/50',
               loading && 'pointer-events-none opacity-50',
             )}
           >
-            <span className="mb-1 text-lg font-semibold">{tc('no')}</span>
-            <span className="text-2xl font-bold text-red-500">
-              {formatPercent(market.no_price)}
-            </span>
-            {selectedSide === 'no' && priceImpact && (
-              <span className="mt-1 text-xs text-muted-foreground">
-                → {formatPercent(priceImpact.newNoPrice)}
-              </span>
-            )}
+            <span className="mb-2 text-lg font-semibold">{tc('no')}</span>
+            <span className="text-3xl font-bold text-red-500">{formatPercent(market.no_price)}</span>
+            <span className="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">+{roiNo.toFixed(0)}% ROI</span>
+            {selectedSide === 'no' && priceImpact && <span className="mt-1 text-xs text-muted-foreground">→ {formatPercent(priceImpact.newNoPrice)}</span>}
           </button>
         </div>
       </div>
@@ -422,16 +392,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
       {/* Bet Amount Input */}
       <div>
         <label className="mb-2 block text-sm font-semibold">{t('betAmount')}</label>
-        <Input
-          type="number"
-          min="1"
-          step="0.1"
-          value={betAmount}
-          onChange={(e) => setBetAmount(e.target.value)}
-          placeholder="1"
-          className="mb-2"
-          disabled={loading}
-        />
+        <Input type="number" min="1" step="0.1" value={betAmount} onChange={(e) => setBetAmount(e.target.value)} placeholder="1" className="mb-2" disabled={loading} />
         <p className="text-xs text-muted-foreground">{t('minimum')}</p>
       </div>
 
@@ -441,9 +402,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
           <CardContent className="space-y-2 py-4">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('position')}</span>
-              <Badge variant={selectedSide === 'yes' ? 'default' : 'destructive'}>
-                {selectedSide === 'yes' ? tc('yes') : tc('no')}
-              </Badge>
+              <Badge variant={selectedSide === 'yes' ? 'default' : 'destructive'}>{selectedSide === 'yes' ? tc('yes') : tc('no')}</Badge>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('cost')}</span>
@@ -455,9 +414,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('maxPayout')}</span>
-              <span className="font-semibold text-green-500">
-                {priceImpact.estimatedPayout.toFixed(2)} USDCx
-              </span>
+              <span className="font-semibold text-green-500">{priceImpact.estimatedPayout.toFixed(2)} USDCx</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('networkFee')}</span>
@@ -475,11 +432,7 @@ export function BetForm({ market, onClose }: BetFormProps) {
           </Button>
         ) : (
           <>
-            <Button
-              className="flex-1"
-              onClick={handlePlaceBet}
-              disabled={loading || selectedSide === null || market.status !== 'open' || !hasOnchainMarket}
-            >
+            <Button className="flex-1" onClick={handlePlaceBet} disabled={loading || selectedSide === null || market.status !== 'open' || !hasOnchainMarket}>
               {loading && <Loader2 className="size-4 animate-spin" />}
               {t('placeBet')}
             </Button>

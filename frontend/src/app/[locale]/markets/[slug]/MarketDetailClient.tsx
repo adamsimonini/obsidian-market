@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations, useFormatter } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { BetForm } from '@/components/BetForm';
 import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/navigation';
@@ -21,10 +19,6 @@ function formatVolume(volume: number): string {
   return `$${volume.toFixed(0)}`;
 }
 
-function formatPercent(price: number): string {
-  return `${Math.round(price * 100)}%`;
-}
-
 const statusVariant: Record<string, string> = {
   open: 'bg-primary text-primary-foreground',
   closed: 'bg-accent text-accent-foreground',
@@ -36,25 +30,11 @@ export function MarketDetailClient({ market, categoryName }: MarketDetailClientP
   const t = useTranslations('marketDetail');
   const tc = useTranslations('common');
   const format = useFormatter();
-  const [showBetForm, setShowBetForm] = useState(false);
 
   const yesPercent = Math.round(market.yes_price * 100);
   const noPercent = 100 - yesPercent;
   const roiYes = market.yes_price > 0 ? ((1 / market.yes_price) - 1) * 100 : 0;
   const roiNo = market.no_price > 0 ? ((1 / market.no_price) - 1) * 100 : 0;
-
-  if (showBetForm) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-3xl px-4 py-8 md:px-8">
-          <Button variant="ghost" className="mb-4" onClick={() => setShowBetForm(false)}>
-            &larr; {tc('back')}
-          </Button>
-          <BetForm market={market} onClose={() => setShowBetForm(false)} />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,7 +44,7 @@ export function MarketDetailClient({ market, categoryName }: MarketDetailClientP
         </Link>
 
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             {categoryName && (
               <Badge variant="outline">{categoryName}</Badge>
@@ -79,33 +59,33 @@ export function MarketDetailClient({ market, categoryName }: MarketDetailClientP
           )}
         </div>
 
-        {/* Price cards */}
-        <div className="mb-8 grid grid-cols-2 gap-4">
-          <Card className="border-primary/20">
-            <CardContent className="py-6 text-center">
-              <p className="mb-1 text-sm text-muted-foreground">{tc('yes')}</p>
-              <p className={cn('text-4xl font-bold', yesPercent >= 50 ? 'text-primary' : 'text-muted-foreground')}>
-                {yesPercent}%
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">ROI: +{roiYes.toFixed(0)}%</p>
-            </CardContent>
-          </Card>
-          <Card className="border-destructive/20">
-            <CardContent className="py-6 text-center">
-              <p className="mb-1 text-sm text-muted-foreground">{tc('no')}</p>
-              <p className={cn('text-4xl font-bold', noPercent > 50 ? 'text-destructive' : 'text-muted-foreground')}>
-                {noPercent}%
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">ROI: +{roiNo.toFixed(0)}%</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Trade button */}
-        {market.status === 'open' && (
-          <Button className="mb-8 w-full" size="lg" onClick={() => setShowBetForm(true)}>
-            {tc('trade')}
-          </Button>
+        {/* Bet form - inline with prominent yes/no buttons and ROI */}
+        {market.status === 'open' ? (
+          <div className="mb-8">
+            <BetForm market={market} onClose={() => {}} />
+          </div>
+        ) : (
+          /* Show non-clickable price cards only for closed/resolved markets */
+          <div className="mb-8 grid grid-cols-2 gap-4">
+            <Card className="border-primary/20">
+              <CardContent className="py-6 text-center">
+                <p className="mb-1 text-sm text-muted-foreground">{tc('yes')}</p>
+                <p className={cn('text-4xl font-bold', yesPercent >= 50 ? 'text-primary' : 'text-muted-foreground')}>
+                  {yesPercent}%
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">ROI: +{roiYes.toFixed(0)}%</p>
+              </CardContent>
+            </Card>
+            <Card className="border-destructive/20">
+              <CardContent className="py-6 text-center">
+                <p className="mb-1 text-sm text-muted-foreground">{tc('no')}</p>
+                <p className={cn('text-4xl font-bold', noPercent > 50 ? 'text-destructive' : 'text-muted-foreground')}>
+                  {noPercent}%
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">ROI: +{roiNo.toFixed(0)}%</p>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Stats */}
