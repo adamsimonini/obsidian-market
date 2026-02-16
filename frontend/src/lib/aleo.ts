@@ -226,10 +226,10 @@ export function buildTestTransaction(recipientAddress: string): TransactionOptio
  * Returns the final status string.
  */
 export async function waitForTransaction(
-  pollFn: (txId: string) => Promise<{ status: string; error?: string }>,
+  pollFn: (txId: string) => Promise<{ status: string; error?: string; transactionId?: string }>,
   transactionId: string,
   options?: { maxAttempts?: number; intervalMs?: number },
-): Promise<string> {
+): Promise<{ status: string; transactionId: string }> {
   const maxAttempts = options?.maxAttempts ?? 60;
   const intervalMs = options?.intervalMs ?? 3000;
 
@@ -239,7 +239,11 @@ export async function waitForTransaction(
     const status = result.status.toLowerCase();
 
     // Terminal states
-    if (status === 'accepted' || status === 'finalized') return result.status;
+    if (status === 'accepted' || status === 'finalized') {
+      // Return the actual on-chain transaction ID if available, otherwise the original
+      const finalTxId = result.transactionId || transactionId;
+      return { status: result.status, transactionId: finalTxId };
+    }
     if (status === 'rejected') throw new Error(result.error || 'Transaction rejected by network');
     if (status === 'failed') throw new Error(result.error || 'Transaction failed on-chain');
 
