@@ -1,309 +1,220 @@
 # Obsidian Market
 
-[GitHub Repo](https://github.com/adamsimonini/obsidian-market)
-[Vercel Deployment](https://obsidian-market.vercel.app/)
-[Supabase](https://supabase.com/dashboard/project/giarcxkfqogumngtygmt)
-[](https://developer.aleo.org/sdk/overview/)
-[Wallet Adapter](https://github.com/ProvableHQ/aleo-wallet-adapter)
-[test_usdcx_bridge.aleo](https://testnet.explorer.provable.com/program/test_usdcx_bridge.aleo)
-[test_usdcx_stablecoin.aleo](https://testnet.explorer.provable.com/program/test_usdcx_stablecoin.aleo)
-[Obsidian Market Testnet Deployment](https://testnet.explorer.provable.com/transaction/at1hl20gxvc2dawh8m2myrzmqmfksgg5ed57tdec549df35dhz5dcyqk7eelc)
+**Privacy-first prediction markets on Aleo**
 
-### Dev Endpoints
+🔗 [Live Demo](https://obsidian-market.vercel.app/) | [Smart Contract](https://testnet.explorer.provable.com/program/obsidian_market_v2.aleo) | [Dev Sanity Check](https://obsidian-market.vercel.app/en/dev/onchain)
 
-**`/dev/onchain`** — Sanity-check page that queries the Aleo testnet `markets` mapping (IDs 1–20) and displays them alongside Supabase rows. Shows on-chain reserves, status, creator, and whether each market is linked to a DB slug. Not linked in the UI — access directly.
-
-- Local: http://localhost:3000/en/dev/onchain
-- Prod: https://obsidian-market.vercel.app/en/dev/onchain
-
-### Important: Deployment & Migration
-
-**📖 [Read the Deployment Guide](docs/deployment-guide.md)** before deploying or updating the smart contract.
-
-**Critical order of operations:**
-1. ✅ Deploy smart contract (`leo deploy`)
-2. ✅ Reset database (`npm run db:reset:local` or `db:reset:remote`)
-3. ✅ Create on-chain markets & link (`npm run seed-aleo`)
-
-The seed script **updates** existing database rows with on-chain market IDs. It does not create new database records. See the full guide for migration instructions, troubleshooting, and why this order matters.
+![Obsidian Market v2](./images/v2-screenshot.png)
 
 ---
 
-Use Aleo Wallet Adapter (with pre-build wallet multi-button)
+## The Problem
 
-A privacy-focused prediction market built on [Aleo](https://aleo.org/). Users can create and bet on binary (Yes/No) markets with private bet positions powered by zero-knowledge proofs.
+Traditional prediction markets have a privacy problem. When you bet on Polymarket or Kalshi, your positions are public. Anyone can see what you're betting on, how much, and when. This creates real issues:
 
-## Overview
+- **Market manipulation**: Whales front-run large trades, moving prices before your order fills
+- **Privacy invasion**: Your political views, financial predictions, and risk appetite are broadcast to the world
+- **Surveillance**: Governments and corporations can track every position you take
+- **Social pressure**: Friends, employers, or communities judge your bets
 
-Obsidian Market uses a **hybrid public/private architecture**: market reserves are public (enabling AMM pricing via CPMM), while individual bets are private (users hold encrypted `BetRecord` records). Supabase stores market metadata (titles, descriptions, resolution rules), and the Aleo smart contract handles on-chain betting logic.
+Obsidian Market solves this by making your bets private while keeping markets functional and fairly priced.
 
-### Key Features
+---
 
-- **Binary Prediction Markets**: Simple Yes/No markets with CPMM (constant product AMM) pricing
-- **Private Betting**: Bet amounts and positions are private via Aleo's zero-knowledge proofs
-- **Wallet Integration**: Leo Wallet adapter (@provablehq) for signing transactions
-- **Admin Controls**: Admin-only market creation and resolution
-- **Light/Dark Mode**: Theme switching via next-themes
+## How We Use Aleo's Privacy
+
+This is where Aleo's zero-knowledge architecture becomes critical. We built a **hybrid public/private model** that gives you privacy where it matters:
+
+### Private: Your Bets (BetRecords)
+
+When you place a bet, you receive a private `BetRecord` that only you can decrypt. This record contains:
+
+- Market ID
+- Bet amount (shares)
+- Which side you picked (Yes/No)
+- Your payout rights
+
+**Your view key is the only way to see this data.** Not even the smart contract admin can decrypt your positions. This is pure Aleo zero-knowledge magic—you prove you own the record and can claim payouts without revealing what you bet on or how much.
+
+### Public: Market Reserves
+
+For the automated market maker (AMM) to work, we need public price discovery. Market reserves are stored on-chain publicly so everyone sees the same odds. This is similar to how Uniswap pools work—the pricing mechanism needs transparency, but your individual trades don't.
+
+When you bet, the smart contract:
+
+1. Updates public reserves (for CPMM pricing)
+2. Issues you a private BetRecord (encrypted to your view key)
+3. Emits zero public information about your bet size or direction
+
+### Why This Matters
+
+Aleo is the only blockchain where we could build this. Ethereum makes everything public by default. Aztec and other privacy chains require complex workarounds. Aleo's record model and zero-knowledge proofs make private betting **native and composable**.
+
+The trade-off: reserve changes leak some information (if reserves jump by 100 USDCx, someone bet 100 USDCx). But this is inherent to any AMM—we've documented privacy improvements like bet batching, timing jitter, and fixed denominations in our [privacy research doc](./docs/privacy-ideas.md).
+
+---
+
+## What You Can Do
+
+Right now, Obsidian Market lets you:
+
+✅ **Browse 20 markets** across crypto, politics, tech, sports, and science
+✅ **Bet with USDCx** (Aleo's testnet stablecoin) in public mode
+✅ **See live pricing** via CPMM (constant product market maker)
+✅ **Track your positions** privately via BetRecords
+✅ **One-click betting** with Leo Wallet integration—see odds, pick Yes/No, confirm transaction
+
+Markets show real-time prices like "Yes 64% / No 36%" with ROI displayed prominently. When you bet Yes at 64%, you're paying 64¢ for $1 if the outcome resolves Yes—a 56% return if you're right.
+
+---
 
 ## Architecture
 
-```
-obsidian-market/
-├── aleo/                     # Aleo smart contract (Leo language)
-│   ├── src/main.leo          # Main contract (obsidian_market.aleo)
-│   ├── tests/test_leo.leo    # Contract tests
-│   └── program.json          # Program metadata
-├── frontend/                 # Next.js web app
-│   └── src/
-│       ├── app/              # App Router pages (/, /account, /settings)
-│       ├── components/       # UI components
-│       │   ├── layout/       # Navbar, Providers
-│       │   ├── ui/           # shadcn/ui (Button, Card, Input, Dialog, Badge)
-│       │   ├── MarketList.tsx
-│       │   ├── MarketCard.tsx
-│       │   ├── BetForm.tsx
-│       │   ├── CreateMarketForm.tsx
-│       │   └── WalletButton.tsx
-│       ├── contexts/         # WalletContext
-│       ├── hooks/            # useMarkets, useAdmin, useWallet
-│       ├── lib/              # Supabase client, utils
-│       └── types/            # TypeScript types
-├── backend/                  # Supabase config and migrations
-│   └── supabase/
-│       ├── config.toml       # Local Supabase config
-│       ├── migrations/       # Database migrations
-│       └── seed.sql          # Seed data (example markets)
-├── business/                 # Research and odds logic docs
-└── docs/                     # Development and deployment guides
-```
+We split concerns between on-chain logic (Aleo) and off-chain metadata (Supabase):
 
-### Tech Stack
+### Smart Contract ([obsidian_market_v2.aleo](https://testnet.explorer.provable.com/program/obsidian_market_v2.aleo))
 
-**Frontend**
+Written in Leo, deployed on Aleo testnet. Handles:
 
-- [Next.js 16](https://nextjs.org/) (App Router)
-- [React 19](https://react.dev/)
-- [Tailwind CSS v4](https://tailwindcss.com/)
-- [shadcn/ui](https://ui.shadcn.com/) (Radix UI + CVA)
-- [next-themes](https://github.com/pacocoursey/next-themes) for dark mode
-- [Lucide React](https://lucide.dev/) for icons
-- TypeScript
+- Market creation (admin-only, controlled by one address)
+- CPMM betting (constant product AMM formula)
+- Issuing private BetRecords to users
+- Market resolution and payouts
 
-**Blockchain**
+The contract stores market reserves as `u128` values (upgraded from `u64` in v1 for larger capacity). Uses USDCx via `test_usdcx_stablecoin.aleo` for stable denomination.
 
-- [Aleo](https://aleo.org/) / [Leo](https://docs.leo-lang.org/) smart contracts
-- [@provablehq/aleo-wallet-adaptor-react](https://www.npmjs.com/package/@provablehq/aleo-wallet-adaptor-react) for wallet integration
-- [Amareleo-Chain](https://github.com/kaxxa123/amareleo-chain) for local development
+### Frontend (Next.js 14 + TypeScript)
 
-**Backend**
+Modern web app with shadcn/ui components and Tailwind CSS. Connects to Leo Wallet via Provable's wallet adapter. The UI is internationalized (i18n) and works in light/dark mode.
 
-- [Supabase](https://supabase.com/) (PostgreSQL + REST API)
+### Database (Supabase PostgreSQL)
 
-## Getting Started
+Stores market metadata that doesn't belong on-chain:
 
-> **⚠️ Important:** For production deployment or smart contract updates, see the **[Deployment Guide](docs/deployment-guide.md)** for the correct order of operations.
+- Market titles, descriptions, resolution rules
+- Deadlines, categories, featured status
+- Links to on-chain market IDs (`market_id_onchain`)
 
-### Prerequisites
+This hybrid approach keeps gas costs low—only critical logic lives on-chain.
 
-- Node.js >= 18
-- npm
-- [Leo CLI](https://docs.leo-lang.org/) (for smart contract development)
-- [Supabase CLI](https://supabase.com/docs/guides/cli) (for local database)
-- [Amareleo-Chain](https://github.com/kaxxa123/amareleo-chain) (for local Aleo node)
+---
 
-### Quick Start
+## Current State & Roadmap
 
-1. **Install frontend dependencies**
+**Shipped (v2.0.0):**
 
-   ```bash
-   cd frontend
-   npm install
-   ```
+- Smart contract v2 with u128 reserves
+- USDCx public betting (stablecoin integration)
+- Inline betting UX (removed extra click friction)
+- ROI display on betting buttons
+- Transaction validation and explorer links
+- 20 seeded markets across 5 categories
+- [Privacy threat model research](./docs/privacy-ideas.md) (14 identified improvements)
 
-2. **Set up environment variables**
+**Next Up (Unreleased):**
 
-   Create `frontend/.env.local`:
+- Private USDCx betting (currently public only)
+- Fixed denomination bets (1, 5, 10, 50, 100 USDCx) for privacy
+- Bet timing jitter (5-30 min delays to prevent timing correlation)
+- Batched market payouts
+- .onion service for Tor Browser users
+- Database encryption (trades table currently links tx_hash to market_id)
+- Reserve management and liquidity improvements
 
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
-   ```
+We've documented a comprehensive privacy roadmap with trade-off analysis—some improvements are quick wins (fixed denominations), others require deep protocol changes (ZK mixers, commit-reveal schemes).
 
-   Create `aleo/.env`:
+---
 
-   ```env
-   NETWORK=testnet
-   PRIVATE_KEY=<your-private-key>
-   ENDPOINT=http://localhost:3030
-   ```
+## Why It Matters
 
-3. **Start local Supabase**
+Prediction markets are powerful tools for forecasting elections, tech launches, scientific breakthroughs, and financial events. But they only work if people are willing to share their true beliefs. Privacy enables that.
 
-   ```bash
-   cd backend
-   supabase start
-   ```
+On Obsidian Market, you can bet on controversial political outcomes, express contrarian tech opinions, or make high-conviction financial predictions without fear of retaliation, front-running, or surveillance. Your view key is your privacy—guard it well.
 
-4. **Start the local Aleo chain**
+This is early-stage, testnet software. But it's a proof of concept that privacy-preserving prediction markets are possible, practical, and already working on Aleo.
 
-   ```bash
-   amareleo-chain start
-   ```
+---
 
-5. **Build and deploy the smart contract**
+## Try It
 
-   ```bash
-   cd aleo
-   leo build
-   leo deploy --broadcast --yes
-   ```
+**Live deployment:** https://obsidian-market.vercel.app/
 
-6. **Seed the database and create on-chain markets**
+**Requirements:**
 
-   ```bash
-   # From project root
-   npm run db:reset:local   # Creates Supabase rows
-   npm run seed-aleo        # Creates on-chain markets + links to DB
-   ```
+- Leo Wallet (browser extension)
+- Testnet Aleo credits (for transaction fees)
+- Testnet USDCx (for betting—get via faucet or swap)
 
-   **Important:** Always run `db:reset:local` before `seed-aleo`. See [Deployment Guide](docs/deployment-guide.md) for details.
+**Dev sanity check:** https://obsidian-market.vercel.app/en/dev/onchain
+Shows all 20 on-chain markets with reserves and status, alongside Supabase data.
 
-7. **Run the frontend**
+---
 
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000).
-
-### Root Package Scripts
-
-From the project root:
+## Quick Start (Local Development)
 
 ```bash
-# Development
-npm run app              # Start frontend dev server (Next.js on port 3000)
-npm run backend          # Start local Supabase
-npm run chain            # Start local Aleo chain (amareleo-chain)
-npm run dev              # Start backend + frontend together
+# 2. Deploy smart contract
+cd aleo && leo deploy --broadcast --yes
 
-# Database & Seeding
-npm run db:reset:local   # Reset local Supabase (runs migrations + seed.sql)
-npm run db:reset:remote  # Reset remote/production Supabase
-npm run seed-aleo        # Create on-chain markets & link to Supabase
-npm run db:push          # Push database schema changes to Supabase
+# 3. Start Supabase
+cd backend && supabase start
+
+# 4. Reset database and seed on-chain markets
+npm run db:reset:local   # Creates 20 market rows
+npm run seed-aleo        # Deploys markets 1-20 on-chain
+
+# 5. Run frontend
+cd frontend && npm run dev
 ```
 
-**Seeding workflow:**
-1. `npm run db:reset:local` → Creates 20 market rows in Supabase
-2. `npm run seed-aleo` → Creates 20 on-chain markets and links them
+Full setup details in [Deployment Guide](./docs/deployment-guide.md).
 
-See **[Deployment Guide](docs/deployment-guide.md)** for complete workflow.
+---
 
-## Smart Contract
+## Technical Details
 
-**Current Version:** [`obsidian_market_v2.aleo`](https://testnet.explorer.provable.com/program/obsidian_market_v2.aleo)
+**Stack:**
 
-**Previous Version:** [`obsidian_market.aleo`](https://testnet.explorer.provable.com/program/obsidian_market.aleo) (deprecated)
+- Leo 3.4.0 (Aleo smart contract language)
+- Next.js 14 with App Router
+- TypeScript, Tailwind CSS v4, shadcn/ui
+- Supabase (PostgreSQL + REST API)
+- Aleo Wallet Adapter (@provablehq)
 
-### On-Chain Data Model
+**Smart Contract Highlights:**
 
-```leo
-struct Market {
-    id: u64,
-    creator: address,
-    market_type: u8,       // 1 = CPMM
-    yes_reserves: u64,     // PUBLIC - needed for AMM pricing
-    no_reserves: u64,      // PUBLIC - needed for AMM pricing
-    status: u8,            // 0=open, 1=closed, 2=resolved, 3=cancelled
-}
+- CPMM pricing (constant product market maker)
+- Private BetRecords (zero-knowledge proofs)
+- USDCx stablecoin integration
+- Admin-controlled market lifecycle
+- u128 reserves (handles large markets)
 
-record BetRecord {         // PRIVATE - held by user
-    owner: address,
-    market_id: u64,
-    shares: u64,
-    side: bool,            // true = Yes, false = No
-}
-```
+**Key Files:**
 
-### Transitions
+- [aleo/src/main.leo](./aleo/src/main.leo) - Smart contract
+- [frontend/src/components/BetForm.tsx](./frontend/src/components/BetForm.tsx) - Betting UI
+- [frontend/src/lib/aleo.ts](./frontend/src/lib/aleo.ts) - Wallet integration
+- [scripts/seed-markets.sh](./scripts/seed-markets.sh) - On-chain market creation
+- [docs/privacy-ideas.md](./docs/privacy-ideas.md) - Privacy threat model
 
-| Transition                                                           | Description                               | Access     |
-| -------------------------------------------------------------------- | ----------------------------------------- | ---------- |
-| `create_market(market_id, yes_odds, no_odds)`                        | Create a new market with initial reserves | Admin only |
-| `place_bet_cpmm(market_id, yes_reserves, no_reserves, amount, side)` | Place a bet using CPMM formula            | Anyone     |
+---
 
-### Key Commands
+## Privacy Research
 
-```bash
-cd aleo
+See [privacy-ideas.md](./docs/privacy-ideas.md) for full analysis and 14 prioritized mitigations with trade-off analysis.
 
-leo build                                    # Compile the program
-leo test                                     # Run unit tests
-leo deploy --broadcast --yes                 # Deploy to chain
-leo execute create_market <args> --broadcast --yes  # Execute a transition
-```
-
-### Local Aleo Chain (Amareleo-Chain)
-
-[Amareleo-Chain](https://github.com/kaxxa123/amareleo-chain) provides a lightweight single-process Aleo validator for local development. Fast startup, minimal resource usage, and compatible with `leo` CLI.
-
-```bash
-amareleo-chain start              # Fresh chain from genesis (REST API on localhost:3030)
-amareleo-chain start --keep-state # Persist chain state across runs
-amareleo-chain clean              # Clean chain storage
-```
-
-## Database
-
-Supabase stores market metadata that doesn't need to be on-chain (titles, descriptions, resolution rules/sources, deadlines).
-
-### Tables
-
-- **`markets`** - Market metadata (title, description, resolution rules, odds, status, on-chain ID)
-- **`admins`** - Admin wallet addresses
-
-### Local Development
-
-```bash
-cd backend
-supabase start       # Start local Supabase (Docker)
-supabase db reset    # Reset and re-run migrations + seed data
-supabase status      # Show connection details and API keys
-```
-
-Studio UI: [http://127.0.0.1:54323](http://127.0.0.1:54323)
-
-## Environment
-
-- **Network**: testnet
-- **Testnet endpoint**: https://api.explorer.provable.com/v1
-- **Local chain endpoint**: http://localhost:3030
-- **Leo CLI**: 3.3.1+
-- `.env` files contain private keys -- never commit them
-
-## Documentation
-
-- [Aleo Local Development](./docs/aleo-local-dev.md) - Smart contract testing and devnet
-- [Smart Contract Testing](./aleo/testing.md) - Unit tests, devnet, and testnet deployment
-- [Supabase Setup](./docs/supabase-setup.md) - Database setup guide
-- [Supabase CLI](./backend/SUPABASE_CLI.md) - CLI commands reference
-- [Local Supabase](./backend/LOCAL_SUPABASE.md) - Local development with Docker
-- [Deployment Guide](./docs/deployment.md) - Production deployment
-- [Odds Logic](./business/odds-logic.md) - CPMM pricing model and privacy architecture
+---
 
 ## License
 
-See [LICENSE.txt](./LICENSE.txt) for details.
+See [LICENSE.txt](./LICENSE.txt).
 
-## Privacy Considerations
+---
 
-If an aleo wallet is comrpomised, the view key can be used to see the full details of that wallet's interaciton with a smart contract - hence the entire betting history on obsidian market.
+## Links
 
-A compromised Aleo view key exposes the full transaction history—including program interactions, market_ids, bet timings, shares, and sides—for all private records owned by that account.
-
-Commit-then-reveal for market_id: Commit blinded market_id privately, reveal post-proof to prevent selective frontrunning.
-Batch/zk-mixer integration: Users batch bets across markets into one ZK proof/transfer, obscuring per-market links natively.
-View-key silos: Generate app-specific sub-addresses/view keys per market category, limiting compromise scope.
-Circuit blinding: Add ZK commitments inside records (e.g., blinded market_id), decrypt only via selective view keys.
+- [GitHub Repo](https://github.com/adamsimonini/obsidian-market)
+- [Testnet Smart Contract](https://testnet.explorer.provable.com/program/obsidian_market_v2.aleo)
+- [USDCx Stablecoin Program](https://testnet.explorer.provable.com/program/test_usdcx_stablecoin.aleo)
+- [Supabase Dashboard](https://supabase.com/dashboard/project/giarcxkfqogumngtygmt)
+- [Aleo Wallet Adapter](https://github.com/ProvableHQ/aleo-wallet-adapter)
