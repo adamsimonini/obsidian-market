@@ -6,12 +6,7 @@ import { Shield, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useWallet } from '@/hooks/useWallet';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 // Wallet icon mapping
 const WALLET_ICONS: Record<string, string> = {
@@ -23,6 +18,7 @@ export function WalletButton() {
   const { address, connected, connecting, disconnecting, network, availableWallets, connect, disconnect } = useWallet();
   const t = useTranslations('wallet');
   const [error, setError] = useState<string | null>(null);
+  const [connectingWallet, setConnectingWallet] = useState<string | null>(null);
   const busy = connecting || disconnecting;
   const showLoading = connecting;
 
@@ -38,6 +34,7 @@ export function WalletButton() {
       if (busy) return;
       try {
         setError(null);
+        setConnectingWallet(walletName);
         connect(walletName);
       } catch (err) {
         console.error('Wallet error:', err);
@@ -115,8 +112,9 @@ export function WalletButton() {
         </button>
       )}
       {showLoading ? (
-        <Button size="sm" className="min-w-30" disabled>
+        <Button size="sm" className="min-w-30 animate-pulse" disabled>
           <Loader2 className="size-4 animate-spin" />
+          <span className="ml-1 text-xs">{connectingWallet === 'Puzzle Wallet' ? t('signInToWallet') : t('checkPopup')}</span>
         </Button>
       ) : (
         <DropdownMenu>
@@ -134,18 +132,10 @@ export function WalletButton() {
                   </div>
                 ) : WALLET_ICONS[w.name] ? (
                   <div className="relative size-6 shrink-0 overflow-hidden rounded-full">
-                    <Image
-                      src={WALLET_ICONS[w.name]}
-                      alt={w.name}
-                      width={24}
-                      height={24}
-                      className="object-cover border-1 border-white rounded-full"
-                    />
+                    <Image src={WALLET_ICONS[w.name]} alt={w.name} width={24} height={24} className="object-cover border-1 border-white rounded-full" />
                   </div>
                 ) : (
-                  <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                    {w.name.charAt(0)}
-                  </div>
+                  <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">{w.name.charAt(0)}</div>
                 )}
                 <span>{w.name}</span>
               </DropdownMenuItem>

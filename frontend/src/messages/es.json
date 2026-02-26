@@ -30,7 +30,9 @@
     "connected": "Conectado {address}",
     "disconnect": "Desconectar ({address})",
     "connectFirst": "Por favor conecta tu billetera primero",
-    "failedToConnect": "Error al conectar la billetera"
+    "failedToConnect": "Error al conectar la billetera",
+    "checkPopup": "Revisa la ventana de billetera",
+    "signInToWallet": "Inicia sesión en la billetera"
   },
   "home": {
     "title": "Mercados Totalmente Privados",

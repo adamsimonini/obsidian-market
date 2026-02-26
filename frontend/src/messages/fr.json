@@ -30,7 +30,9 @@
     "connected": "Connecté {address}",
     "disconnect": "Déconnecter ({address})",
     "connectFirst": "Veuillez d'abord connecter votre portefeuille",
-    "failedToConnect": "Échec de la connexion au portefeuille"
+    "failedToConnect": "Échec de la connexion au portefeuille",
+    "checkPopup": "Vérifiez la fenêtre du portefeuille",
+    "signInToWallet": "Connectez-vous au portefeuille"
   },
   "home": {
     "title": "Marchés Entièrement Privés",
