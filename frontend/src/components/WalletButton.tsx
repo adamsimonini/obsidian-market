@@ -16,7 +16,7 @@ import {
 // Wallet icon mapping
 const WALLET_ICONS: Record<string, string> = {
   'Leo Wallet': '/leo-icon.webp',
-  // 'Puzzle Wallet': '/puzzle-icon.png', 
+  'Puzzle Wallet': '/puzzle-logo.png',
 };
 
 export function WalletButton() {

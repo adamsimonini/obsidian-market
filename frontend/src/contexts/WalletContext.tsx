@@ -167,11 +167,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       return [
         new LeoWalletAdapter({ appName: 'Obsidian Market' }),
         new ShieldWalletAdapter(),
-        // new PuzzleWalletAdapter({
-        //   appName: 'Obsidian Market',
-        //   appDescription: 'Privacy-focused prediction market built on Aleo',
-        //   appIconUrl: '',
-        // }),
+        new PuzzleWalletAdapter({
+          appName: 'Obsidian Market',
+          appDescription: 'Privacy-focused prediction market built on Aleo',
+          appIconUrl: '',
+        }),
       ];
     } catch (error) {
       console.warn('Failed to create wallet adapters:', error);
